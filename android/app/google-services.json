@@ -1,0 +1,98 @@
+{
+  "project_info": {
+    "project_number": "419287615881",
+    "project_id": "slush-b0575",
+    "storage_bucket": "slush-b0575.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:419287615881:android:2b00b7b6e8dd92160e7958",
+        "android_client_info": {
+          "package_name": "com.example.slush"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "419287615881-q5kfi6tt58evqj7f51q464il0dvgbvff.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.slush",
+            "certificate_hash": "f7fa209981e1b21d900f3e50e08a3988f3f9d642"
+          }
+        },
+        {
+          "client_id": "419287615881-3rkkl9mat36bpjjfk6ubip22dgubl069.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7jeOGnkPt3i1WQrDFwj-R6Su27PvVVAo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "419287615881-3rkkl9mat36bpjjfk6ubip22dgubl069.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "419287615881-uvt4odg45ojlrk88v3i5h7mc5j9a9qae.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.slush"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:419287615881:android:2a6199a79b4306920e7958",
+        "android_client_info": {
+          "package_name": "com.slushdating.slush"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "419287615881-auj1i2pebhbfuqqdju12nuq6kv137ji0.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.slushdating.slush",
+            "certificate_hash": "f7fa209981e1b21d900f3e50e08a3988f3f9d642"
+          }
+        },
+        {
+          "client_id": "419287615881-3rkkl9mat36bpjjfk6ubip22dgubl069.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7jeOGnkPt3i1WQrDFwj-R6Su27PvVVAo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "419287615881-3rkkl9mat36bpjjfk6ubip22dgubl069.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "419287615881-uvt4odg45ojlrk88v3i5h7mc5j9a9qae.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.slush"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
