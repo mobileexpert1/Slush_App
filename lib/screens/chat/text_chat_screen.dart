@@ -74,35 +74,36 @@ class _TextChatScreenState extends State<TextChatScreen> {
     socket = IO.io(serverUrl, <String, dynamic>{
       'transport': ['websocket'],
       'autoConnect': true,
-      // 'pingTimeout': 60000,
     });
     socket!.connect();
-
-
-
     socket!.onConnect((data) {print(':::::========================Connected to the socket server $data');});
-
     socket!.emit('client_event', {'message': 'Hello from Flutter!'});
-
     // Listen for events
     socket!.on('event_name', (data) {
       print(':::::=======================Received data for event_name: $data');
+      _updateData(data);
     });
 
-    
     socket!.onDisconnect((data) {print(':::::========================Disconnected from the socket server $data');});
-
-    socket!.on('message', (data) {setState(() {
-      messages.add(data);});});
+    socket!.on('message', (data) {setState(() {messages.add(data);});});
   }
 
   // Function to send a message to the server.
   void sendMessage() {
-    String message = messageController.text;
+    String message = messageController.text.trim();
     if (message.isNotEmpty) {
-      socket!.emit('chatMessage', message);
+      // socket!.emit('chatMessage', message);
+      socket!.emit('chatMessage', {message});
+      print(":===========$message");
       messageController.clear();
     }
+  }
+
+  String _data = '';
+  void _updateData(dynamic data) {
+    setState(() {
+      _data = data.toString(); // Type safety (if data is String)
+    });
   }
 
   @override
@@ -137,8 +138,7 @@ class _TextChatScreenState extends State<TextChatScreen> {
   );
 
   void _sendMessage() {
-    _channel.sink.add("CS bhaturaaaa");
-
+    _channel.sink.add(messageController.text.trim());
     // if (messageController.text.isNotEmpty) {
     //   _channel.sink.add(messageController.text);
     //   print("Meesage send==============${messageController.text.trim()}");
@@ -161,7 +161,7 @@ class _TextChatScreenState extends State<TextChatScreen> {
       },
       child: Scaffold(
         backgroundColor: Colors.white,
-        appBar: commonBarWithTextleftforChat(context, Colors.white, "data[username]",press2: (){
+        appBar: commonBarWithTextleftforChat(context, Colors.white, _data, press2: (){
           customBuilderSheet(context, 'Report User',"Submit",reportingMatter);
         }),
         body:data==null?Center(child: CircularProgressIndicator(color: color.txtBlue),): SizedBox(
@@ -371,7 +371,8 @@ class _TextChatScreenState extends State<TextChatScreen> {
                             ),
                             GestureDetector(
                               onTap: (){
-                                _sendMessage();
+                                // _sendMessage();
+                                sendMessage();
                               },
                               child: Container(
                                 height: 56,
