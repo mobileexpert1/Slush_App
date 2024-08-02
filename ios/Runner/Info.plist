@@ -2,14 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-    <key>CFBundleDisplayName</key>
-    <string>Device Info Plus</string>
-    <key>NSFaceIDUsageDescription</key>
-    <string>Why is my app authenticating using face id?</string>
-	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>""</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-    <string>""</string>
+	<key>CADisableMinimumFrameDurationOnPhone</key>
+	<true/>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>$(DEVELOPMENT_LANGUAGE)</string>
 	<key>CFBundleDisplayName</key>
@@ -25,65 +19,64 @@
 	<key>CFBundlePackageType</key>
 	<string>APPL</string>
 	<key>CFBundleShortVersionString</key>
-	<string>$(FLUTTER_BUILD_NAME)</string>
+	<string>1.04</string>
 	<key>CFBundleSignature</key>
 	<string>????</string>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>fb653216759403293</string>
+			</array>
+		</dict>
+	</array>
 	<key>CFBundleVersion</key>
-	<string>$(FLUTTER_BUILD_NUMBER)</string>
+	<string>4</string>
+	<key>FacebookAppID</key>
+	<string>653216759403293</string>
+	<key>FacebookDisplayName</key>
+	<string>com.slushdating.slush</string>
+	<key>GADApplicationIdentifier</key>
+	<string>ca-app-pub-6208492962560091~3147238905</string>
+	<key>LSApplicationQueriesSchemes</key>
+	<array>
+		<string>googlegmail</string>
+		<string>x-dispatch</string>
+		<string>readdle-spark</string>
+		<string>airmail</string>
+		<string>ms-outlook</string>
+		<string>ymail</string>
+		<string>fastmail</string>
+		<string>superhuman</string>
+		<string>protonmail</string>
+	</array>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
-  	<key>NSAppTransportSecurity</key>
-  	<dict>
-  		<key>NSAllowsArbitraryLoads</key>
-  		<true/>
-  		<key>NSAllowsArbitraryLoadsForMedia</key>
-        <true/>
-  		 <key>NSExceptionDomains</key>
-
-                    <dict>
-                        <key>NSExceptionAllowsInsecureHTTPLoads</key>
-                        <true/>
-                    </dict>
-
-  	</dict>
+	<key>NSAppTransportSecurity</key>
+	<dict>
+		<key>NSAllowsArbitraryLoads</key>
+		<true/>
+	</dict>
 	<key>NSCameraUsageDescription</key>
-    <string>yes</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>Allow access to microphone for video recording</string>
-    <key>NSPhotoLibraryUsageDescription</key>
-    <string>Allow access to photo library</string>
-    <key>NSLocationWhenInUseUsageDescription</key>
-    <string>Allow access to Device Location</string>
-    <key>NSLocationTemporaryUsageDescriptionDictionary</key>
-    <dict>
-    	<key>TemporaryPreciseAccuracy</key>
-    	<string>Allow access to Location</string>
-    </dict>
-    <key>NSAppTransportSecurity</key>
-    <dict>
-    <key>NSAllowsArbitraryLoads</key>
-    <true/>
-    </dict>
-    <key>NSCameraUsageDescription</key>
-    <string>Allow access to Camera for Images</string>
-    <key>NSMicrophoneUsageDescription</key>
-    <string>your usage description here</string>
-
-
-    <key>CFBundleURLTypes</key>
-    <array>
-        <dict>
-            <key>CFBundleURLSchemes</key>
-            <array>
-                <string>fbYOUR_APP_ID</string>
-            </array>
-        </dict>
-    </array>
-    <key>FacebookAppID</key>
-    <string>YOUR_APP_ID</string>
-    <key>FacebookDisplayName</key>
-    <string>Your App Name</string>
-
+	<string>Allow access to Camera for Images</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>We need to use Face ID to authenticate you securely.</string>
+	<key>NSLocationAlwaysUsageDescription</key>
+	<string>We need to access your location to provide personalized content and features while you use the app.</string>
+	<key>NSLocationTemporaryUsageDescriptionDictionary</key>
+	<dict>
+		<key>TemporaryPreciseAccuracy</key>
+		<string>Allow access to Location</string>
+	</dict>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>Allow access to Device Location</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Allow access to microphone for video recording</string>
+	<key>NSPhotoLibraryUsageDescription</key>
+	<string>Allow access to photo library</string>
+	<key>UIApplicationSupportsIndirectInputEvents</key>
+	<true/>
 	<key>UILaunchStoryboardName</key>
 	<string>LaunchScreen</string>
 	<key>UIMainStoryboardFile</key>
@@ -101,21 +94,5 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
-	<key>LSApplicationQueriesSchemes</key>
-    <array>
-        <string>googlegmail</string>
-        <string>x-dispatch</string>
-        <string>readdle-spark</string>
-        <string>airmail</string>
-        <string>ms-outlook</string>
-        <string>ymail</string>
-        <string>fastmail</string>
-        <string>superhuman</string>
-        <string>protonmail</string>
-    </array>
-	<key>CADisableMinimumFrameDurationOnPhone</key>
-	<true/>
-	<key>UIApplicationSupportsIndirectInputEvents</key>
-	<true/>
 </dict>
 </plist>
