@@ -79,6 +79,16 @@ dependencies:
   video_compress:
   web_socket_channel:
   local_auth:
+  cached_video_player_plus:
+  agora_uikit:
+  agora_rtc_engine:
+  geocoding:
+  shimmer:
+  in_app_purchase:
+  emoji_picker_flutter:
+  giphy_get:
+  cloud_firestore:
+  google_mobile_ads:
   #  modal_progress_hud_nsn:
   #  flutter_screenutil:
 #  screenshot:
