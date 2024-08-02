@@ -67,7 +67,6 @@ class _SignUpLocationAccessScreenState extends State<SignUpLocationAccessScreen>
                 const Spacer(),
                 blue_button(context, "Enable Location",press: (){
                   _getCurrentPosition();
-
                 }),
                  SizedBox(height: 2.h-1),
                 white_button(context, "Skip",press: (){
@@ -85,13 +84,15 @@ class _SignUpLocationAccessScreenState extends State<SignUpLocationAccessScreen>
 
   Future<void> _getCurrentPosition() async {
     final hasPermission = await _handlePermission();
-    if (!hasPermission) {Get.to(()=>VacationDetailsScreen());}
+    setState(() {LoaderOverlay.show(context);});
+    if (!hasPermission) {Get.to(()=>const VacationDetailsScreen());}
     final position = await _geolocatorPlatform.getCurrentPosition();
     latitude = position.latitude.toString();
     longitude = position.longitude.toString();
     // setState(() {LoaderOverlay.show(context);});
+    Get.to(()=>const VacationDetailsScreen());
     updaetLocation();
-    Get.to(()=>VacationDetailsScreen());
+    setState(() {LoaderOverlay.hide();});
   }
 
   Future<bool> _handlePermission() async {

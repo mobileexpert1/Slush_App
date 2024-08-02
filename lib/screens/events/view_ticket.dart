@@ -1,5 +1,4 @@
 import 'dart:convert';
-
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -11,11 +10,9 @@ import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
-import 'package:slush/constants/localkeys.dart';
+import 'package:slush/controller/event_controller.dart';
 import 'package:slush/controller/waitingroom_controller.dart';
 import 'package:slush/screens/events/bottomNavigation.dart';
-import 'package:slush/screens/events/eventhistory.dart';
-import 'package:slush/screens/events/you_ticket.dart';
 import 'package:slush/screens/waiting_room/waiting_room_screen.dart';
 import 'package:slush/widgets/app_bar.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
@@ -52,9 +49,7 @@ class _EventViewTicketScreenState extends State<EventViewTicketScreen> {
         margin: EdgeInsets.only(top:defaultTargetPlatform==TargetPlatform.iOS? 15:0),
         height: MediaQuery.of(context).size.height,
         width: MediaQuery.of(context).size.width,
-        decoration: const BoxDecoration(
-            image: DecorationImage(image: AssetImage(AssetsPics.ticketbackground),fit: BoxFit.cover)
-        ),
+        decoration: const BoxDecoration(image: DecorationImage(image: AssetImage(AssetsPics.ticketbackground),fit: BoxFit.cover)),
         child: Stack(
           children: [
             Padding(
@@ -66,7 +61,8 @@ class _EventViewTicketScreenState extends State<EventViewTicketScreen> {
                   children: [
                     Card(
                       child: Container(
-                        height: 65.h,
+                        // height: 65.h,
+                        // height: size.height*0.64,
                         padding: const EdgeInsets.only(left: 15,right: 15,top: 20),
                         width: size.width,
                         decoration: const BoxDecoration(
@@ -81,7 +77,8 @@ class _EventViewTicketScreenState extends State<EventViewTicketScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                               SizedBox(
-                                height: 28.h,
+                                // height: 28.h,
+                                height: size.height*0.6/2,
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -135,6 +132,7 @@ class _EventViewTicketScreenState extends State<EventViewTicketScreen> {
                                       buildText("Total price", 15, FontWeight.w600, color.dropDowngreytxt,fontFamily: FontFamily.hellix),
                                       buildText(widget.data["eventFee"]==0?"Free":widget.data["eventFee"].toString(), 20, FontWeight.w600, color.txtBlack),
                                     ],),
+                                  const SizedBox(height: 15),
                                 ],),
                               )
                             ],),
@@ -151,10 +149,12 @@ class _EventViewTicketScreenState extends State<EventViewTicketScreen> {
              Positioned(
               left: 0.50,
               child: Padding(
-                padding: EdgeInsets.only(top:defaultTargetPlatform==TargetPlatform.iOS?80: 75),
+                // padding: EdgeInsets.only(top:defaultTargetPlatform==TargetPlatform.iOS?80: 75),
+                padding: EdgeInsets.only(top: size.height*0.6/2),
                 child: SizedBox(
-                  height: 68.h,
-                  child: CircleAvatar(
+                  // height: 68.h,
+                  height: size.height*0.6/2,
+                  child: const CircleAvatar(
                     backgroundColor: color.backGroundClr,
                   ),
                 ),
@@ -163,10 +163,12 @@ class _EventViewTicketScreenState extends State<EventViewTicketScreen> {
              Positioned(
               right: 0.50,
               child: Padding(
-                padding: EdgeInsets.only(top:defaultTargetPlatform==TargetPlatform.iOS?80: 75),
+                // padding: EdgeInsets.only(top:defaultTargetPlatform==TargetPlatform.iOS?80: 75),
+                padding: EdgeInsets.only(top: size.height*0.6/2),
                 child: SizedBox(
-                  height: 68.h,
-                  child: CircleAvatar(
+                  // height: 68.h,
+                  height:  size.height*0.6/2,
+                  child: const CircleAvatar(
                     backgroundColor: color.backGroundClr,
                   ),
                 ),
@@ -207,11 +209,18 @@ class _EventViewTicketScreenState extends State<EventViewTicketScreen> {
             onTap: (){
               DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(widget.data["startsAt"] * 1000);
               DateTime timeFormat=DateTime.now();
+              // int endTime=widget.data["endsAt"];
+              int endTime=widget.data["startsAt"];
+              int nowTimestamp = timeFormat.microsecondsSinceEpoch ~/ 1000000;
               var timee = DateTime.tryParse(dateTime.toString());
               int min = timee!.difference(timeFormat).inSeconds;
-              if(min>900){
-                Provider.of<waitingRoom>(context,listen: false).timerStart(min);
-                Get.to(()=> WaitingRoom(data: widget.data,min: min));}
+              if(min<900 ){
+              // if(min>900){
+                if(nowTimestamp<endTime){
+                  Provider.of<waitingRoom>(context,listen: false).timerStart(min);
+                  Get.to(()=> WaitingRoom(data: widget.data,min: min));}
+              else{showToastMsg("Event already started");}
+              }
               else{ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Waiting room will open before 15 min of event Start')));}
                 // Get.to(()=>const EventYourTicketScreen());
             },
@@ -222,7 +231,7 @@ class _EventViewTicketScreenState extends State<EventViewTicketScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 10),
               decoration: BoxDecoration(borderRadius: BorderRadius.circular(12),
                   gradient:  const LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter,
-                    colors:[color.gradientLightBlue, color.txtBlue],)
+                    colors:[color.gradientLightBlue, color.txtBlue])
               ),
               child: buildText("Join event",18,FontWeight.w600,color.txtWhite,),
             ),
@@ -230,6 +239,7 @@ class _EventViewTicketScreenState extends State<EventViewTicketScreen> {
         ],),
     );
   }
+
   void callFunction(){
     setState(() {
       cancelEventBooking();
@@ -240,6 +250,7 @@ class _EventViewTicketScreenState extends State<EventViewTicketScreen> {
       // Get.to(()=>BottomNavigationScreen());
     });
   }
+
   Future cancelEventBooking()async{
     final url="${ApiList.cancelEvent}${widget.data["eventId"].toString()}/cancel";
     print(url);
@@ -250,11 +261,13 @@ class _EventViewTicketScreenState extends State<EventViewTicketScreen> {
     var i =jsonDecode(response.body);
     if(response.statusCode==201){print("testtest");
     setState(() {
+      Provider.of<eventController>(context, listen: false).getmeEvent(context,"me");
       snackBaar(context,AssetsPics.redbanner,false);
       LocaleHandler.isThereAnyEvent=false;
       // LocaleHandler.isThereCancelEvent=false;
       LocaleHandler.unMatchedEvent=false;
       LocaleHandler.subScribtioonOffer=false;
+      LocaleHandler.bottomSheetIndex=0;
       Get.offAll(()=>BottomNavigationScreen());
     });
     }

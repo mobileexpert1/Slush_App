@@ -1,6 +1,7 @@
 
 class ApiList {
   static const String baseUrl = 'https://dev-api.slushdating.com/api/v1/';
+  static const String baseUrl1 = 'https://dev-api.slushdating.com/';
   static const String imgbaseUrl = 'https://virtual-speed-date.s3.eu-west-2.amazonaws.com/';
   // static const String imageBaseUrl = 'https://dev81.csdevhub.com/gaurdemand/storage/profileImages/';
 
@@ -18,6 +19,11 @@ class ApiList {
   static const String saveEvent= baseUrl + 'events/save-event/';
   static const String unsaveEvent= baseUrl + 'events/unsave-event/';
   static const String savedEvents= baseUrl + 'events/saved_events';
+  static const String notification= baseUrl1 + 'notifications?';
+  static const String fixtures= baseUrl + 'events/';
+  // static const String fixtures= baseUrl + 'events/1008/report/fixtures';
+  // static const String fixtures= baseUrl1 + 'events/1008/fixtures';
+  static const String rtcToken= baseUrl1 + 'rtc/token';
 
 
   //--- Auth todo
@@ -54,13 +60,15 @@ class ApiList {
   static const String sparkPurchase= baseUrl + 'users/spark-purchase';
   static const String swipecount= baseUrl + 'users/swipe-count';
   static const String paymentHIstory= baseUrl + 'users/payment-history/';
+  static const String remainspark= baseUrl + 'users/remain-spark';
+  static const String subscriptiondetail= baseUrl + 'users/subscription-detail';
   static const String imagevarificationUpload= baseUrl + 'users/verification-image-upload'; //todo not working right now
 
 
 
 
   //--- fcm todo
-
+  static const String fcmToken = baseUrl + "fcm-token";
 
 
   //--- Profile Picture
@@ -84,7 +92,7 @@ class ApiList {
   // static const String getVideo= baseUrl + 'video-verse?minAge=18&maxAge=50&distance=5000&latitude=37.4219983&longitude=-122.084&gender=male&page=1&limit=15';
   // static String getVideo= baseUrl + 'video-verse?minAge=18&maxAge=50&distance=5000&latitude=${LocaleHandler.latitude}&longitude=${LocaleHandler.longitude}';
   // static String getVideo= baseUrl + 'video-verse?minAge=18&maxAge=50&distance=5000&latitude=37.4219983&longitude=-122.084';
-  static String getVideo= baseUrl + 'video-verse?minAge=18';
+  static String getVideo= baseUrl + 'video-verse?minAge=';
   static String swippedVideo= baseUrl + 'video-verse/swiped-video';
   static String interact= baseUrl + 'video-verse/interact';
 }

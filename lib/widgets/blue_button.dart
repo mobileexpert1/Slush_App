@@ -9,6 +9,7 @@ Widget blue_button(BuildContext context,String name,{bool validation=true,VoidCa
     child: Container(
       alignment: Alignment.center,
       height: 56,
+      // height: MediaQuery.of(context).size.height*0.07,
       width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(12),
           gradient:  LinearGradient(

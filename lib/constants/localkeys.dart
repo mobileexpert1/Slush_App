@@ -27,7 +27,7 @@ class LocaleText{
   // static const guidetext1="The first thing you need to do is breathe and relax. Dates can be nerve-racking, but it only gets easier.\n\nSimply, tap the video-date button  below in order to begin your date.";
   static const guidetext1="The first thing you need to do is breathe and relax. Dates can be nerve-racking, but it only gets easier.";
   static const guidetext2="Your date has joined the call, don’t keep them waiting.";
-  static const guidetext3="Oops... Your date has not shown up, your next date is in 2 minutes.";
+  static const guidetext3="Oops... Your date has not shown up, your next date is in 5 minutes.";
 
   static const feedbackguide="I adore playing games, exploring new places Seeking genuine connections and someone to share life's beautiful moments with.";
   static const feedbackguide1='You had left the date early and we wanted to check everything is okay. Why did you leave the date early?';

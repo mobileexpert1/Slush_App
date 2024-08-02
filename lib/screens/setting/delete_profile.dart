@@ -57,9 +57,7 @@ class _DeleteProfileState extends State<DeleteProfile> {
           'password': passwordController.text
         }),
       );
-      setState(() {
-        LoaderOverlay.hide();
-      });
+      setState(() {LoaderOverlay.hide();});
       print('Status Code :::::${response.statusCode}');
       var data=jsonDecode(response.body);
       if (response.statusCode == 201) {
@@ -172,12 +170,15 @@ class _DeleteProfileState extends State<DeleteProfile> {
                                           button = true;
                                         });
                                       },
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          buildText(deleteProfile[index], 18, FontWeight.w500, color.txtBlack),
-                                          selectedIndex==index?SvgPicture.asset(AssetsPics.checkbox) : SvgPicture.asset(AssetsPics.blankCheckbox),
-                                        ],
+                                      child: Container(
+                                        color: Colors.transparent,
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            buildText(deleteProfile[index], 18, FontWeight.w500, color.txtBlack),
+                                            selectedIndex==index?SvgPicture.asset(AssetsPics.checkbox) : SvgPicture.asset(AssetsPics.blankCheckbox),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -230,7 +231,7 @@ class _DeleteProfileState extends State<DeleteProfile> {
                     btnTxt: "Delete",
                     img: AssetsPics.mailImg2,
                 onTap: (){
-                  LoaderOverlay.show(context);
+                  setState(() {LoaderOverlay.show(context);});
                   deleteAccount(deleteProfile[selectedIndex]);
                 }
                 );

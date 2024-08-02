@@ -1,12 +1,11 @@
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
-import 'package:open_mail_app/open_mail_app.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/localkeys.dart';
+import 'package:slush/constants/prefs.dart';
 import 'package:slush/screens/login/login.dart';
 import 'package:slush/screens/sign_up/create_account.dart';
 import 'package:slush/widgets/alert_dialog.dart';
@@ -22,6 +21,16 @@ class SliderScreen extends StatefulWidget {
 
 class _SliderScreenState extends State<SliderScreen> {
   final images = [AssetsPics.sliderthird];
+
+  @override
+  void initState() {
+    callFuntion();
+    super.initState();
+  }
+  callFuntion(){
+    Future.delayed(Duration(seconds: 4));
+    Preferences.setValue("BioAuth", "false");
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +80,6 @@ class _SliderScreenState extends State<SliderScreen> {
             ),
           ),
           bioAlert(context),
-
         ],
       ),
     );
@@ -98,7 +106,6 @@ class _SliderScreenState extends State<SliderScreen> {
     return TextSpan(text: txt,
         style: TextStyle(color: clr,
             fontWeight: FontWeight.w600,
-            // fontSize: 26,
             fontSize: 21.sp,
             fontFamily: FontFamily.baloo2));
   }

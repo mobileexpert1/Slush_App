@@ -1,8 +1,12 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:slush/constants/color.dart';
+import 'package:slush/controller/controller.dart';
+import 'package:slush/controller/setting_controller.dart';
 import 'package:slush/widgets/app_bar.dart';
 import 'package:uuid/uuid.dart';
 import '../../constants/LocalHandler.dart';
@@ -25,8 +29,8 @@ class _AddLocationState extends State<AddLocation> {
   List statesList=[];
 
   String _searchQuery='';
-  var uuid =  Uuid();
-  String _sessionToken =  Uuid().toString();
+  var uuid =  const Uuid();
+  String _sessionToken =  const Uuid().toString();
   List<dynamic>_placeList = [];
 
   @override
@@ -69,6 +73,30 @@ class _AddLocationState extends State<AddLocation> {
     }
   }
 
+  String latitude="";
+  String longitude="";
+  Future<void> getCoordinates(String address) async {
+    try {
+      List<Location> locations = await locationFromAddress(address);
+      if (locations.isNotEmpty) {
+        setState(() {
+          latitude = locations[0].latitude.toString();
+          longitude = locations[0].longitude.toString();
+          print("::++++++++++=$latitude,$longitude");
+          Provider.of<nameControllerr>(context, listen: false).setLocation(latitude, longitude);
+        });
+      } else {
+        setState(() {
+          print('No coordinates found for this address');
+        });
+      }
+    } catch (e) {
+      setState(() {
+        print('Error: $e');
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -99,7 +127,7 @@ class _AddLocationState extends State<AddLocation> {
                       child: SvgPicture.asset(AssetsPics.locationIcon,color:enableField == "Enter FirstName"? color.txtBlue:color.txtBlack))
               ),
             ),
-            _searchQuery==""?SizedBox():
+            _searchQuery==""?const SizedBox():
             Flexible(
               child: Container(
                 margin: const EdgeInsets.only(top: 10),
@@ -117,11 +145,13 @@ class _AddLocationState extends State<AddLocation> {
                             onTap: (){
                               setState(() {
                                 locationController.text=_placeList[index]["description"];
+                                getCoordinates(locationController.text.trim());
                                 LocaleHandler.location=_placeList[index]["description"];
                                 _searchQuery="";
                                 statesList.clear();
                                 FocusManager.instance.primaryFocus?.unfocus();
                               });
+                              Provider.of<SettingController>(context,listen: false).saveAdress(locationController.text);
                             }
                             ,child: Container(
                               color: Colors.transparent,
@@ -133,15 +163,15 @@ class _AddLocationState extends State<AddLocation> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Container(
-                                      padding: EdgeInsets.only(top: 5),
+                                      padding: const EdgeInsets.only(top: 5),
                                       child: SvgPicture.asset(AssetsPics.locationIcon,width: 14,)),
-                                  SizedBox(width: 12),
+                                  const SizedBox(width: 12),
                                   Flexible(child: buildText(_placeList[index]["description"],18,FontWeight.w500,color.txtgrey))
                                 ],)
 
                           ),
                           ),
-                          index==_placeList.length-1?SizedBox():Divider(thickness: 0.2,)
+                          index==_placeList.length-1?const SizedBox():const Divider(thickness: 0.2,)
                         ],
                       );
                     }),

@@ -1,9 +1,11 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/color.dart';
+import 'package:slush/constants/image.dart';
 import 'package:slush/controller/controller.dart';
 import 'package:slush/screens/feed/feed_screen.dart';
 import 'package:slush/screens/feed/tutorials/controller_class.dart';
@@ -29,29 +31,80 @@ class _ReelViewScreenState extends State<ReelViewScreen> {
     super.initState();
   }
 
-  void callFunction(){
-    Provider.of<reelController>(context,listen: false).getVidero(context,1,50,5000,LocaleHandler.latitude,LocaleHandler.longitude,gender);
+  void callFunction()async{
+    await Future.delayed(const Duration(seconds: 2));
+    Provider.of<reelController>(context,listen: false).getVidero(context,1,
+        LocaleHandler.startage, LocaleHandler.endage,LocaleHandler.distancevalue,
+        LocaleHandler.latitude,LocaleHandler.longitude,LocaleHandler.filtergender==""?gender:LocaleHandler.filtergender);
   }
 
   @override
   Widget build(BuildContext context) {
+    final size=MediaQuery.of(context).size;
     return Stack(
       children: [
+        SizedBox(
+          height: size.height,
+          width: size.width,
+          child: Image.asset(AssetsPics.background, fit: BoxFit.cover),
+        ),
         Consumer<reelController>(
             builder: (context,value,child){
               return
               value.data==null?const Center(child: CircularProgressIndicator(color: color.txtBlue)):
-              value.totallen==0?Center(child: buildText("no data!",18,FontWeight.w500,color.txtgrey)):
+              value.totallen==0?buildBuildText():
               FeedScreen(index: 0, reels: ReelService().getReels(value.reels), data: value.data);
             }),
         Consumer<reelTutorialController>(
-            builder: (context,value,child){return Container(
+            builder: (context,value,child){
+              return Container(
           child: LocaleHandler.feedTutorials || LocaleHandler.scrollLimitreached ?
           feedTutorials(context):const SizedBox(),
         );}),
       ],
     );
   }
+
+  Widget buildBuildText() => SizedBox(
+    width: MediaQuery.of(context).size.width,
+    child: Column(
+      mainAxisAlignment: MainAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Container(height: 300, width: 300, alignment: Alignment.center, child: SvgPicture.asset("assets/images/nodata.svg",color:  const Color(0xff009F9D))),
+        buildText("No Data Availabe", 20, FontWeight.w600, color.txtBlack),
+        buildText2("There is no data to show you\n right now.", 20, FontWeight.w600, color.txtgrey2),
+        GestureDetector(
+          onTap: (){setState(() {LocaleHandler.distancevalue=500;
+          LocaleHandler.startage=18;
+          LocaleHandler.endage=90;
+          LocaleHandler.filtergender="";
+          LocaleHandler.isChecked=false;
+          LocaleHandler.distancee=500;
+          LocaleHandler.selectedIndexGender=-1;
+          });
+          Provider.of<reelController>(context,listen: false).getVidero(context,1,LocaleHandler.startage,
+              LocaleHandler.endage, LocaleHandler.distancevalue,
+              LocaleHandler.latitude,LocaleHandler.longitude, LocaleHandler.filtergender);
+          },
+          child: Container(
+            margin: const EdgeInsets.only(top: 40),
+            decoration:  BoxDecoration(color: const Color(0xff009F9D),
+              borderRadius: BorderRadius.circular(15),
+            ),
+            padding: const EdgeInsets.symmetric(vertical: 8,horizontal: 20),
+            child: const Text("Refresh",style: TextStyle(
+              color: color.txtWhite,
+              fontSize: 18,fontWeight: FontWeight.w500,
+              fontFamily: FontFamily.baloo2,
+              decoration: TextDecoration.underline,
+              decorationColor: color.txtBlue,
+            ),),
+          ),
+        ),
+      ],
+    ),
+  );
 }
 
 class Debounce {

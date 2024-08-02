@@ -11,9 +11,10 @@ import 'package:slush/constants/image.dart';
 import 'package:slush/controller/login_controller.dart';
 import 'package:slush/widgets/blue_button.dart';
 import 'package:slush/widgets/text_widget.dart';
-import 'package:syncfusion_flutter_sliders/sliders.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
+// import 'package:syncfusion_flutter_sliders/sliders.dart';
+// import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:intl/intl.dart';
+import 'package:slush/widgets/thumb_class.dart';
 
 TextEditingController fromDateController = TextEditingController(
     text: "Jan 12 ,2023");
@@ -136,7 +137,7 @@ customDialogBoxWithtwobutton(BuildContext context, String title,
                         child: isPng ? Image.asset(img!) : SvgPicture.asset(
                             img!),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Text(
                         title,
                         textAlign: TextAlign.center,
@@ -192,7 +193,7 @@ customDialogBoxWithtwobutton(BuildContext context, String title,
                               ),
                             ),
                           ),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: GestureDetector(
                               onTap: onTap2,
@@ -277,7 +278,7 @@ customUnmatchBoxWithtwobutton(BuildContext context, String title,
                         child: isPng ? Image.asset(img!) : SvgPicture.asset(
                             img!),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: 20),
                       Text(
                         title,
                         textAlign: TextAlign.center,
@@ -332,7 +333,7 @@ customUnmatchBoxWithtwobutton(BuildContext context, String title,
                               ),
                             ),
                           ),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: GestureDetector(
                               onTap: onTap2,
@@ -379,20 +380,20 @@ void pressed() {
 }
 
 // Search Filter Bottom Sheet
-var _value = 250;
+var _value = 500;
 
 String formatValue(double value) {
   return NumberFormat('#').format(value);
 }
 
 String date1 = "Select Date ";
+String datee1= DateFormat('MMM dd ,yyyy').format(DateTime.now());
 // DateTime? date3;
 ValueNotifier<DateTime> date3 = ValueNotifier<DateTime>(DateTime.now());
 String date2 = "Select Date ";
 
-customDialogBoxFilter(BuildContext context,
-    {VoidCallback?whiteTap = pressed, VoidCallback?blueTap = pressed,}) {
-  if(date1 == "Select Date "){_value=250;}
+customDialogBoxFilter(BuildContext context, {VoidCallback?whiteTap = pressed, VoidCallback?blueTap = pressed}) {
+  if(date2 == "Select Date "){_value=500;}
   return showGeneralDialog(
       barrierLabel: "Label",
       transitionDuration: const Duration(milliseconds: 500),
@@ -427,7 +428,7 @@ customDialogBoxFilter(BuildContext context,
                                       Container(alignment: Alignment.center,
                                         height: 10,
                                         width: 80,),
-                                      SizedBox(height: 12),
+                                      const SizedBox(height: 12),
                                       buildText("Filter", 28, FontWeight.w600, color.txtBlack),
                                       const SizedBox(height: 10),
                                       buildText("Date Range", 18, FontWeight.w600, color.txtBlack),
@@ -446,7 +447,7 @@ customDialogBoxFilter(BuildContext context,
                                           child: SvgPicture.asset(AssetsPics.filterIcon))),),*/
                                               GestureDetector(
                                                 onTap: (){
-                                                  showDatePicker(
+                                           /*       showDatePicker(
                                                     builder: (context, child) {
                                                       return Theme(data: Theme.of(context).copyWith(
                                                         colorScheme: const ColorScheme.light(
@@ -474,7 +475,7 @@ customDialogBoxFilter(BuildContext context,
                                                         date3.value=selectedDate;
                                                       });
                                                     }
-                                                  });
+                                                  });*/
                                                 },
                                                 child: Container(
                                                   height: 55, width: MediaQuery.of(context).size.width / 2 - 40,
@@ -487,7 +488,7 @@ customDialogBoxFilter(BuildContext context,
                                                   child: Row(
                                                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                                     children: [
-                                                      buildText(date1, 16,
+                                                      buildText(datee1, 16,
                                                           FontWeight.w500,
                                                           color.txtgrey2,
                                                           fontFamily: FontFamily.hellix),
@@ -508,7 +509,7 @@ customDialogBoxFilter(BuildContext context,
                                           child: SvgPicture.asset(AssetsPics.filterIcon))),),*/
                                               GestureDetector(
                                                 onTap: () {
-                                                  if(date1=="Select Date "){}
+                                                  if(date1!="Select Date "){}
                                                   else{
                                                   showDatePicker(
                                                     builder: (context, child) {
@@ -522,8 +523,10 @@ customDialogBoxFilter(BuildContext context,
                                                         ),),
                                                         child: child!,);},
                                                     context: context,
-                                                    initialDate: date3.value,
-                                                    firstDate: date3.value,
+                                                    // initialDate: date3.value,
+                                                    // firstDate: date3.value,
+                                                    initialDate: DateTime.now(),
+                                                    firstDate: DateTime.now(),
                                                     lastDate: DateTime(2500),
                                                   ).then((selectedDate) {
                                                     if (selectedDate != null) {
@@ -532,7 +535,7 @@ customDialogBoxFilter(BuildContext context,
                                                           selectedDate.month,
                                                           selectedDate.day);
                                                       setState(() {
-                                                        // LocaleHandler.miliseconds = selectedDateTime.millisecondsSinceEpoch;
+                                                        LocaleHandler.miliseconds = selectedDateTime.microsecondsSinceEpoch ~/ 1000000;
                                                         date2 = DateFormat('MMM dd ,yyyy').format(selectedDateTime);
                                                       });}});
                                                   }
@@ -541,9 +544,7 @@ customDialogBoxFilter(BuildContext context,
                                                   height: 55, width: MediaQuery.of(context).size.width / 2 - 40,
                                                   decoration: BoxDecoration(
                                                       borderRadius: BorderRadius.circular(8),
-                                                      border: Border.all(
-                                                          width: 0.2,
-                                                          color: Colors.black26)
+                                                      border: Border.all(width: 0.2, color: Colors.black26)
                                                   ),
                                                   child: Row(
                                                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -564,6 +565,7 @@ customDialogBoxFilter(BuildContext context,
                                 ),
                                 const Divider(
                                     thickness: 0.5, color: color.lightestBlue),
+
                                 Padding(padding: const EdgeInsets.only(
                                     left: 15, right: 15, bottom: 10, top: 10),
                                   child: Column(
@@ -624,23 +626,23 @@ customDialogBoxFilter(BuildContext context,
                                                 );
                                               }),
                                             ),*/
-
-                                     Consumer<loginControllerr>(builder: (context,valuee,index){return SliderTheme(
+                                     Consumer<loginControllerr>(builder: (context,valuee,index){ return SliderTheme(
                                               data: SliderTheme.of(context).copyWith(
                                                 trackHeight: 4.0,
                                                 inactiveTickMarkColor: Colors.transparent,
-                                                trackShape: RoundedRectSliderTrackShape(),
+                                                trackShape: const RoundedRectSliderTrackShape(),
                                                 activeTrackColor: color.txtBlue,
                                                 inactiveTrackColor: color.lightestBlueIndicator,
                                                 activeTickMarkColor: Colors.transparent,
-                                                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 14.0, pressedElevation: 8.0),
-                                                thumbColor: Colors.white,
-                                                overlayColor: Color(0xff2280EF).withOpacity(0.2),
-                                                overlayShape: RoundSliderOverlayShape(overlayRadius: 20.0),
-                                                valueIndicatorShape: PaddleSliderValueIndicatorShape(),
+                                                thumbShape: CustomSliderThumb(displayValue: _value),
+                                                thumbColor: color.txtBlue,
+                                                overlayColor: const Color(0xff2280EF).withOpacity(0.2),
+                                                overlayShape: const RoundSliderOverlayShape(overlayRadius: 20.0),
+                                                valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
                                                 // valueIndicatorShape: DropSliderValueIndicatorShape(),
                                                 valueIndicatorColor: Colors.blue,
-                                                valueIndicatorTextStyle: TextStyle(color: Colors.white, fontSize: 16.0),
+                                                showValueIndicator: ShowValueIndicator.never,
+                                                valueIndicatorTextStyle: const TextStyle(color: Colors.white, fontSize: 16.0),
                                               ),
                                               child: Slider(
                                                 min: 5.0,
@@ -675,8 +677,7 @@ customDialogBoxFilter(BuildContext context,
                                       )
                                     ],),
                                 ),
-                                const Divider(
-                                    thickness: 0.5, color: color.lightestBlue),
+                                const Divider(thickness: 0.5, color: color.lightestBlue),
                                 /*  Padding(padding: const EdgeInsets.only(left: 15,right: 15),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -705,8 +706,7 @@ customDialogBoxFilter(BuildContext context,
                                   ],),
                               ),*/
                                 const SizedBox(height: 20),
-                                Padding(padding: const EdgeInsets.only(
-                                    left: 15, right: 15, bottom: 15),
+                                Padding(padding: const EdgeInsets.only(left: 15, right: 15, bottom: 15),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
@@ -828,8 +828,9 @@ Widget selectedButton(String btntxt,Size size) {
   return Container(
     alignment: Alignment.center,
     height: 36,
+    width: size.width*0.25,
     // width: 98,
-    padding: EdgeInsets.symmetric(horizontal: 18),
+    padding: const EdgeInsets.symmetric(horizontal: 0),
     decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(19),
         border: Border.all(width: 1,color: color.txtBlue),
@@ -845,9 +846,9 @@ Widget unselectedButton(String btntxt,Size size) {
   return Container(
     alignment: Alignment.center,
     height: 36,
-    // width: size.width*0.25+5,
+    width: size.width*0.25,
     // width: 98,
-    padding: EdgeInsets.symmetric(horizontal: 18),
+    padding: const EdgeInsets.symmetric(horizontal: 0),
     decoration: BoxDecoration(
       color: color.unSelectedColor,
         borderRadius: BorderRadius.circular(19),
@@ -956,7 +957,7 @@ Widget buildPasswordTextField(BuildContext context, String txt, String chktxt,
       width: MediaQuery.of(context).size.width,
       decoration: BoxDecoration(color: color.txtWhite,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: LocaleHandler.passwordField == true ? color.txtBlue : color.txtWhite, width: 1),
+        border: Border.all(color: LocaleHandler.passwordField == true ? color.txtBlue : color.txtgreyhex, width: 1),
         // border: Border.all(color:color.txtBlue, width:1),
       ),
       child: TextFormField(
@@ -988,45 +989,41 @@ Widget buildPasswordTextField(BuildContext context, String txt, String chktxt,
 }
 
 customDialogBoxwithtitle(BuildContext context, String title, String btnTxt,
-    String img, {
-      VoidCallback? onTapp = pressed, VoidCallback? onTap = pressed, bool isPng = false}) {
+    String img, { VoidCallback? onTap = pressed, bool isPng = false}) {
   return showGeneralDialog(
       barrierLabel: "Label",
       transitionDuration: const Duration(milliseconds: 500),
       context: context,
       pageBuilder: (context, anim1, anim2) {
-        return GestureDetector(
-          onTap: onTapp,
-          child: Scaffold(
-            backgroundColor: Colors.transparent,
-            body: Align(
-              alignment: Alignment.bottomCenter,
-              child: Container(
-                  width: MediaQuery
-                      .of(context)
-                      .size
-                      .width / 1.1,
-                  margin: EdgeInsets.symmetric(horizontal: 16, vertical: 3.h),
-                  padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(color: color.txtWhite,
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Container(alignment: Alignment.center,
-                        height: 80, width: 80,
-                        child: isPng ? Image.asset(img) : SvgPicture.asset(img),
-                      ),
-                      const SizedBox(height: 10),
-                      buildText2(title, 20, FontWeight.w600, color.txtBlack),
-                      const SizedBox(height: 15),
-                      blue_button(context, btnTxt!, press: onTap)
-                    ],
-                  )),
-            ),
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+                width: MediaQuery
+                    .of(context)
+                    .size
+                    .width / 1.1,
+                margin: EdgeInsets.symmetric(horizontal: 16, vertical: 3.h),
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(color: color.txtWhite,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Container(alignment: Alignment.center,
+                      height: 80, width: 80,
+                      child: isPng ? Image.asset(img) : SvgPicture.asset(img),
+                    ),
+                    const SizedBox(height: 10),
+                    buildText2(title, 20, FontWeight.w600, color.txtBlack),
+                    const SizedBox(height: 15),
+                    blue_button(context, btnTxt!, press: onTap)
+                  ],
+                )),
           ),
         );
       },
@@ -1045,7 +1042,8 @@ customSparkBottomSheeet(BuildContext context, String img, String title,
       VoidCallback? onTapp = pressed,
       VoidCallback? onTap1 = pressed,
       VoidCallback? onTap2 = pressed,
-      bool? forAdvanceTap}) {
+      bool? forAdvanceTap,
+      int sparks=0}) {
   return showGeneralDialog(
       barrierLabel: "Label",
       transitionDuration: const Duration(milliseconds: 500),
@@ -1071,7 +1069,21 @@ customSparkBottomSheeet(BuildContext context, String img, String title,
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       Image.asset(img, fit: BoxFit.cover),
-                      const SizedBox(height: 25),
+                      SizedBox(height:img==AssetsPics.sparkleft? 15:0),
+                      img== AssetsPics.sparkleft? FittedBox(
+                        child: Container(
+                          // height: size.height*0.04,
+                          padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 5.5),
+                          decoration: BoxDecoration(color:const Color.fromRGBO(239, 230, 243, 1),
+                              borderRadius: BorderRadius.circular(8)),
+                          child: Row(children: [
+                            SvgPicture.asset(AssetsPics.star),
+                            const SizedBox(width: 5),
+                            buildText("$sparks Sparks", 15, FontWeight.w500, color.txtBlack,fontFamily: FontFamily.hellix)
+                          ]),
+                        ),
+                      ):const SizedBox(),
+                      const SizedBox(height: 15),
                       buildText2(title, 20, FontWeight.w600, color.txtBlack),
                       const SizedBox(height: 20),
                       Row(
@@ -1119,7 +1131,7 @@ customSparkBottomSheeet(BuildContext context, String img, String title,
                             ),
                           ),
                         ],),
-                      SizedBox(height: 8),
+                      const SizedBox(height: 8),
                     ],
                   )),
             ),
@@ -1381,7 +1393,7 @@ customDialogBoxWithtwobuttonfordeletePicture(BuildContext context, String title,
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Text(
                         title,
                         textAlign: TextAlign.center,
@@ -1392,7 +1404,7 @@ customDialogBoxWithtwobuttonfordeletePicture(BuildContext context, String title,
                           color: color.txtBlack,
                         ),
                       ),
-                      SizedBox(height: 15),
+                      const SizedBox(height: 15),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
@@ -1417,7 +1429,7 @@ customDialogBoxWithtwobuttonfordeletePicture(BuildContext context, String title,
                               ),
                             ),
                           ),
-                          SizedBox(width: 10),
+                          const SizedBox(width: 10),
                           Expanded(
                             child: GestureDetector(
                               onTap: onTap2,
@@ -1570,7 +1582,7 @@ customWarningBox(BuildContext context, String title,
                         width: isPng ? 70 : 80,
                         child: isPng ? Image.asset(img!) : SvgPicture.asset(img!),
                       ),
-                      SizedBox(height: 10),
+                      const SizedBox(height: 10),
                       Text(title,
                         textAlign: TextAlign.center,
                         style: const TextStyle(
@@ -1671,7 +1683,7 @@ customSlidingImage(BuildContext context,int inedxId, List? imges, {VoidCallback?
                           child: CachedNetworkImage(
                             imageUrl: imges[index]["key"]!,
                             fit: BoxFit.cover,
-                            errorWidget: (context, url, error) => SizedBox(),
+                            errorWidget: (context, url, error) => const SizedBox(),
                             placeholder: (context, url) => const Center(child: CircularProgressIndicator(color: color.txtBlue)),
                           ));
                     },

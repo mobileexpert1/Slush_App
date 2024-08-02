@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart'as http;
 import 'package:flutter/cupertino.dart';
@@ -8,6 +9,7 @@ import 'package:slush/constants/api.dart';
 import 'package:slush/constants/loader.dart';
 import 'package:slush/screens/feed/tutorials/controller_class.dart';
 import 'package:video_player/video_player.dart';
+import '../ad_manager.dart';
 import '../widgets/toaster.dart';
 
 
@@ -47,6 +49,26 @@ class nameControllerr with ChangeNotifier{
     else{Fluttertoast.showToast(msg: "Internal Server error");}
     notifyListeners();
   }
+
+  String _image="";
+  String get image=>_image;
+
+  void getImage(){
+     ClipRRect(
+         borderRadius: BorderRadius.circular(8),
+         child: CachedNetworkImage(
+           imageUrl: LocaleHandler.avatar,
+           fit: BoxFit.fill,
+           placeholder: (ctx, url) =>
+           const Center(child: SizedBox()),
+         ));
+     notifyListeners();
+  }
+
+
+
+
+
 }
 
 class reelController with ChangeNotifier{
@@ -58,6 +80,12 @@ class reelController with ChangeNotifier{
 
   bool paused=false;
   bool get pause=>paused;
+  bool _congo=false;
+  bool get congo=>_congo;
+  String _name="";
+  String get name=>_name;
+  int _id=0;
+  int get id=>_id;
 
   void addReel(String val){
     // reel.contains(val)
@@ -74,11 +102,15 @@ class reelController with ChangeNotifier{
   String _imgUrl='';
   String get imgurl=>_imgUrl;
 
-  void congoScreen(bool val,String img){
+  void congoScreen(bool val,String img,String naam,int uid){
     LocaleHandler.matchedd=val;
     _imgUrl=img;
+    _congo=val;
+    _name=naam;
+    _id=uid;
     notifyListeners();
   }
+
 
   Future setVolumne(bool val,int index)async{
     isMuted=val;
@@ -93,8 +125,7 @@ class reelController with ChangeNotifier{
     paused=val;
     if(videoPlayerController.length==0){}
     else if(val){await videoPlayerController[index].pause();}
-    else{
-    videoPlayerController[index].play();
+    else{videoPlayerController[index].play();
     videoPlayerController[index].setLooping(true);}
     // for(var i=0;i<videoPlayerController.length;i++){
     //   val? videoPlayerController[i].pause():videoPlayerController[i].play(); }
@@ -122,7 +153,7 @@ class reelController with ChangeNotifier{
   String genderparam="";
 
 
-  int _count=0;
+  int _count=-1;
   int get count=>_count;
 
   Future getVideoCount(BuildContext context)async{
@@ -134,7 +165,6 @@ class reelController with ChangeNotifier{
     if(resposne.statusCode==201){
       if(LocaleHandler.subscriptionPurchase=="no"){
         _count=i["left_Swipes"];
-        print("dsadahdasdkj==============$_count");
         if(_count==0){Provider.of<reelTutorialController>(context,listen: false).setScrollLimit(true);}
         }
       else{Provider.of<reelTutorialController>(context,listen: false).setScrollLimit(false);}
@@ -142,24 +172,47 @@ class reelController with ChangeNotifier{
     notifyListeners();
   }
 
+  void _countM(BuildContext context){
+    if(LocaleHandler.subscriptionPurchase=="no"){
+      _count--;
+      if(_count % 10 == 0){
+        AdManager.loadInterstitialAd(() {});
+      }
+      print("_count===$_count");
+      if(_count==0){Provider.of<reelTutorialController>(context,listen: false).setScrollLimit(true);}
+    } else{Provider.of<reelTutorialController>(context,listen: false).setScrollLimit(false);}
+    notifyListeners();
+  }
+
+
+  List _userId=[];
+  List get userId=>_userId;
+
+  void storeId(BuildContext context,int id){
+    if(!_userId.contains(id)){
+      swippedVideo(context, id);
+      _userId.add(id);
+    }
+    notifyListeners();
+  }
+
   Future swippedVideo(BuildContext context,int id)async{
     final url=ApiList.swippedVideo;
+    print(url);
     var uri=Uri.parse(url);
-
     var response=await http.post(uri,
         headers: {'Content-Type': 'application/json', "Authorization": "Bearer ${LocaleHandler.accessToken}"},
         body: jsonEncode({"profile_video_id":id})
     );
     if(response.statusCode==201){print("response.statusCode===201=ApiList.swippedVideo");
-    getVideoCount(context);
+    // getVideoCount(context);
+    _countM(context);
     }
     else if(response.statusCode==401){showToastMsgTokenExpired();}
     else{}
-
-    notifyListeners();
   }
 
-  Future getVidero(BuildContext context,int pageI,int age,int distance,String lat,String lon,String gender)async{
+  Future getVidero(BuildContext context,int pageI,int minage,int maxage,int distance,String lat,String lon,String gender)async{
     pages=1;
     genderparam=gender==""?"": "&gender=$gender";
     videoPlayerController.clear();
@@ -171,7 +224,7 @@ class reelController with ChangeNotifier{
       dataa=null;posts.clear();LoaderOverlay.show(context);notifyListeners();}*/
     final reelcntrol=Provider.of<reelController>(context,listen: false);
     // final url=ApiList.getVideo+"&maxAge=50&distance=5000&latitude=37.4219983&longitude=-122.084&gender=male&page=$i&limit=15";
-    final url=ApiList.getVideo+"&maxAge=$age&distance=$distance&latitude=$lat&longitude=$lon$genderparam&page=$pageI&limit=4";
+    final url="${ApiList.getVideo}$minage&maxAge=$maxage&distance=$distance&latitude=$lat&longitude=$lon$genderparam&isVerified=${LocaleHandler.isChecked}&page=1&limit=4";
     print(url);
     var uri=Uri.parse(url);
     var response=await http.get(uri,headers: {'Content-Type': 'application/json',
@@ -187,7 +240,6 @@ class reelController with ChangeNotifier{
         for (var i = 0; i < posts.length; i++) {
           videoPlayerController.add(VideoPlayerController.networkUrl(Uri.parse(posts[i]["video"].toString())));
           // chewieController =ChewieController(videoPlayerController: videoPlayerController[i]);
-          // videoPlayerController.add(VideoPlayerController.networkUrl(Uri.parse("https://assets-phenikaa-website.s3.ap-southeast-1.amazonaws.com/media/assets/mo-hinh-3-nha.mp4")));
           reelcntrol.addReel(posts[i]["video"].toString());}
         playNextReel(LocaleHandler.pageIndex);
     } else{total=0;
@@ -196,7 +248,7 @@ class reelController with ChangeNotifier{
   Future loadmore(BuildContext context,int i,int age,int distance,String lat,String lon,String gender)async{
     pages=pages+1;
     final reelcntrol=Provider.of<reelController>(context,listen: false);
-    final url=ApiList.getVideo+"&maxAge=$age&distance=$distance&latitude=$lat&longitude=$lon$genderparam&page=$pages&limit=4";
+    final url="${ApiList.getVideo}&maxAge=$age&distance=$distance&latitude=$lat&longitude=$lon$genderparam&isVerified=${LocaleHandler.isChecked}&page=$pages&limit=4";
     print(url);
     var uri=Uri.parse(url);
     var response=await http.get(uri,headers: {'Content-Type': 'application/json',
@@ -210,8 +262,12 @@ class reelController with ChangeNotifier{
       // posts=dataa;
       dataa=dataa+ii["data"]["items"];
       for (var i = 0; i < ii["data"]["items"].length; i++) {
+        if(LocaleHandler.isChecked && posts[i]["user"]["isVerified"]==true){
+          videoPlayerController.add(VideoPlayerController.networkUrl(Uri.parse(posts[i]["video"].toString())));
+          reelcntrol.addReel(posts[i]["video"].toString());
+        }else{
         videoPlayerController.add(VideoPlayerController.networkUrl(Uri.parse(ii["data"]["items"][i]["video"].toString())));
-        reelcntrol.addReel(ii["data"]["items"][i]["video"].toString());
+        reelcntrol.addReel(ii["data"]["items"][i]["video"].toString());}
       }
     } else{total=0;
     dataa=ii;
@@ -278,9 +334,11 @@ class reelController with ChangeNotifier{
     notifyListeners();
   }
 
-
-
   void playControllerAtIndex(int index) {
+    paused=false;
+    // videoPlayerController[index].pause();
+    // videoPlayerController[index-1].pause();
+    // videoPlayerController[index+1].pause();
     LocaleHandler.pageIndex=index;
     if (videoPlayerController.length > index && index >= 0) {
       /// Get controller at [index]
@@ -325,18 +383,20 @@ class reelController with ChangeNotifier{
       });
       // log('initialized $index');
     }
+    paused=false;
     notifyListeners();
   }
-
-
-
-
 
   bool bioH=false;
   bool get biohieght=>bioH;
 
   void changeBioHieght(val){
     bioH=val;
+    notifyListeners();
+  }
+
+  void alreadySparkLiked(int i){
+    LocaleHandler.sparkLiked.add(i);
     notifyListeners();
   }
 }

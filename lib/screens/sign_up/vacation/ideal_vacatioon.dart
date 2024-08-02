@@ -34,6 +34,11 @@ class _VacationBestIdealScreenState extends State<VacationBestIdealScreen> {
         selectedVacation=index;
         // selcetedIndex=index;
       }
+    }else if(LocaleHandler.EditProfile&&LocaleHandler.dataa["ideal_vacation"]==null&&LocaleHandler.ideal!=""){
+      if(vacation.contains(LocaleHandler.ideal)){
+        int index = vacation.indexOf(LocaleHandler.ideal);
+        selectedVacation=index;
+      }
     }
   }
 

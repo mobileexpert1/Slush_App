@@ -15,9 +15,9 @@ class reelTutorialController with ChangeNotifier{
     }
     notifyListeners();
   }
+
   void setScrollLimit(bool val){
     LocaleHandler.scrollLimitreached=val;
-    // index=6;
     notifyListeners();
   }
 }

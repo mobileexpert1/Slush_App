@@ -51,7 +51,9 @@ class _DetailAgeScreenState extends State<DetailAgeScreen> {
        SizedBox(height: 4.h-1),
         Stack(
           children: [
-            Container(height: 36.h,
+            Container(
+              // height: 36.h,
+            height: MediaQuery.of(context).size.width*0.8,
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(12),color: Colors.white,),
             width: MediaQuery.of(context).size.width-30,
             // color: color.txtWhite,
@@ -72,11 +74,14 @@ class _DetailAgeScreenState extends State<DetailAgeScreen> {
                 pickerTheme:  DateTimePickerTheme(
                   itemTextStyle: const TextStyle(
                       letterSpacing: 1.0,
+                      // height: 2.0,
                       height: 2.0,
                       color: color.dateTxtColor, fontSize: 55,fontFamily: FontFamily.baloo2,fontWeight: FontWeight.w600),
                   dividerColor: Colors.transparent,
-                  pickerHeight: 36.h,
-                itemHeight: 6.h+2,
+                  // pickerHeight: 36.h,
+                  pickerHeight:  MediaQuery.of(context).size.width*0.8,
+                // itemHeight: 6.h+2,
+                itemHeight: MediaQuery.of(context).size.width*0.14,
                 )),
             ),
             ),
@@ -84,15 +89,19 @@ class _DetailAgeScreenState extends State<DetailAgeScreen> {
             IgnorePointer(
               child: Container(
                 margin: const EdgeInsets.only(top: 125,left: 15,right: 15),
-                height: 7.h-2,width: MediaQuery.of(context).size.width-40,
+                // height: 7.h-2,
+                height: MediaQuery.of(context).size.width*0.17,
+                width: MediaQuery.of(context).size.width-40,
                 decoration: const BoxDecoration(border: Border(top: BorderSide(width: 1, color: color.disableButton
                 ),bottom: BorderSide(width: 1, color: color.disableButton))),
               ),
             )
                 :  IgnorePointer(
                   child: Container(
-                                margin: const EdgeInsets.only(top: 114,left: 15,right: 15),
-                                height: 7.h-4,width: MediaQuery.of(context).size.width-40,
+                                margin: EdgeInsets.only(top: MediaQuery.of(context).size.width*0.32,left: 15,right: 15),
+                                // height: 7.h-4,
+                                height: MediaQuery.of(context).size.width*0.15,
+                                width: MediaQuery.of(context).size.width-40,
                                 decoration: const BoxDecoration(border: Border(top: BorderSide(width: 1, color: color.disableButton
                                 ),bottom: BorderSide(width: 1, color: color.disableButton))),
                               ),

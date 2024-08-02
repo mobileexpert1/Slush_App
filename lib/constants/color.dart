@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class color{
   static const txtBlack = Color.fromRGBO(28, 29, 32, 1);
   static const txtgrey = Color.fromRGBO(69, 70, 72, 1);
+  static const txtgreyhex = Color(0xFF929394);
   static const txtgrey2 = Color.fromRGBO(105, 106, 108, 1);
   static const txtBlue = Color.fromRGBO(7, 140, 254, 1);
   static const txtGetVeirfy = Color.fromRGBO(16, 156, 241, 1);
@@ -54,6 +55,7 @@ class color{
   static const peachColor= Color.fromRGBO(234, 141, 126, 1);
   // static const logOutRed= Color.fromRGBO(234, 141, 126, 1);
   static const logOutRed= Color(0xffE15C47);
+  static const sparkPurple= Color(0xff8A2387);
   static const textFieldColor= Color.fromRGBO(246, 246, 246, 1);
   static const txtgrey3 = Color.fromRGBO(112, 112, 112, 1);
   // static const txtgrey4 = Color.fromRGBO(171, 171, 171, 1);
@@ -65,6 +67,7 @@ class color{
 class FontFamily{
   static const baloo = "baloo";
   static const baloo2 = "baloo_2";
+  static const baloo2M = "baloo2_Medium";
   static const hellix = "hellix";
   static const hellixExtraBold = "hellixExtraBold";
 }

@@ -30,6 +30,11 @@ class _VacationSmokinOpinionScreenState extends State<VacationSmokinOpinionScree
         int index = smoking.indexOf(LocaleHandler.smokingopinion+".");
         selectedSmoking=index;
       }
+    }else if(LocaleHandler.EditProfile&&LocaleHandler.dataa["smoking_opinion"]==null&&LocaleHandler.smokingopinion!=""){
+      if(smoking.contains(LocaleHandler.smokingopinion+".")){
+        int index = smoking.indexOf(LocaleHandler.smokingopinion+".");
+        selectedSmoking=index;
+      }
     }
   }
 

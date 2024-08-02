@@ -76,7 +76,8 @@ class _EditProfileBasicInfoScreenState extends State<EditProfileBasicInfoScreen>
 
   Future callFunctio(bool val)async{
     Provider.of<editProfileController>(context,listen: false).saveValue(LocaleHandler.gender,LocaleHandler.height,LocaleHandler.jobtitle,
-        LocaleHandler.education,LocaleHandler.sexualOreintation,LocaleHandler.ideal,LocaleHandler.cookingSkill,LocaleHandler.smokingopinion);
+        LocaleHandler.education,LocaleHandler.sexualOreintation,LocaleHandler.ideal,LocaleHandler.cookingSkill,LocaleHandler.smokingopinion,
+        LocaleHandler.entencityname);
   }
 
   @override

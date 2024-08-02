@@ -91,20 +91,32 @@ class _InterestListScreenState extends State<InterestListScreen> {
             child: Image.asset(AssetsPics.background, fit: BoxFit.cover),
           ),
           Padding(
-            padding: EdgeInsets.only(left: 15,right: 15),
+            padding: const EdgeInsets.only(left: 15,right: 15),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 SizedBox(height:5.h-3),
-                buildText("Choose your interest", 28, FontWeight.w600, color.txtBlack),
+                Row(
+                  children: [
+                   GestureDetector(
+                     onTap: (){Get.back();},
+                     child: Container(color: Colors.transparent,
+                       height: 35,width: 30,
+                         padding: const EdgeInsets.all(4),
+                         child: SvgPicture.asset(AssetsPics.arrowLeft)),
+                   ),
+                    const SizedBox(width: 40),
+                    buildText("Choose your interest", 28, FontWeight.w600, color.txtBlack),
+                  ],
+                ),
                 const SizedBox(height: 5),
                 // const SizedBox(height: 29),
-                data==null?Center(child: Padding(
-                  padding: const EdgeInsets.only(top: 100),
+                data==null?const Center(child: Padding(
+                  padding: EdgeInsets.only(top: 100),
                   child: CircularProgressIndicator(color: color.txtBlue),
                 )): Expanded(
                   child: ListView.builder(
-                      padding: EdgeInsets.only(top: 20,bottom: 150),
+                      padding: const EdgeInsets.only(top: 20,bottom: 150),
                       itemCount: data.length,
                       itemBuilder: (context,index){
                         return GestureDetector(
@@ -135,7 +147,7 @@ class _InterestListScreenState extends State<InterestListScreen> {
                                 children: [
                                   SvgPicture.network(data[index]["url"],color: color.txtBlue),
                                   // CachedNetworkImage(imageUrl: data[index]["url"],color: color.txtBlue),
-                                  SizedBox(width: 15),
+                                  const SizedBox(width: 15),
                                   buildText(data[index]["name"], 18, FontWeight.w600, color.txtBlack),
                                 ],),
                             ),

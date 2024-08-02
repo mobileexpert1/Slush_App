@@ -37,7 +37,7 @@ class AssetsPics{
   static const unMatchedbg = "assets/bg/unMatchedbg.png";
   static const unMatchedbgsvg = "assets/bg/unMatchedbg.svg";
   static const verifyinprocess="assets/bg/verifyinprocess.png";
-  static const verifyinprocesssvg="assets/bg/verifyinprocess.svg";
+  // static const verifyinprocesssvg="assets/bg/verifyinprocess.svg";
   static const Videocallthumb="assets/bg/Videocallthumb.png";
   static const videodemo='assets/bg/videodemo.png';
   static const viewProfile = "assets/bg/viewProfile.svg";
@@ -132,8 +132,10 @@ class AssetsPics{
   static const filterIcon = "assets/icons/Filter.svg";
   static const reelFilterIcon = "assets/icons/filterIcon.svg";
   static const floatiAction = "assets/icons/floatiAction.svg";
+  static const floatiActionp = "assets/icons/floatiAction.png";
   static const freeEventbookpng = "assets/icons/freeEventBook1.png";
   static const gallery = "assets/icons/gallery.svg";
+  static const gallerygrey = "assets/icons/gallerygrey.svg";
   static const getVerified = "assets/icons/getVerified.png";
   static const giftext = "assets/icons/GIF.svg";
   static const google = "assets/icons/google.png";
@@ -199,6 +201,7 @@ class AssetsPics{
   static const sparkWhiteCirlce = "assets/icons/sparkWhiteCirlce.svg";
   static const star = "assets/icons/star.svg";
   static const superlike = "assets/icons/superlike.svg";
+  static const superlikewhite = "assets/icons/superlikewhite.svg";
   static const terms = "assets/icons/terms.svg";
   // static const ticketsheet = "assets/icons/ticketsheet.svg";
   static const timerCircle = "assets/icons/timerCircle.svg";
@@ -226,6 +229,8 @@ class AssetsPics{
   static const whitewatch = "assets/icons/whitewatch.svg";
   static const woman = "assets/icons/woman.svg";
   static const zoomIcon = "assets/icons/zoomIcon.svg";
+  static const notificationLike = "assets/icons/notificationlike.svg";
+  static const notificationDislike = "assets/icons/notificationdislike.svg";
 
 
 //TODO===========> images

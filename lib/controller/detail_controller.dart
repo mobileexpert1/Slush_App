@@ -17,16 +17,11 @@ import 'package:slush/constants/prefs.dart';
 import 'package:http/http.dart'as http;
 import 'package:slush/controller/camera_screen.dart';
 import 'package:slush/screens/login/login.dart';
-import 'package:slush/screens/sign_up/details/video_trimmer.dart';
-// import 'package:slush/screens/sign_up/details/trim_video.dart';
 import 'package:slush/screens/sign_up/details_completed.dart';
 import 'package:slush/widgets/text_widget.dart';
 import 'package:slush/widgets/toaster.dart';
-// import 'package:video_compress/video_compress.dart';
-// import 'package:video_compress/video_compress.dart';
 import 'package:video_player/video_player.dart';
 import 'package:video_trimmer/video_trimmer.dart';
-// import 'package:video_trimmer/video_trimmer.dart';
 
 class detailedController extends ChangeNotifier{
   int currentIndex=0;
@@ -35,13 +30,15 @@ class detailedController extends ChangeNotifier{
   File? _image;
   CroppedFile? croppedFile;
 
-  late VideoPlayerController controller;
+  late VideoPlayerController _controller;
+  VideoPlayerController get controller=>_controller;
   File? videoFile;
   final picker = ImagePicker();
   File? galleryFile;
 
-  bool trimmerstrt=false;
-  final Trimmer trimmer = Trimmer();
+  bool _trimmerstrt=false;
+  bool get trimmerstrt=>_trimmerstrt;
+  Trimmer trimmer = Trimmer();
   double _startValue = 0.0;
   double _endValue = 0.0;
   bool isPlaying = false;
@@ -70,7 +67,7 @@ class detailedController extends ChangeNotifier{
     print(action);
     Preferences.setNextAction(action);
     Preferences.setValue("token", LocaleHandler.accessToken);
-    final url= ApiList.registerUserDetails;
+    const url= ApiList.registerUserDetails;
     print(url);
     var uri=Uri.parse(url);
     var request = http.MultipartRequest('POST', uri);
@@ -80,7 +77,7 @@ class detailedController extends ChangeNotifier{
       File imageFile = File(LocaleHandler.introImage!.path);
       var stream = http.ByteStream(imageFile.openRead());
       var length = await imageFile.length();
-      var multipartFile = http.MultipartFile('avatar', stream, length, filename: LocaleHandler.introImage.toString().split("/").last);
+      var multipartFile = http.MultipartFile('avatar', stream, length, filename: LocaleHandler.introImage.toString().split("/").last,contentType: MediaType('image','jpeg'));
       request.files.add(multipartFile);
     }
     // if (LocaleHandler.introVideo != null && action=="upload_video") {
@@ -133,12 +130,15 @@ class detailedController extends ChangeNotifier{
         if(action=="upload_video"){
         Get.to(()=>const SignUpDetailsCompletedScreen());
         deleteAllData();
+        Preferences.setNextAction("none");
+        Preferences.setReelAlreadySeen("false");
       }
     } else{
-      Get.offAll(()=>LoginScreen());
+      Get.offAll(()=>const LoginScreen());
       Fluttertoast.showToast(msg:"Server Error! Please sign in again");}
     notifyListeners();
   }
+
 
   void deleteAllData(){
     LocaleHandler.name="";
@@ -157,7 +157,7 @@ class detailedController extends ChangeNotifier{
     LocaleHandler.introVideo=null;
     croppedFile=null;
     galleryFile=null;
-    controller.dispose();
+    _controller.dispose();
     notifyListeners();
   }
 
@@ -255,6 +255,7 @@ class detailedController extends ChangeNotifier{
       );
       if (croppedFilee != null) {
         croppedFile = croppedFilee;
+        LocaleHandler.avatar=croppedFile!.path;
         // LocaleHandler.introImage=_croppedFile;
       }
     }
@@ -269,7 +270,7 @@ class detailedController extends ChangeNotifier{
       Get.back();
       if(Platform.isIOS){imgFromGallery(context,src);}
       else if(src==ImageSource.gallery && Platform.isAndroid){imgFromGallery(context,src);}
-      else if(src==ImageSource.camera && Platform.isAndroid){Get.to(()=>CameraScreen());}
+      else if(src==ImageSource.camera && Platform.isAndroid){Get.to(()=>const CameraScreen());}
       selcetedIndex="";
       notifyListeners();
     });
@@ -278,38 +279,27 @@ class detailedController extends ChangeNotifier{
   // Working
   Future getVideo(BuildContext context,ImageSource img) async {
     // controller.removeListener(null);
-    if(galleryFile!=null){controller.pause();    notifyListeners();}
+    if(galleryFile!=null){_controller.pause();    notifyListeners();}
     final allowedTimeLimit = Duration(seconds: 16);
     // final allowedTimeLimit = Duration(seconds: 4);
     final allowedTimeLimit2 = Duration(minutes: 15);
     final pickedFile = await picker.pickVideo(source: img, preferredCameraDevice: CameraDevice.front, maxDuration: const Duration(seconds: 15));
     XFile? xfilePick = pickedFile;
     if (xfilePick != null) {
-      // LoaderOverlay.show(context);
       showToastMsg("Please wait...");
-      // final compressedFile = await VideoCompress.compressVideo(
-      //   pickedFile!.path,
-      //   quality: VideoQuality.LowQuality,
-      //   deleteOrigin: false,
-      //   includeAudio: true,
-      //   // duration: 15
-      // );
-      // LoaderOverlay.hide();
-      if(Platform.isAndroid){controller = VideoPlayerController.networkUrl(Uri.parse(pickedFile!.path));}
-      else{controller = VideoPlayerController.file(File(pickedFile!.path));}
-      controller..initialize().then((_) {
-        if(controller.value.duration<=allowedTimeLimit){
+      if(Platform.isAndroid){_controller = VideoPlayerController.networkUrl(Uri.parse(pickedFile!.path));}
+      else{_controller = VideoPlayerController.file(File(pickedFile!.path));}
+      _controller..initialize().then((_) {
+        if(_controller.value.duration<=allowedTimeLimit){
           palyVideo(File(pickedFile.path));
-        }else if(controller.value.duration<=allowedTimeLimit2){
-          galleryFile=null;
-          trimmerstrt=true;
+        }else if(_controller.value.duration<=allowedTimeLimit2){
+          // galleryFile=null;
+          _trimmerstrt=true;
+          trimmer=Trimmer();
           _loadVideo(File(pickedFile.path));
-          // _loadVideo(compressedFile.file);
-          // Future.delayed(Duration(seconds: 3),(){ saveVideo();
-          // notifyListeners();});
         }
         else{
-          galleryFile=null;
+          // galleryFile=null;
           ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: buildText("Video should be less then 15 seconds", 16, FontWeight.w500, color.txtWhite)));
         }});
     } else {}
@@ -328,8 +318,11 @@ class detailedController extends ChangeNotifier{
   palyVideo(File file){
     galleryFile = file;
     LocaleHandler.introVideo=galleryFile;
-    controller.play();
-    controller.setPlaybackSpeed(0.8);
+   if(_controller.value.isInitialized){
+     if(Platform.isAndroid){
+     _controller.play();}
+     // _controller.setPlaybackSpeed(0.8);
+   }
     notifyListeners();
   }
 
@@ -352,6 +345,7 @@ class detailedController extends ChangeNotifier{
         _progressVisibility = false;
         debugPrint('OUTPUT PATH: $outputPath');
         trimmer.currentVideoFile;
+        _trimmerstrt=false;
         palyVideo(File(trimmer.currentVideoFile!.path));
         getValueInController(outputPath!);
         // trimmer=false;
@@ -365,17 +359,17 @@ class detailedController extends ChangeNotifier{
     // controller.removeListener(() { });
     selcetedIndex=index;
     notifyListeners();
-    Future.delayed(Duration(seconds: 1),(){
-      getVideo(context, src);
+    Future.delayed(const Duration(seconds: 1),(){
       Get.back();
+      getVideo(context, src);
       selcetedIndex="";
       notifyListeners();
     });
   }
 
   Future getValueInController(String outputVideoPath)async{
-    trimmerstrt=false;
-    controller = VideoPlayerController.file(File(outputVideoPath))..initialize().then((_) {
+    _trimmerstrt=false;
+    _controller = VideoPlayerController.file(File(outputVideoPath))..initialize().then((_) {
         palyVideo(File(trimmer.currentVideoFile!.path));
         notifyListeners();
       });
@@ -393,13 +387,23 @@ class detailedController extends ChangeNotifier{
   }
 
   void cancelSelectedTrimVideo()async{
-    trimmerstrt=false;
-    galleryFile=null;
-    controller.dispose();
+    _trimmerstrt=false;
+    // galleryFile=null;
+    // controller.dispose();
     LocaleHandler.introVideo=null;
     trimmer.dispose();
     _startValue = 0.0;
     _endValue = 0.0;
+    if(galleryFile!=null){
+      if(Platform.isAndroid){_controller = VideoPlayerController.networkUrl(Uri.parse(galleryFile!.path));}
+      else{_controller = VideoPlayerController.file(File(galleryFile!.path));}
+      _controller..initialize().then((_) {palyVideo(File(galleryFile!.path));});
+    }
+    notifyListeners();
+  }
+
+  void pauseVideo(){
+    _controller.pause();
     notifyListeners();
   }
 

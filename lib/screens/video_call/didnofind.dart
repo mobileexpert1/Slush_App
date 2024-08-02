@@ -2,13 +2,17 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
+import 'package:slush/controller/video_call_controller.dart';
 import 'package:slush/screens/events/bottomNavigation.dart';
+import 'package:slush/screens/waiting_room/waiting_completed_screen.dart';
 import 'package:slush/widgets/blue_button.dart';
 import 'package:slush/widgets/text_widget.dart';
+import 'package:slush/widgets/toaster.dart';
 
 class DidnotFindAnyoneScreen extends StatefulWidget {
   const DidnotFindAnyoneScreen({Key? key}) : super(key: key);
@@ -18,6 +22,15 @@ class DidnotFindAnyoneScreen extends StatefulWidget {
 }
 
 class _DidnotFindAnyoneScreenState extends State<DidnotFindAnyoneScreen> {
+
+  @override
+  void initState() {
+    callFunction();
+    super.initState();
+  }
+  void callFunction(){
+    Provider.of<TimerProvider>(context, listen: false).startTimerr();
+  }
   @override
   Widget build(BuildContext context) {
     final size=MediaQuery.of(context).size;
@@ -75,7 +88,14 @@ class _DidnotFindAnyoneScreenState extends State<DidnotFindAnyoneScreen> {
                       LocaleHandler.unMatchedEvent=false;
                       LocaleHandler.subScribtioonOffer=false;
                     });
-                    Get.to(()=> BottomNavigationScreen());
+                    if(LocaleHandler.dateno==LocaleHandler.totalDate){
+                      showToastMsg("Event is over");
+                      Get.offAll(()=>BottomNavigationScreen());
+                    Provider.of<TimerProvider>(context).stopTimerr();}
+                    else{Get.offAll(()=>WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));}
+                    // Provider.of<TimerProvider>(context,listen: false).gotoWaitingRoom();
+
+                    // Get.to(()=> BottomNavigationScreen());
                   })))
         ],),
     );

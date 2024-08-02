@@ -2,10 +2,18 @@ import 'dart:io';
 
 class LocaleHandler {
   static bool bioAuth=false;
+  static bool liked=false;
   static String bioAuth2="false";
   static bool noInternet=false;
+  static bool micOn=false;
+  static bool camOn=false;
+  static String channelId="";
+  static String rtctoken="";
 
-  static int bottomindex = 0;
+  static int bottomSheetIndex = 0;
+  static int dateno = 0;
+  static int totalDate = 1;
+  static int totalSpark=0;
 
   // Event
   static int miliseconds = 0;
@@ -18,10 +26,12 @@ class LocaleHandler {
   static String nextAction = "";
   static String nextDetailAction = "fill_ideal_vacation";
   static String userId = "";
+  static int participant = 0;
+  static int eventId = 0;
   static String subscriptionPurchase = "";
   static String role = "";
   static String emailVerified = "";
-  static int distancee = 50000;
+  static int distancee = 500;
 
   // Register
   static String name = "";
@@ -35,6 +45,7 @@ class LocaleHandler {
   static bool showheight = true;
   static String showheights = "true";
   static String gender = "";
+  static String filtergender = "";
   static bool showgender = true;
   static String showgenders = "true";
   static String lookingfor = "";
@@ -45,6 +56,8 @@ class LocaleHandler {
   static bool isVerified = false;
   static String showsexualOreintations = "true";
   static List entencity = [];
+  static List entencityname = [];
+  static List fixtureParticipantId = [];
   static String location = "";
   static File? introImage;
   static File? introVideo;
@@ -64,8 +77,11 @@ class LocaleHandler {
 
   //String
   static Map<String, dynamic> dataa = {};
+  static Map<String, dynamic> eventdataa = {};
+  // static List<Map<String, dynamic>> messages = [];
+  static Map<String, dynamic> eventParticipantData = {};
   static List items = [];
-  static List itemss = [];
+  static List sparkLiked = [];
 
   // Bool
   static bool isThereAnyEvent = false;
@@ -79,17 +95,14 @@ class LocaleHandler {
   static bool sparkAndVerification = false;
   static bool EditProfile = false;
   static bool basicInfo = true;
-  static bool noMatches = true;
-  static bool nolikes = true;
-  static bool withSubScription = false;
   static bool passMatched = false;
   static bool cpassMatched = false;
   static bool reportedSuccesfuly = false;
 
   static bool matchedd = false;
-  static bool loaderr = false;
   static bool feedTutorials = true;
   static bool scrollLimitreached = false;
+  static bool isLikedTabUpdate = false;
 
   //Int
   static int curentIndexNum = 0;
@@ -102,23 +115,21 @@ class LocaleHandler {
   //List Map
 
 // create Account details
-  static String passwordErrorText = '';
   static String freeEventImage = '';
 
   //Error Messaeg from APi
   static String ErrorMessage = '';
 
   // notification setting
-  static List switchitem = [];
+  static List<String> switchitem = [];
 
   // feed Filter
-  static int distancevalue=250;
-  static int agevalue=30;
+  static int distancevalue=500;
+  static int startage=18;
+  static int endage=90;
   static int selectedIndexGender=-1;
   static bool isChecked=false;
 
 }
 
-class My{
-  static Map<String, dynamic> i = {};
-}
+

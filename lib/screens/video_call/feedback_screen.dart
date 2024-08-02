@@ -1,21 +1,30 @@
 import 'dart:async';
 import 'dart:convert';
-
+import 'package:intl/intl.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/localkeys.dart';
+import 'package:slush/controller/profile_controller.dart';
+import 'package:slush/controller/video_call_controller.dart';
+import 'package:slush/screens/events/bottomNavigation.dart';
+import 'package:slush/screens/profile/spark_purchase.dart';
 import 'package:slush/screens/video_call/congo_match_screen.dart';
+import 'package:slush/screens/waiting_room/firebase_firestore_service.dart';
+import 'package:slush/screens/waiting_room/waiting_completed_screen.dart';
 import 'package:slush/widgets/blue_button.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
 import 'package:slush/widgets/text_widget.dart';
 import 'package:http/http.dart'as http;
+import 'package:slush/widgets/toaster.dart';
 
 class FeedbackVideoChatScreen extends StatefulWidget {
   const FeedbackVideoChatScreen({Key? key}) : super(key: key);
@@ -48,9 +57,12 @@ class _FeedbackVideoChatScreenState extends State<FeedbackVideoChatScreen> {
           _secondsLeft--;
         });
       } else {
-        // actionForHItLike("DISLIKED");
+        actionForHItLike("DISLIKED",LocaleHandler.eventParticipantData["participantId"]);
         _timer.cancel();
-        customBuilderSheet(context, 'Is everything OK?',"Submit", heading: LocaleText.feedbackguide1);
+        // customBuilderSheet(context, 'Is everything OK?',"Submit", heading: LocaleText.feedbackguide1);
+        // Get.back();
+        // Get.back();
+        // Get.back();
       }
     });
   }
@@ -60,152 +72,232 @@ class _FeedbackVideoChatScreenState extends State<FeedbackVideoChatScreen> {
     _timer.cancel();
     super.dispose();
   }
+
   String formatDuration(Duration duration) {
     String twoDigits(int n) => n.toString().padLeft(2, "0");
     String twoDigitSeconds = twoDigits(duration.inSeconds.remainder(60));
     return "$twoDigitSeconds";
   }
 
-  Future actionForHItLike(String action,String id)async{
+  Future actionForHItLikee(String action,String id)async{
     final url= "${ApiList.action}$id/action";
     var uri=Uri.parse(url);
     var response=await http.post(uri,
     headers: {'Content-Type': 'application/json', "Authorization": "Bearer ${LocaleHandler.accessToken}"},
       body: jsonEncode({"action":action})
     );
-    if(response.statusCode==201){}
+    var data=jsonDecode(response.body);
+    if(response.statusCode==201){
+      FireStoreService().deleteCallStatusToPicked();
+      showToastMsg("$action Successfully");
+      if(LocaleHandler.dateno==LocaleHandler.totalDate){
+        showToastMsg("Event is over");
+        Get.offAll(()=>BottomNavigationScreen());
+      Provider.of<TimerProvider>(context).stopTimerr();}
+      else{Get.offAll(()=>WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));}
+    }
     else if(response.statusCode==401){}
     else{}
   }
+
+  Future actionForHItLike(String action, int userId) async {
+    FireStoreService().deleteCallStatusToPicked();
+    final url = ApiList.interact;
+    print(url);
+    var uri = Uri.parse(url);
+    var response = await http.post(uri,
+        headers: {'Content-Type': 'application/json',
+          "Authorization": "Bearer ${LocaleHandler.accessToken}"
+        },
+        body: jsonEncode({"status": action, "user": userId}));
+    if(LocaleHandler.dateno==LocaleHandler.totalDate){
+      showToastMsg("Event is over");
+      Get.offAll(()=>BottomNavigationScreen());
+    Provider.of<TimerProvider>(context).stopTimerr();}
+    else{Get.offAll(()=>WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));}
+    if (response.statusCode == 201) {
+      var data=jsonDecode(response.body);
+      Provider.of<profileController>(context,listen: false).getTotalSparks();
+      if(data["isMatch"]&&action!="DISLIKED") {Get.off(()=>const CongratMatchScreen());}
+      else{
+        if(LocaleHandler.dateno==LocaleHandler.totalDate){
+          showToastMsg("Event is over");
+          Get.offAll(()=>BottomNavigationScreen());
+        Provider.of<TimerProvider>(context).stopTimerr();}
+        else{Get.offAll(()=>WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));}
+      }
+    } else {}
+  }
+
+  bool liked=false;
+  bool sparked=false;
+
+  String calculateAge(String dobString) {
+    DateTime dateTime = DateFormat('EEE MMM dd yyyy HH:mm:ss').parseUtc(dobString.split(' GMT')[0]);
+    String isoString = dateTime.toIso8601String();
+    DateTime dob = DateTime.parse(isoString);
+    DateTime now = DateTime.now();
+    int age = now.year - dob.year;
+    if (now.month < dob.month || (now.month == dob.month && now.day < dob.day)) {age--;}
+    return age.toString();
+  }
+
   @override
   Widget build(BuildContext context) {
     final size=MediaQuery.of(context).size;
-    final duration = Duration(minutes: 60);
+    const duration = Duration(minutes: 60);
     final milliseconds = duration.inMilliseconds;
-    return Scaffold(
-      body: Stack(
-        children: [
-          SizedBox(
-            height: size.height,
-            width: size.width,
-            child: Image.asset(AssetsPics.background,fit: BoxFit.cover,),
-          ),
-          SafeArea(
-            child: Container(
-              alignment: Alignment.center,
-              padding: const EdgeInsets.symmetric(horizontal: 18,vertical: 15),
-              child: Column(
-              children: [
-                CircularPercentIndicator(radius: 37,
-                backgroundColor: Colors.transparent,
-                    progressColor: color.txtBlack,
-                    animation: true,
-                    animationDuration: 60000,
-                    circularStrokeCap: CircularStrokeCap.round,
-                    lineWidth: 4.6,
-                    percent:  1,
-                  center: Column(
-                    children: [
-                      const SizedBox(height: 17),
-                      buildText2(formatDuration(Duration(seconds: _secondsLeft)), 30, FontWeight.w700, color.txtBlack),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 2.h+2),
-                buildText("Did you like them?", 24, FontWeight.w600, color.txtBlack),
-                SizedBox(height: 2.h+2),
-                Container(
-                  height: 16.h,
-                  width: 16.h,
-                  child: Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      SvgPicture.asset(AssetsPics.videocalledperson,fit: BoxFit.cover,),
-                      Container(
-                        height: 13.h,
-                        width: 13.h,
-                        decoration: BoxDecoration(
-                          color: Colors.white54,
-                          borderRadius: BorderRadius.circular(38)
-                        ),
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(38),
-                          child: Image.asset(AssetsPics.sample,fit: BoxFit.cover,)),
-                      )
-                    ],
-                  ),
-                ),
-                SizedBox(height:2.h+2),
-                buildText("Josep,26", 20, FontWeight.w600, color.txtBlack),
-                SizedBox(height: 2.h+2),
-                buildText2(LocaleText.feedbackguide, 16, FontWeight.w400, color.txtgrey),
-              ],
-            ),),
-          ),
-          Positioned(
-            bottom: 0.0,
-            child: Container(
-              padding: const EdgeInsets.only(left: 20,right: 20,top: 30),
+    return PopScope(
+      canPop: true,
+      child: Scaffold(
+        body: Stack(
+          children: [
+            SizedBox(
+              height: size.height,
               width: size.width,
-              height: 40.h,
-              decoration: const BoxDecoration(borderRadius: BorderRadius.vertical(top: Radius.circular(40)),color: color.txtWhite),
-              child: Column(children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                  GestureDetector(
-                      onTap: (){
-                        actionForHItLike("DISLIKED","502");
-                        // _timer.cancel();
-                        customBuilderSheet(context, 'Is everything OK?',"Submit", heading: LocaleText.feedbackguide1,onTap: (){});
-                      },
-                      child: buildColumn("Dislike",AssetsPics.dislike,8.h)),
-                  const SizedBox(width: 15),
-                  GestureDetector(onTap: (){
-                    actionForHItLike("LIKED","502");
-                    _timer.cancel();
-                    Get.off(()=>const CongratMatchScreen());}, child: buildColumn("Like",AssetsPics.heart,10.h)),
-                    const SizedBox(width: 15),
+              child: Image.asset(AssetsPics.background,fit: BoxFit.cover),
+            ),
+            SafeArea(
+              child: Container(
+                alignment: Alignment.center,
+                padding: const EdgeInsets.symmetric(horizontal: 18,vertical: 15),
+                child: Column(
+                children: [
+                  CircularPercentIndicator(radius: 37,
+                  backgroundColor: Colors.transparent,
+                      progressColor: color.txtBlack,
+                      animation: true,
+                      animationDuration: 60000,
+                      circularStrokeCap: CircularStrokeCap.round,
+                      lineWidth: 4.6,
+                      percent:  1,
+                    center: Column(
+                      children: [
+                        const SizedBox(height: 17),
+                        buildText2(formatDuration(Duration(seconds: _secondsLeft)), 30, FontWeight.w700, color.txtBlack),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 2.h+2),
+                  buildText("Did you like them?", 24, FontWeight.w600, color.txtBlack),
+                  SizedBox(height: 2.h+2),
+                  Container(
+                    height: 16.h,
+                    width: 16.h,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        SvgPicture.asset(AssetsPics.videocalledperson,fit: BoxFit.cover,),
+                        // CachedNetworkImage(imageUrl: LocaleHandler.eventParticipantData["avatar"]),
+                        Container(
+                          height: 13.h,
+                          width: 13.h,
+                          decoration: BoxDecoration(color: Colors.white54, borderRadius: BorderRadius.circular(38)),
+                          child: ClipRRect(borderRadius: BorderRadius.circular(35),
+                            child: CachedNetworkImage(imageUrl: LocaleHandler.eventParticipantData["avatar"],fit: BoxFit.cover),),
+                        )
+                      ],
+                    ),
+                  ),
+                  SizedBox(height:2.h+2),
+                  // buildText("Josep,26", 20, FontWeight.w600, color.txtBlack),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      buildText(LocaleHandler.eventParticipantData["firstName"], 20, FontWeight.w600, color.txtBlack),
+                      buildText(calculateAge(LocaleHandler.eventParticipantData["date_of_birth"]), 20, FontWeight.w600, color.txtBlack),
+                    ],
+                  ),
+                  SizedBox(height: 2.h+2),
+                  buildText2(LocaleText.feedbackguide, 16, FontWeight.w400, color.txtgrey),
+                ],
+              ),),
+            ),
+            Positioned(
+              bottom: 0.0,
+              child: Container(
+                padding: const EdgeInsets.only(left: 20,right: 20,top: 30),
+                width: size.width,
+                height: 40.h,
+                decoration: const BoxDecoration(borderRadius: BorderRadius.vertical(top: Radius.circular(40)),color: color.txtWhite),
+                child: Column(children: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
                     GestureDetector(
                         onTap: (){
-                          customSparkBottomSheet(context,AssetsPics.sparkleft, "Are you sure you would like to use 1 x Spark?", "Cancel", "Yes",true,
-                          onTap2: (){Get.back();
-                            customSparkBottomSheet(context,AssetsPics.sparkempty, " You have run out of Sparks, please purchase  more.", "Cancel", "Purchase",false);
-                          });},child: buildColumn("Spark",AssetsPics.superlike,8.h)),
+                          // Get.offAll(()=>WaitingCompleted(data: ,min: 0));
+                          // Get.back();
+                          // Get.back();
+                          actionForHItLike("DISLIKED",LocaleHandler.eventParticipantData["participantId"]);
+                          // _timer.cancel();
+                          // customBuilderSheet(context, 'Is everything OK?',"Submit", heading: LocaleText.feedbackguide1,onTap: (){});
+                        },
+                        child: buildColumn("Dislike",AssetsPics.dislike,8.h)),
+                    const SizedBox(width: 15),
+                    GestureDetector(onTap: (){
+                      setState(() {liked=true;});
+                      actionForHItLike("LIKED",LocaleHandler.eventParticipantData["participantId"]);
+                      _timer.cancel();
+                      }, child: buildColumn("Like",liked?AssetsPics.active:AssetsPics.inactive,11.h)),
+                      //AssetsPics.heart:AssetsPics.blueheart
+                      const SizedBox(width: 15),
+                      Consumer<profileController>(
+                          builder: (context,val,child){
+                          return GestureDetector(
+                              onTap: (){
+                                customSparkBottomSheet(context,AssetsPics.sparkleft, "Are you sure you would like to use 1 x Spark?", "Cancel", "Yes",true,
+                                    sparks: val.sparks,
+                                onTap2: (){Get.back();
+                                if(val.sparks<=0) {
+                                  customSparkBottomSheet(context, AssetsPics.sparkempty,
+                                      " You have run out of Sparks, please purchase  more.",
+                                      "Cancel", "Purchase", false,onTap2: (){
+                                        Get.back();
+                                        Get.to(()=>const SparkPurchaseScreen());
+                                      });
+                                }else{
+                                  setState(() {sparked=true;});
+                                  // Provider.of<profileController>(context,listen: false).actionForHItLike("SPARK LIKE", LocaleHandler.eventParticipantData["participantId"].toString());
+                                  actionForHItLike("SPARK LIKE", LocaleHandler.eventParticipantData["participantId"]);
+                                }});},child: buildColumn("Spark",sparked?AssetsPics.superlikewhite:AssetsPics.superlike,8.h));
+                        }
+                      ),
+                  ],),
+                  const SizedBox(height: 25),
+                  Text.rich(
+                      textAlign: TextAlign.center,
+                      TextSpan(children: [
+                        buildTextSpan('Tap ', color.txtgrey),
+                        buildTextSpan('’Like’ ', color.txtBlue),
+                        buildTextSpan("if you liked them.", color.txtgrey),
+                      ])),
+                  Text.rich(
+                      textAlign: TextAlign.center,
+                      TextSpan(children: [
+                        buildTextSpan("If it's mutual, you'll ", color.txtgrey),
+                        buildTextSpan("‘Match’", color.txtBlue),
+                        buildTextSpan(" and can chat.", color.txtgrey),
+                      ])),
+                  Text.rich(
+                      textAlign: TextAlign.center,
+                      TextSpan(children: [
+                        buildTextSpan("If not, tap ", color.txtgrey),
+                        buildTextSpan("’Dislike’ ", color.txtBlue),
+                        buildTextSpan("if you are not interested.", color.txtgrey),
+                      ])),
+                  Text.rich(
+                      textAlign: TextAlign.center,
+                      TextSpan(children: [
+                        buildTextSpan("Tap the ", color.txtgrey),
+                        buildTextSpan("’Spark’ ", color.txtBlue),
+                        buildTextSpan("if you think they could be the one.", color.txtgrey),
+                      ])),
                 ],),
-                const SizedBox(height: 25),
-                Text.rich(
-                    textAlign: TextAlign.center,
-                    TextSpan(children: [
-                      buildTextSpan('Tap ', color.txtgrey),
-                      buildTextSpan('’Like’ ', color.txtBlue),
-                      buildTextSpan("if you liked them.", color.txtgrey),
-                    ])),
-                Text.rich(
-                    textAlign: TextAlign.center,
-                    TextSpan(children: [
-                      buildTextSpan("If it's mutual, you'll ", color.txtgrey),
-                      buildTextSpan("‘Match’", color.txtBlue),
-                      buildTextSpan(" and can chat.", color.txtgrey),
-                    ])),
-                Text.rich(
-                    textAlign: TextAlign.center,
-                    TextSpan(children: [
-                      buildTextSpan("If not, tap ", color.txtgrey),
-                      buildTextSpan("’Dislike’ ", color.txtBlue),
-                      buildTextSpan("if you are not interested.", color.txtgrey),
-                    ])),
-                Text.rich(
-                    textAlign: TextAlign.center,
-                    TextSpan(children: [
-                      buildTextSpan("Tap the ", color.txtgrey),
-                      buildTextSpan("’Spark’ ", color.txtBlue),
-                      buildTextSpan("if you think they could be the one.", color.txtgrey),
-                    ])),
-              ],),
-            ),
-          )
-        ],
+              ),
+            )
+          ],
+        ),
       ),
     );
   }
@@ -213,14 +305,13 @@ class _FeedbackVideoChatScreenState extends State<FeedbackVideoChatScreen> {
   Column buildColumn(String txt,String img,double hi) {
     return Column(children: [
                   buildText(txt, 15, FontWeight.w600, color.txtBlack),
-                  Container(
-                    alignment: Alignment.center,
-                    height: hi,
-                    width: hi,
-                    decoration:  BoxDecoration(
-                      color:txt=="Like"? color.txtBlue:Colors.white,
+                  Container(alignment: Alignment.center,
+                    height: hi, width: hi,
+                    decoration:  const BoxDecoration(color:
+                      // txt=="Like"? color.txtBlue:
+                      Colors.white,
                       shape: BoxShape.circle,
-                        boxShadow:const [
+                        boxShadow:[
                           BoxShadow(
                               color: Colors.black12,
                               blurRadius: 20.0,
@@ -257,7 +348,7 @@ class _FeedbackVideoChatScreenState extends State<FeedbackVideoChatScreen> {
         context: context,
         pageBuilder: (context, anim1, anim2) {
           return GestureDetector(
-            // onTap: pressed,
+            onTap: pressed,
           // return WillPopScope(
           //   onWillPop: () async => false,
             child: Scaffold(
@@ -339,7 +430,8 @@ class _FeedbackVideoChatScreenState extends State<FeedbackVideoChatScreen> {
     VoidCallback? onTapp = pressed,
     VoidCallback? onTap1=pressed,
     VoidCallback? onTap2=pressed,
-    bool? forAdvanceTap}) {
+    bool? forAdvanceTap,
+    int sparks=0}) {
     return showGeneralDialog(
         barrierLabel: "Label",
         transitionDuration: const Duration(milliseconds: 500),
@@ -376,8 +468,8 @@ class _FeedbackVideoChatScreenState extends State<FeedbackVideoChatScreen> {
                           child: Row(mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               SvgPicture.asset(AssetsPics.star,height: 20),
-                              SizedBox(width: 5),
-                              buildText("3 Sparks left",14,FontWeight.w600,color.txtBlack),
+                              const SizedBox(width: 5),
+                              buildText("$sparks Sparks left",14,FontWeight.w600,color.txtBlack),
                             ],),):const SizedBox(),
                         const SizedBox(height: 30),
                         Padding(

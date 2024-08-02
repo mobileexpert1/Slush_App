@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -12,8 +13,10 @@ import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
+import 'package:slush/constants/loader.dart';
 import 'package:slush/constants/localkeys.dart';
 import 'package:slush/controller/profile_controller.dart';
+import 'package:slush/screens/chat/text_chat_screen.dart';
 import 'package:slush/screens/events/bottomNavigation.dart';
 import 'package:slush/screens/profile/basic_info/profile_video_view.dart';
 import 'package:slush/screens/profile/profile_img_view.dart';
@@ -36,6 +39,13 @@ class MatchedPersonProfileScreen extends StatefulWidget {
 
 class _MatchedPersonProfileScreenState
     extends State<MatchedPersonProfileScreen> {
+  List reportingMatter = [
+    "Fake Account",
+    "Nudity / inappropriate",
+    "Swearing / Aggression",
+    "Harassment","Other"
+  ];
+
   List items=[
     "Travelling","Modeling","Dancing","Books","Music","Dancing"
   ];
@@ -68,6 +78,24 @@ class _MatchedPersonProfileScreenState
     _controller2!.dispose();
     _controller3!.dispose();
     super.dispose();
+  }
+
+  Future actionForHItLike(String action, String id) async {
+    final url = "${ApiList.action}${id}/action";
+    print(url);
+    var uri = Uri.parse(url);
+    var response = await http.post(uri,
+        headers: {
+          'Content-Type': 'application/json',
+          "Authorization": "Bearer ${LocaleHandler.accessToken}"
+        },
+        body: jsonEncode({"action": action}));
+    print(response.statusCode);
+    if (response.statusCode == 201) {
+      // getListData();
+    } else if (response.statusCode == 401) {
+      showToastMsgTokenExpired();
+    } else {}
   }
 
   Future getProfileDetails() async {
@@ -135,9 +163,8 @@ class _MatchedPersonProfileScreenState
   String printme(String text) {
     List<String> splitList = text.split(',');
     int startIndex = splitList.length - 2;
-    if (startIndex < 0) {
-      return "============== No Sufficient Commas ==============";
-    } else {
+    if (startIndex < 0) {return "";}
+    else {
       return splitList.getRange(startIndex, splitList.length).join(',');
     }
   }
@@ -154,12 +181,57 @@ class _MatchedPersonProfileScreenState
     }
   }
 
+  Future reportUser(String reason)async{
+    final url = '${ApiList.reportUser}${widget.id}/report';
+    print(url);
+    try {
+      var uri = Uri.parse(url);
+      var response = await http.post(uri,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${LocaleHandler.accessToken}'
+          },
+          body: jsonEncode({'reason': reason})
+      );
+      setState(() {LoaderOverlay.hide();});
+      if(response.statusCode==201)
+      {
+        Get.back();
+        print('User Reported Successfully:::::::::::::::::::::;');
+        Fluttertoast.showToast(msg: 'User Reported');
+        setState(() {
+          Get.back(result: true);
+          snackBaar(context, AssetsPics.reportbannerSvg,false);
+          // LocaleHandler.reportedSuccesfuly=true;
+          LocaleHandler.curentIndexNum=2;
+          LocaleHandler.isThereAnyEvent=false;
+          LocaleHandler.isThereCancelEvent=false;
+          LocaleHandler.unMatchedEvent=false;
+          LocaleHandler.subScribtioonOffer=false;
+          // Get.offAll(()=>BottomNavigationScreen());
+        });
+      }
+      else if(response.statusCode==401){
+        showToastMsgTokenExpired();
+      }
+      else{
+        print('Reported Failed With Status Code :${response.statusCode}');
+        Fluttertoast.showToast(msg: 'Something Went Wrong');
+      }
+    }
+    catch(error)
+    {
+      print('Error ::::::::::::::::::: ${error.toString()}');
+      Fluttertoast.showToast(msg: 'Something Went Wrong::');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Scaffold(
          body:dataa==null?const Center(child: CircularProgressIndicator(color: color.txtBlue)): CustomScrollView(
-           physics: ClampingScrollPhysics(),
+           physics: const ClampingScrollPhysics(),
            slivers: [
              SliverAppBar(
                bottom: PreferredSize(
@@ -178,7 +250,7 @@ class _MatchedPersonProfileScreenState
                  children: [
                    GestureDetector(onTap: (){Get.back();},
                        child: Container(
-                           padding: EdgeInsets.all(9),
+                           padding: const EdgeInsets.all(9),
                            height: 35,
                            width: 35,
                            decoration: BoxDecoration(
@@ -206,16 +278,15 @@ class _MatchedPersonProfileScreenState
                            child:imgvideitems[index]["key"]=="photo"? CachedNetworkImage(
                              imageUrl: imgvideitems.length == 0 ? "" :
                              imgvideitems[index]["url"],
-                             fit: BoxFit.cover,
-                             errorWidget: (context, url, error) => Icon(Icons.error),
-                             placeholder: (context, url) => Center(child: CircularProgressIndicator(color: color.txtBlue)),
+                             errorWidget: (context, url, error) => const Icon(Icons.error),
+                             placeholder: (context, url) => const Center(child: CircularProgressIndicator(color: color.txtBlue)),
                            ):VideoScreen(url: imgvideitems[index]["url"]),
                          );
                        },
                      ),
                      IgnorePointer(child: SvgPicture.asset(AssetsPics.eventbg,fit: BoxFit.cover)),
                      Positioned(
-                       top:defaultTargetPlatform==TargetPlatform.iOS?70: 50.0,
+                       bottom:defaultTargetPlatform==TargetPlatform.iOS?70: 50.0,
                        child:   IgnorePointer(
                          child: Row(
                            mainAxisAlignment: MainAxisAlignment.center,
@@ -234,6 +305,24 @@ class _MatchedPersonProfileScreenState
                          ),
                        ),
                      ),
+                     Positioned(
+                       top:defaultTargetPlatform==TargetPlatform.iOS?70: 40.0,
+                       right: 20.0,
+                       child: GestureDetector(
+                         onTap: (){
+                           customUnmatchBoxWithtwobutton(context, "Are you sure you want to\n unmatch?", " ",img: AssetsPics.logoutpng,isPng: true,
+                               btnTxt1: "No",btnTxt2: "Unmatch",onTap2: (){
+                                 actionForHItLike("DISLIKED", dataa["userId"].toString());
+                                 Get.offAll(()=>BottomNavigationScreen());
+                                 snackBaar(context, AssetsPics.unMatchedbg,true);
+                               }
+                           );
+                         },
+                         child: Container(
+                             alignment: Alignment.center,
+                             child: SvgPicture.asset(AssetsPics.whiteCancel,width: 50,height: 50)),
+                       ),
+                     ),
                    ],
                  )),
                ),
@@ -242,7 +331,14 @@ class _MatchedPersonProfileScreenState
                delegate: SliverChildBuilderDelegate(
                      (BuildContext context, int index) {
                        String gender = dataa["gender"];
-                       var dis =distance(double.parse(dataa["latitude"]), double.parse(dataa["longitude"]));
+                       // var dis =distance(double.parse(dataa["latitude"]), double.parse(dataa["longitude"]));
+                       var dis;
+                       if(dataa["latitude"] != null) {
+                         dis = distance(double.parse(dataa["latitude"]),
+                             double.parse(dataa["longitude"]));
+                       } else{
+                         dis = 0.0.toString();
+                       }
                        var dis2 = dis.toString().split(".").first;
                    return Container(width: size.width,
                      decoration: const BoxDecoration(
@@ -255,62 +351,67 @@ class _MatchedPersonProfileScreenState
                          Row(
                            mainAxisAlignment: MainAxisAlignment.start,
                            children: [
-                             Flexible(child: buildTextOverFlow(dataa['firstName'] == null ? "" : "${dataa["firstName"] ?? ''}", 24, FontWeight.w600, color.txtBlack)),
-                             buildTextOverFlow(", ${dataa['dateOfBirth'] == null ? "" : calculateAge(dataa['dateOfBirth'] ?? '')}",24, FontWeight.w600, color.txtBlack),
-                             SizedBox(width: 10),
-                             SvgPicture.asset(dataa["isVerified"]? AssetsPics.verify:AssetsPics.verifygrey),
-                             SizedBox(width: 55),
-                             Spacer(),
+                             SizedBox(
+                               width: size.width*0.8,
+                               child: Row(children: [
+                                 Flexible(child: buildTextOverFlow(dataa['firstName'] == null ? "" : "${dataa["firstName"] ?? ''}", 24, FontWeight.w600, color.txtBlack)),
+                                 buildTextOverFlow(", ${dataa['dateOfBirth'] == null ? "" : calculateAge(dataa['dateOfBirth'] ?? '')}",24, FontWeight.w600, color.txtBlack),
+                                 const SizedBox(width: 10),
+                                 SvgPicture.asset(dataa["isVerified"] == null ?
+                                 AssetsPics.verifygrey : dataa["isVerified"] ? AssetsPics.verify:AssetsPics.verifygrey),
+                               ],),
+                             ),
+                             const Spacer(),
                              InkWell(
                                onTap: () {
-                                 customUnmatchBoxWithtwobutton(context, "Are you sure you want to\n unmatch?", " ",img: AssetsPics.unMatch,isPng: true,
-                                     btnTxt1: "No",btnTxt2: "Unmatch",onTap2: (){
-                                       Get.offAll(()=>BottomNavigationScreen());
-                                       snackBaar(context, AssetsPics.unMatchedbg,true);
-                                     }
-                                 );
+                                 customBuilderSheet(context, 'Report User',"Submit",reportingMatter,onTap: (){
+                                   setState(() {
+                                     reportUser(reportingMatter[selectedIndex]);
+                                   });
+                                 });
                                },
                                child: Container(
                                  alignment: Alignment.center,
-                                 padding: EdgeInsets.symmetric(horizontal: 8,vertical: 4),
-                                 decoration: BoxDecoration(color: color.lightestBlue,
-                                     borderRadius: BorderRadius.circular(8)),
-                                 child: Icon(Icons.group_off_outlined,color: color.txtBlue,),
-                               ),
+                                 height: size.height*0.04,
+                                 width: size.width*0.07,
+                                 color: Colors.transparent,
+                                 child: SvgPicture.asset(AssetsPics.infoicon,height: 20),
+                                 // child: Icon(Icons.info),
+                               )
                              ),
                            ],
                          ),
                          // buildText("Professional model", 15, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix),
-                         dataa["jobTitle"]==null?SizedBox(): buildText(dataa["jobTitle"]??"", 15, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix),
+                         dataa["jobTitle"]==null?const SizedBox(): buildText(dataa["jobTitle"]??"", 15, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix),
                          Wrap(
                            crossAxisAlignment: WrapCrossAlignment.center,
                            children: [
                              splitted.contains("gender")
-                                 ? Container(margin: EdgeInsets.symmetric(horizontal: 2),
+                                 ? Container(margin: const EdgeInsets.symmetric(horizontal: 2),
                                  child: SvgPicture.asset(
                                      gender == "male" ? AssetsPics.greyman : gender == "female"
                                          ? AssetsPics.greyfemale : AssetsPics.transGenderBlack, height: 15))
-                                 : SizedBox(),
+                                 : const SizedBox(),
                              splitted.contains("gender")
                                  ? buildText(gender == "male" ? "Male" : gender == "female" ? "Female" : "Other",
                                  15, FontWeight.w500, color.txtgrey, fontFamily: FontFamily.hellix)
-                                 : SizedBox(),
+                                 : const SizedBox(),
                              splitted.contains("gender")
-                                 ? Container(margin: EdgeInsets.symmetric(horizontal: 5),
+                                 ? Container(margin: const EdgeInsets.symmetric(horizontal: 5),
                                  child: SvgPicture.asset(AssetsPics.greydivider, height: 15))
-                                 : SizedBox(),
+                                 : const SizedBox(),
                              splitted.contains("height")?Container(
-                                 margin: EdgeInsets.symmetric(horizontal: 2),
-                                 child: SvgPicture.asset(AssetsPics.greyhieght, height: 15,)):SizedBox(),
+                                 margin: const EdgeInsets.symmetric(horizontal: 2),
+                                 child: SvgPicture.asset(AssetsPics.greyhieght, height: 15,)):const SizedBox(),
                              splitted.contains("height")? buildText(dataa["height"] + "cm", 15,
-                                 FontWeight.w500, color.txtgrey, fontFamily: FontFamily.hellix):SizedBox(),
+                                 FontWeight.w500, color.txtgrey, fontFamily: FontFamily.hellix):const SizedBox(),
 
-                             splitted.contains("height")?Container(margin: EdgeInsets.symmetric(horizontal: 5),
-                                 child: SvgPicture.asset(AssetsPics.greydivider, height: 15)):SizedBox(),
+                             splitted.contains("height")?Container(margin: const EdgeInsets.symmetric(horizontal: 5),
+                                 child: SvgPicture.asset(AssetsPics.greydivider, height: 15)):const SizedBox(),
                              splitted.contains("sexuality")? buildText(dataa["sexuality"], 15,
-                                 FontWeight.w500, color.txtgrey, fontFamily: FontFamily.hellix):SizedBox(),
-                             splitted.contains("sexuality")?Container(margin: EdgeInsets.symmetric(horizontal: 5),
-                                 child: SvgPicture.asset(AssetsPics.greydivider, height: 15)):SizedBox(),
+                                 FontWeight.w500, color.txtgrey, fontFamily: FontFamily.hellix):const SizedBox(),
+                             splitted.contains("sexuality")?Container(margin: const EdgeInsets.symmetric(horizontal: 5),
+                                 child: SvgPicture.asset(AssetsPics.greydivider, height: 15)):const SizedBox(),
 
                              for (var ii = 0; ii < dataa["ethnicity"].length; ii++)
                                Wrap(
@@ -318,7 +419,7 @@ class _MatchedPersonProfileScreenState
                                  children: [
                                    buildText(dataa["ethnicity"][ii]["name"],
                                        15, FontWeight.w500, color.txtgrey, fontFamily: FontFamily.hellix),
-                                   ii== dataa["ethnicity"].length-1?SizedBox(): Container(margin: EdgeInsets.symmetric(horizontal: 5),
+                                   ii== dataa["ethnicity"].length-1?const SizedBox(): Container(margin: const EdgeInsets.symmetric(horizontal: 5),
                                        child: SvgPicture.asset(AssetsPics.greydivider, height: 15)),
 
                                  ],
@@ -326,24 +427,24 @@ class _MatchedPersonProfileScreenState
                            ],
                          ),
                          SizedBox(height:splitted.contains("lookingFor")? 2.h:0),
-                         splitted.contains("lookingFor")? buildText("Relationship basics", 20, FontWeight.w600, color.txtBlack):SizedBox(),
+                         splitted.contains("lookingFor")? buildText("Relationship basics", 20, FontWeight.w600, color.txtBlack):const SizedBox(),
                          splitted.contains("lookingFor")?  Row(
                            children: [
                              Container(
-                                 margin: EdgeInsets.symmetric(horizontal: 5),
+                                 margin: const EdgeInsets.symmetric(horizontal: 5),
                                  child: SvgPicture.asset(AssetsPics.greyoutlineheart, height: 14)),
                              buildText(dataa["lookingFor"] ?? '', 15,
-                                 FontWeight.w500, color.txtgrey, fontFamily: FontFamily.hellix),],):SizedBox(),
+                                 FontWeight.w500, color.txtgrey, fontFamily: FontFamily.hellix),],):const SizedBox(),
                          SizedBox(height: 2.h),
                          Row(
                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
                            children: [
                              buildText("Location", 20, FontWeight.w600, color.txtBlack),
                              Container(
-                               padding: EdgeInsets.symmetric(horizontal: 5),
+                               padding: const EdgeInsets.symmetric(horizontal: 5),
                                height: 4.h,
                                // width: 9.h+3,
-                               decoration: BoxDecoration(color: Color.fromRGBO(230, 240, 255, 1),
+                               decoration: BoxDecoration(color: const Color.fromRGBO(230, 240, 255, 1),
                                    borderRadius: BorderRadius.circular(17)
                                ),
                                child: Row(
@@ -356,33 +457,33 @@ class _MatchedPersonProfileScreenState
                              )
                            ],),
                          // buildText("Chicago, IL United States", 15, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix),
-                         buildText(dataa["country"]==null? printme(dataa["address"]):
+                         buildText(dataa["country"]==null? printme(dataa["address"]??""):
                          dataa["state"]+", "+dataa["country"], 15, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix),
                          SizedBox(height: 2.h),
-                         dataa["bio"]==null?SizedBox() :  buildText("About", 20, FontWeight.w600, color.txtBlack),
+                         dataa["bio"]==null?const SizedBox() :  buildText("About", 20, FontWeight.w600, color.txtBlack),
                          // buildText(LocaleText.personDescription, 16, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix),
                          /*  Text(LocaleText.personDescription,style: TextStyle(
                          fontSize: 16,fontFamily: FontFamily.hellix,fontWeight: FontWeight.w500,
                          color: color.txtgrey
                        )),*/
-                         dataa["bio"]==null?SizedBox():  ExpandableText(
+                         dataa["bio"]==null?const SizedBox():  ExpandableText(
                            dataa["bio"]??"",
-                           style: TextStyle(fontSize: 16,fontFamily: FontFamily.hellix,fontWeight: FontWeight.w500, color: color.txtBlack),
+                           style: const TextStyle(fontSize: 16,fontFamily: FontFamily.hellix,fontWeight: FontWeight.w500, color: color.txtBlack),
                            expandText: '\nRead more',
                            collapseText: 'Read less',
                            maxLines: 3,
                            animation: true,
-                           animationDuration: Duration(seconds: 1),
+                           animationDuration: const Duration(seconds: 1),
                            linkColor: Colors.blue,
-                           linkStyle: TextStyle(color: color.txtBlue,fontWeight: FontWeight.w600,fontFamily: FontFamily.hellix,fontSize: 15),
+                           linkStyle: const TextStyle(color: color.txtBlue,fontWeight: FontWeight.w600,fontFamily: FontFamily.hellix,fontSize: 15),
                            linkEllipsis: false,
                          ),
                          SizedBox(height:dataa["bio"]==null?0: 2.h),
                          dataa["ideal_vacation"] != null||dataa["cooking_skill"] != null||dataa["smoking_opinion"] != null?
-                         buildText("More about me", 20, FontWeight.w600, color.txtBlack):SizedBox(),
+                         buildText("More about me", 20, FontWeight.w600, color.txtBlack):const SizedBox(),
                          Wrap(
                            children: [
-                             dataa["ideal_vacation"] == null ? SizedBox() : Container(
+                             dataa["ideal_vacation"] == null ? const SizedBox() : Container(
                                margin: const EdgeInsets.only(top: 10, right: 9),
                                padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 6),
                                decoration: BoxDecoration(
@@ -393,14 +494,14 @@ class _MatchedPersonProfileScreenState
                                  mainAxisSize: MainAxisSize.min,
                                  children: [
                                    Container(
-                                       margin: EdgeInsets.only(right: 6),
+                                       margin: const EdgeInsets.only(right: 6),
                                        child: SvgPicture.asset(
                                            AssetsPics.greyideal)),
                                    buildText(dataa["ideal_vacation"], 16, FontWeight.w600, color.txtBlack),
                                  ],
                                ),
                              ),
-                             dataa["cooking_skill"] == null ? SizedBox() : Container(
+                             dataa["cooking_skill"] == null ? const SizedBox() : Container(
                                margin:
                                const EdgeInsets.only(top: 10, right: 9),
                                padding: const EdgeInsets.symmetric(
@@ -415,14 +516,14 @@ class _MatchedPersonProfileScreenState
                                  mainAxisSize: MainAxisSize.min,
                                  children: [
                                    Container(
-                                       margin: EdgeInsets.only(right: 6),
+                                       margin: const EdgeInsets.only(right: 6),
                                        child: SvgPicture.asset(
                                            AssetsPics.greyshefhat)),
                                    buildText(dataa["cooking_skill"], 16, FontWeight.w600, color.txtBlack),
                                  ],
                                ),
                              ),
-                             dataa["smoking_opinion"] == null ? SizedBox() : Container(
+                             dataa["smoking_opinion"] == null ? const SizedBox() : Container(
                                margin:
                                const EdgeInsets.only(top: 10, right: 9),
                                padding: const EdgeInsets.symmetric(
@@ -437,7 +538,7 @@ class _MatchedPersonProfileScreenState
                                  mainAxisSize: MainAxisSize.min,
                                  children: [
                                    Container(
-                                       margin: EdgeInsets.only(right: 6),
+                                       margin: const EdgeInsets.only(right: 6),
                                        child: SvgPicture.asset(
                                            AssetsPics.greysmoking)),
                                    buildText(dataa["smoking_opinion"], 16, FontWeight.w600, color.txtBlack),
@@ -447,7 +548,7 @@ class _MatchedPersonProfileScreenState
                            ],
                          ),
                          SizedBox(height:dataa["interests"].length==0?0: 2.h),
-                         dataa["interests"].length==0?SizedBox():buildText("Interests", 20, FontWeight.w600, color.txtBlack),
+                         dataa["interests"].length==0?const SizedBox():buildText("Interests", 20, FontWeight.w600, color.txtBlack),
                          Wrap(children: [
                            for(var i=0;i<dataa["interests"].length;i++)
                              Container(
@@ -469,12 +570,12 @@ class _MatchedPersonProfileScreenState
                            width: size.width,
                            child: Row(children: [
                              Expanded(child: dataa["profilePictures"].length != 0
-                                 ? Container(
+                                 ? SizedBox(
                                  height: size.height*0.3,
                                  child: buildPhotoContainer(dataa["profilePictures"][0]["key"],0))
-                                 : Container(
+                                 : SizedBox(
                                  height: size.height*0.3,child: buildContainer())),
-                             SizedBox(width: 10),
+                             const SizedBox(width: 10),
                              Column(children: [
                                Expanded(
                                  child: SizedBox(
@@ -504,7 +605,7 @@ class _MatchedPersonProfileScreenState
                            width: size.width,
                            child: Row(children: [
                              Expanded(child: dataa["profileVideos"].length != 0
-                                 ? Container( height: size.height*0.3,child: buildVideoContainer(_controller!, _initializeVideoPlayerFuture!))
+                                 ? SizedBox( height: size.height*0.3,child: buildVideoContainer(_controller!, _initializeVideoPlayerFuture!))
                                  : buildContainer()),
                              // Expanded(child: buildContainer()),
                              const SizedBox(width: 10),
@@ -541,12 +642,16 @@ class _MatchedPersonProfileScreenState
 
            ],
          ),
-      floatingActionButton: FloatingActionButton(
+      floatingActionButton: FloatingActionButton.extended(
+        heroTag: 'uniqueTag',
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
         backgroundColor: color.txtBlue,
-        onPressed: () {},
-        child: SvgPicture.asset(AssetsPics.floatiAction),
-      ),
+        label: Row(
+          children: [Image.asset(AssetsPics.floatiActionp,height: 22), buildText('  Tap to chat',15,FontWeight.w600,color.txtWhite)],
+        ), onPressed: () {
+          Get.to(()=>TextChatScreen(name: dataa['firstName']??"", id: dataa['userId']));
+      },
+      )
     );
   }
 
@@ -558,7 +663,7 @@ class _MatchedPersonProfileScreenState
       },
       child: ClipRRect(borderRadius: BorderRadius.circular(16),
           // child: Image.asset(AssetsPics.photo,fit: BoxFit.cover)
-          child: CachedNetworkImage(imageUrl: img, fit: BoxFit.cover, errorWidget: (context, url, error) => Icon(Icons.error))
+          child: CachedNetworkImage(imageUrl: img, fit: BoxFit.cover, errorWidget: (context, url, error) => const Icon(Icons.error))
       ),
     );
   }
@@ -568,7 +673,7 @@ class _MatchedPersonProfileScreenState
       borderRadius: BorderRadius.circular(16),
       color: color.txtgrey4,
     ),
-    child: Icon(Icons.info),
+    // child: const Icon(Icons.info),
   );
 
   Widget buildVideoContainer(VideoPlayerController cntrl, Future<void> func) {
@@ -593,8 +698,8 @@ class _MatchedPersonProfileScreenState
                 child: GestureDetector(
                     onTap: () {
                       // cntrl.play();
-                      Provider.of<profileController>(context,listen: false).videoUrl = cntrl.dataSource;
-                      Get.to(()=>ProfileVideoViewer());
+                      // Provider.of<profileController>(context,listen: false).videoUrl = cntrl.dataSource;
+                      Get.to(()=>ProfileVideoViewer(url: cntrl.dataSource));
                     },
                     child: SvgPicture.asset(AssetsPics.videoplayicon)))
           ],

@@ -2,18 +2,13 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart'as http;
 import 'package:local_auth/local_auth.dart';
-import 'package:provider/provider.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
-import 'package:slush/controller/controller.dart';
 import 'package:slush/screens/login/login.dart';
 
-import '../../widgets/toaster.dart';
 
 class SplashController extends ChangeNotifier{
   final LocalAuthentication auth = LocalAuthentication();
@@ -93,11 +88,25 @@ class SplashController extends ChangeNotifier{
       LocaleHandler.gender=data["data"]["gender"];
       LocaleHandler.subscriptionPurchase=data["data"]["isSubscriptionPurchased"];
       if(data["data"]["isVerified"]==null){LocaleHandler.isVerified = false;}
-      else{LocaleHandler.isVerified=data["data"]["isVerified"];}
-      }
+      else{LocaleHandler.isVerified=data["data"]["isVerified"];}}
       else if (response.statusCode == 401) {Get.offAll(()=>LoginScreen());}
       else {throw Exception('Failed to load data');}
     } catch (e) {throw Exception('Failed to fetch data: $e');}
+    notifyListeners();
+  }
+
+  void getTotalSparks()async{
+    const url=ApiList.remainspark;
+    print(url);
+    var uri=Uri.parse(url);
+    var response=await http.get(uri,headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${LocaleHandler.accessToken}'});
+    var i =jsonDecode(response.body);
+    if(response.statusCode==200){
+      if(i["remain_sparks"]!=null){
+        LocaleHandler.totalSpark=i["remain_sparks"];
+      }
+    }
+    else{print("Exception");}
     notifyListeners();
   }
 }

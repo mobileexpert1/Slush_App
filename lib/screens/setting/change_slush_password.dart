@@ -242,7 +242,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                     else if(!RegExp(LocaleKeysValidation.password).hasMatch(passwordController.text) ){
                       showToastMsg("Password is too weak!");
                       setState(() {
-                        passwordErrorText="At least 1 Upper,Lower,Num and Special Character";
+                        passwordErrorText="Your password must include at least one uppercase letter, one lowercase letter, one number, and one special character.";
                       });
                     }
                     else if(passwordController.text==confPasswordController.text) {
@@ -256,7 +256,7 @@ class _ChangePasswordState extends State<ChangePassword> {
                       setState(() {
                         passwordErrorText="";
                       });
-                      showToastMsg("Confirm Password Mismatch! please check");
+                      showToastMsg("The passwords do not match. Please try again.");
                     }
                   },
                 ),

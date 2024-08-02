@@ -6,6 +6,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/screens/waiting_room/readytocall.dart';
@@ -101,7 +102,9 @@ class _EnableCameraMicrophoneScreenState extends State<EnableCameraMicrophoneScr
                     bottom: 35.0,
                     right: 100.0,
                     child: GestureDetector(
-                      onTap: (){setState(() {micOn=!micOn;});},
+                      onTap: (){setState(() {micOn=!micOn;
+                      LocaleHandler.micOn=micOn;
+                      });},
                       child: Row(
                         children: [
                         CircleAvatar(
@@ -111,7 +114,9 @@ class _EnableCameraMicrophoneScreenState extends State<EnableCameraMicrophoneScr
                         ),
                         const SizedBox(width: 15),
                         GestureDetector(onTap: (){
-                          setState(() {camOn=!camOn;});
+                          setState(() {camOn=!camOn;
+                          LocaleHandler.camOn=camOn;
+                          });
                         }, child: CircleAvatar(
                             radius: 27,
                             backgroundColor: color.txtWhite,

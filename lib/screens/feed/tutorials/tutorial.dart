@@ -39,13 +39,13 @@ Widget feedTutorials(BuildContext context){
           value.cou==2? third(context):
           value.cou==3? fourth(context):
           value.cou==4?fifth(context):
-          value.cou==5? sixth(context):SizedBox()
+          value.cou==5? sixth(context):const SizedBox()
           // :seventh(context),
           );
         },
       ),
       Consumer<reelController>(builder: (ctx,val,child){
-        return val.count==0?seventh(context):SizedBox();
+        return val.count==0?seventh(context):const SizedBox();
       })
       ],
     ),
@@ -152,7 +152,7 @@ Widget second(BuildContext context){
             child: CircleAvatar(radius: 32,
             backgroundColor: Colors.transparent,
             child: Consumer<reelController>(builder: (context,val,child){
-           return val.data==null?CircleAvatar(radius: 32): SizedBox(width: 75, height: 75,child: ClipOval(child: CachedNetworkImage(imageUrl: val.data[0]["user"]["avatar"],fit: BoxFit.cover,
+           return val.data==null?const CircleAvatar(radius: 32): SizedBox(width: 75, height: 75,child: ClipOval(child: CachedNetworkImage(imageUrl: val.data[0]["user"]["avatar"],fit: BoxFit.cover,
            )));
             })
             // AssetImage(AssetsPics.demouser),
@@ -250,30 +250,27 @@ Widget fourth(BuildContext context){
                       child: SvgPicture.asset(AssetsPics.leftup)
                   )
               ),
-
             ],),
           Positioned(
-            bottom: 38.0,
+            bottom: 28.0,
             left: 0.0,
             child: Consumer<reelController>(builder: (ctx,val,child)
-              {
-                return Column(
+              {return val.data==null?SizedBox(): Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                 SizedBox(height: 1.h),
-                buildText(val.data[0]["user"]["fullName"]!=null?val.data[0]["user"]["fullName"] :val.data[0]["user"]["nickName"]??"", 17, FontWeight.w600, color.txtWhite),
+                buildText(val.data[0]["user"]["fullName"] ?? val.data[0]["user"]["nickName"]??"", 17, FontWeight.w600, color.txtWhite),
                 SizedBox(height: 1.h-5),
                 SizedBox(
                 width: MediaQuery.of(context).size.width/1.5,
                 child:  IgnorePointer(
-                child: ExpandableText(
-                 val.data[0]["user"]["bio"]??"",
-                style: TextStyle(color: color.txtWhite,fontWeight: FontWeight.w500,fontSize: 15,fontFamily: FontFamily.hellix),
+                child: ExpandableText(val.data[0]["user"]["bio"]??"",
+                style: const TextStyle(color: color.txtWhite,fontWeight: FontWeight.w500,fontSize: 15,fontFamily: FontFamily.hellix),
               expandText: '',
               expandOnTextTap: true,
               collapseOnTextTap: true,
               maxLines: 3,
-              linkColor: color.txtWhite,),),),],);}
+              linkColor: color.txtWhite),),),],);}
             ),
           ),
           Positioned(
@@ -284,7 +281,7 @@ Widget fourth(BuildContext context){
                 alignment: Alignment.bottomCenter,
                 child: RotationTransition(
                     turns:  const AlwaysStoppedAnimation(-40 / 360),
-                    child: Image.asset(AssetsPics.pointingFingerpng,fit: BoxFit.fitHeight,))),
+                    child: Image.asset(AssetsPics.pointingFingerpng,fit: BoxFit.fitHeight))),
           )
         ],
       ),),
@@ -391,7 +388,7 @@ Widget seventh(BuildContext context){
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Expanded(child: SizedBox()),
+                      const Expanded(child: SizedBox()),
                       Container(alignment: Alignment.bottomCenter,child: SvgPicture.asset(AssetsPics.smiley)),
                       SizedBox(width: 1.h),
                       SvgPicture.asset(AssetsPics.rightupLong),

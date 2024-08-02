@@ -70,7 +70,7 @@ setState(() {LoaderOverlay.hide();});
       customDialogBox(context: context,
           title: 'Successfully reset',
           secontxt: "",
-          heading: "Your password has been reset. Please login to Continue.",
+          heading: "Your password has been reset. Please login to continue.",
           btnTxt: "Continue",
           img: AssetsPics.lockImg,onTap: (){
             Get.offAll(()=>LoginScreen());
@@ -81,122 +81,136 @@ setState(() {LoaderOverlay.hide();});
     }
   }
 
+   goBack(){
+    Get.back();
+    Get.back();
+    Get.back();
+  }
+
   @override
   Widget build(BuildContext context) {
     final size=MediaQuery.of(context).size;
-    return Scaffold(
-      resizeToAvoidBottomInset: false,
-        extendBodyBehindAppBar: true,
-      // backgroundColor: color.backGroundClr,
-      appBar: commonBar(context, Colors.transparent),
-      body: Stack(
-        children: [
-          SizedBox(
-            height: size.height,
-            width: size.width,
-            child: Image.asset(AssetsPics.background,fit: BoxFit.cover,),
-          ),
-          Padding(
-            padding: EdgeInsets.only(left: 15,right: 15,top: 10.h),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                 SizedBox(height: 5.h),
-                buildText2("Create new password", 28, FontWeight.w600, color.txtBlack),
-                const SizedBox(height: 8),
-                buildText(LocaleText.createPassword, 16, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix),
-                 SizedBox(height: 4.h),
-                Padding(
-                  padding: const EdgeInsets.only(left: 4,bottom: 2),
-                  child: buildText("New Password", 16, FontWeight.w500,enableField == "Enter password"? color.txtBlue:color.txtgrey,fontFamily: FontFamily.hellix),
-                ),
-                  buildContainer("Enter password","Enter password",
-                      passwordController,AutovalidateMode.onUserInteraction,passwordFocus,
-                    obs: password,
-                    press: (){
+    return WillPopScope(
+      onWillPop: () async {
+        goBack();
+        return false;
+      },
+      child: Scaffold(
+        resizeToAvoidBottomInset: false,
+          extendBodyBehindAppBar: true,
+        // backgroundColor: color.backGroundClr,
+        appBar: commonBar(context, Colors.transparent,press: () {
+          goBack();
+        },),
+        body: Stack(
+          children: [
+            SizedBox(
+              height: size.height,
+              width: size.width,
+              child: Image.asset(AssetsPics.background,fit: BoxFit.cover,),
+            ),
+            Padding(
+              padding: EdgeInsets.only(left: 15,right: 15,top: 10.h),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                   SizedBox(height: 5.h),
+                  buildText2("Create new password", 28, FontWeight.w600, color.txtBlack),
+                  const SizedBox(height: 8),
+                  buildText(LocaleText.createPassword, 16, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix),
+                   SizedBox(height: 4.h),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4,bottom: 2),
+                    child: buildText("New Password", 16, FontWeight.w500,enableField == "Enter password"? color.txtBlue:color.txtgrey,fontFamily: FontFamily.hellix),
+                  ),
+                    buildContainer("Enter password","Enter password",
+                        passwordController,AutovalidateMode.onUserInteraction,passwordFocus,
+                      obs: password,
+                      press: (){
+                          setState(() {
+                            enableField = "Enter password";
+                          });
+                        },
+                      gesture: GestureDetector(
+                          onTap: (){
+                            setState(() {
+                              password=!password;
+                            });
+                          },
+                          child: Container(
+                              padding: const EdgeInsets.only(top: 5),
+                              height: 20,width: 30,
+                              alignment: Alignment.center,
+                              child: SvgPicture.asset(password?AssetsPics.eyeOff:AssetsPics.eyeOn))
+                      ),
+                    ),
+                  passwordErrorText == "" ? const SizedBox() : Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: buildText(passwordErrorText, 12.8, FontWeight.w500, Colors.red),
+                  ),
+                  const SizedBox(height: 20),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4,bottom: 2),
+                    child: buildText("Confirm New Password", 16, FontWeight.w500,enableField == "Enter cpassword"? color.txtBlue:color.txtgrey,fontFamily: FontFamily.hellix),
+                  ),
+                  buildContainer("Enter password","Enter cpassword",
+                      confPasswordController,AutovalidateMode.onUserInteraction,confirmPassFocus,
+                      obs: cnfrmpassword,
+                      press: (){
                         setState(() {
-                          enableField = "Enter password";
+                          enableField = "Enter cpassword";
                         });
                       },
                     gesture: GestureDetector(
                         onTap: (){
                           setState(() {
-                            password=!password;
+                            cnfrmpassword=!cnfrmpassword;
                           });
                         },
                         child: Container(
                             padding: const EdgeInsets.only(top: 5),
                             height: 20,width: 30,
                             alignment: Alignment.center,
-                            child: SvgPicture.asset(password?AssetsPics.eyeOff:AssetsPics.eyeOn))
+                            child: SvgPicture.asset(cnfrmpassword?AssetsPics.eyeOff:AssetsPics.eyeOn))
                     ),
                   ),
-                passwordErrorText == "" ? const SizedBox() : Padding(
-                  padding: const EdgeInsets.only(left: 10),
-                  child: buildText(passwordErrorText, 12.8, FontWeight.w500, Colors.red),
-                ),
-                const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.only(left: 4,bottom: 2),
-                  child: buildText("Confirm New Password", 16, FontWeight.w500,enableField == "Enter cpassword"? color.txtBlue:color.txtgrey,fontFamily: FontFamily.hellix),
-                ),
-                buildContainer("Enter password","Enter cpassword",
-                    confPasswordController,AutovalidateMode.onUserInteraction,confirmPassFocus,
-                    obs: cnfrmpassword,
-                    press: (){
+                  const Expanded(child: SizedBox()),
+                  blue_button(context, 'Save new password',
+                    press: () {
+                    if(passwordController.text.trim()=="" || confPasswordController.text.trim()==""){
+                      showToastMsg("Please Enter all fields");
+                    }
+                    else if(passwordController.text.length<8){
                       setState(() {
-                        enableField = "Enter cpassword";
+                           passwordErrorText="Password length should be 8 Characters";
+                              });}
+                    else if(!RegExp(LocaleKeysValidation.password).hasMatch(passwordController.text) ){
+                      showToastMsg("Password is too weak!");
+                      setState(() {
+                        passwordErrorText="Your password must include at least one uppercase letter, one lowercase letter, one number, and one special character.";
                       });
+                    }
+                    else if(passwordController.text==confPasswordController.text) {
+                      setState(() {
+                        LoaderOverlay.show(context);
+                        passwordErrorText="";
+                      });
+                    createNewPassword();
+                    }
+                    else{
+                      setState(() {
+                        passwordErrorText="";
+                      });
+                      showToastMsg("The passwords do not match. Please try again.");
+                    }
                     },
-                  gesture: GestureDetector(
-                      onTap: (){
-                        setState(() {
-                          cnfrmpassword=!cnfrmpassword;
-                        });
-                      },
-                      child: Container(
-                          padding: const EdgeInsets.only(top: 5),
-                          height: 20,width: 30,
-                          alignment: Alignment.center,
-                          child: SvgPicture.asset(cnfrmpassword?AssetsPics.eyeOff:AssetsPics.eyeOn))
                   ),
-                ),
-                const Expanded(child: SizedBox()),
-                blue_button(context, 'Save new password',
-                  press: () {
-                  if(passwordController.text.trim()=="" || confPasswordController.text.trim()==""){
-                    showToastMsg("Please Enter all fields");
-                  }
-                  else if(passwordController.text.length<8){
-                    setState(() {
-                         passwordErrorText="Password length should be 8 Characters";
-                            });}
-                  else if(!RegExp(LocaleKeysValidation.password).hasMatch(passwordController.text) ){
-                    showToastMsg("Password is too weak!");
-                    setState(() {
-                      passwordErrorText="At least 1 Upper,Lower,Num and Special Character";
-                    });
-                  }
-                  else if(passwordController.text==confPasswordController.text) {
-                    setState(() {
-                      LoaderOverlay.show(context);
-                      passwordErrorText="";
-                    });
-                  createNewPassword();
-                  }
-                  else{
-                    setState(() {
-                      passwordErrorText="";
-                    });
-                    showToastMsg("Confirm Password Mismatch! please check");
-                  }
-                  },
-                ),
-                 SizedBox(height: 3.h)
-              ],
+                   SizedBox(height: 3.h)
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

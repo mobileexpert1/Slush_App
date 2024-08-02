@@ -242,7 +242,8 @@ class editProfileController extends ChangeNotifier{
   final picker = ImagePicker();
   File? galleryFile;
   Trimmer trimmer = Trimmer();
-  bool trimmerstrt=false;
+  bool _trimmerstrt=false;
+  bool get trimmerstrt=>_trimmerstrt;
   bool _progressVisibility = false;
   double _startValue = 0.0;
   double _endValue = 0.0;
@@ -254,7 +255,7 @@ class editProfileController extends ChangeNotifier{
   List get moreaboutme=>_moreaboutme;
 
 
-  void saveValue(String gender,String hight,String job,String education,String sexualO,String ideal,String cook,String smoke){
+  void saveValue(String gender,String hight,String job,String education,String sexualO,String ideal,String cook,String smoke,List enth){
     LocaleHandler.gender=gender;
     LocaleHandler.height=hight;
     print("hight==========$hight");
@@ -268,7 +269,7 @@ class editProfileController extends ChangeNotifier{
       BasicInfoclass(4, "Education", LocaleHandler.education),
       BasicInfoclass(7, "Sexual Orientation", LocaleHandler.sexualOreintation),
       // BasicInfoclass(8, "Ethnicity", "${LocaleHandler.dataa["ethnicity"].length} items"),
-      BasicInfoclass(8, "Ethnicity",  "${LocaleHandler.dataa["ethnicity"].length} items"),
+      BasicInfoclass(8, "Ethnicity",  "${enth.length} items"),
     ];
 
     LocaleHandler.ideal=ideal;
@@ -476,7 +477,7 @@ class editProfileController extends ChangeNotifier{
     request.headers['Authorization'] = "Bearer ${LocaleHandler.accessToken}";
     // Add image file
     if (image != null) {
-      File imageFile = File(image!.path);
+      File imageFile = File(image.path);
       var stream = http.ByteStream(imageFile.openRead());
       var length = await imageFile.length();
       var multipartFile = http.MultipartFile('files', stream, length,
@@ -547,6 +548,7 @@ class editProfileController extends ChangeNotifier{
 
   Future getVideo(BuildContext context, ImageSource img) async {
     print(trimmer);
+    if(galleryFile!=null){controller!.pause();    notifyListeners();}
     const allowedTimeLimit = Duration(seconds: 16);
     // const allowedTimeLimit = Duration(seconds: 4);
     final allowedTimeLimit2 = Duration(minutes: 20);
@@ -554,8 +556,7 @@ class editProfileController extends ChangeNotifier{
     final pickedFile = await picker.pickVideo(source: img, preferredCameraDevice: CameraDevice.front, maxDuration: const Duration(seconds: 15));
     XFile? xfilePick = pickedFile;
       if (xfilePick != null) {
-        // final compressedFile = await VideoCompress.compressVideo(pickedFile!.path,
-        //   quality: VideoQuality.LowQuality, deleteOrigin: false, includeAudio: true);
+        showToastMsg("Please wait...");
         galleryFile = File(pickedFile!.path);
         if(Platform.isAndroid){_controller4 = VideoPlayerController.networkUrl(Uri.parse(galleryFile!.path));}
         else{_controller4 = VideoPlayerController.file(File(galleryFile!.path));}
@@ -564,8 +565,9 @@ class editProfileController extends ChangeNotifier{
                UploadVideo( context,galleryFile!);
             }
             else if(_controller4!.value.duration<=allowedTimeLimit2){
-              galleryFile=null;
-              trimmerstrt=true;
+              // galleryFile=null;
+              _trimmerstrt=true;
+              trimmer=Trimmer();
               _loadVideo(File(pickedFile.path));
             } else {ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Video should be less then 15 seconds')));}});
       } else {ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Nothing is selected')));}
@@ -583,14 +585,20 @@ class editProfileController extends ChangeNotifier{
     trimmer.saveTrimmedVideo(
       startValue: _startValue,
       endValue: _endValue,
-      ffmpegCommand: '-c:a aac -c:v copy',
-      customVideoFormat: '.mp4',
+      // ffmpegCommand: '-c:a aac -c:v copy',
+      // customVideoFormat: '.mp4',
       onSave: (outputPath) {
         galleryFile=null;
         _progressVisibility = false;
-        debugPrint('OUTPUT PATH: $outputPath');
+        debugPrint('OUTPUT PATH: $trimmer.currentVideoFile!.path');
         trimmer.currentVideoFile;
-        getValueInController(context, outputPath!);
+        _trimmerstrt=false;
+        _controller4 = VideoPlayerController.file(File(trimmer.currentVideoFile!.path))..initialize().then((_) {
+          galleryFile=File(trimmer.currentVideoFile!.path);
+          UploadVideo(context,galleryFile!);
+          notifyListeners();
+        });
+        // getValueInController(context, outputPath!);
         Get.back();
         notifyListeners();
       },
@@ -600,7 +608,7 @@ class editProfileController extends ChangeNotifier{
 
   Future getValueInController(BuildContext context,String outputVideoPath)async{
     // Get.back();
-    trimmerstrt=false;
+    _trimmerstrt=false;
     _controller4 = VideoPlayerController.file(File(outputVideoPath))..initialize().then((_) {
       galleryFile=File(trimmer.currentVideoFile!.path);
       UploadVideo(context,galleryFile!);
@@ -628,6 +636,7 @@ class editProfileController extends ChangeNotifier{
     final respStr = await response.stream.bytesToString();
     print(respStr);
     if (response.statusCode == 201) {
+      _trimmerstrt=false;
       profileData(context);
     } else if (response.statusCode == 401) {
       showToastMsgTokenExpired();
@@ -650,7 +659,7 @@ class editProfileController extends ChangeNotifier{
   }
 
   void cancelSelectedTrimVideo()async{
-    trimmerstrt=false;
+    _trimmerstrt=false;
     galleryFile=null;
     _controller4!.dispose();
     LocaleHandler.introVideo=null;
@@ -686,7 +695,9 @@ class editProfileController extends ChangeNotifier{
         },
         body: jsonEncode({"ids": [id]}));
     print(response.statusCode);
-    if (response.statusCode == 201) {profileData(context);}
+    if (response.statusCode == 201) {profileData(context);
+    Get.back();
+    }
     else if (response.statusCode == 401) {showToastMsgTokenExpired();} else {}
   }
 

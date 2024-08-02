@@ -180,9 +180,11 @@ import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/widgets/text_widget.dart';
-import 'package:syncfusion_flutter_sliders/sliders.dart';
-import 'package:syncfusion_flutter_core/theme.dart';
+// import 'package:syncfusion_flutter_sliders/sliders.dart';
+// import 'package:syncfusion_flutter_core/theme.dart';
 import 'package:intl/intl.dart';
+
+import '../../../widgets/thumb_class.dart';
 
 class VacationDistancePrefScreen extends StatefulWidget {
   const VacationDistancePrefScreen({Key? key}) : super(key: key);
@@ -261,15 +263,13 @@ class _VacationDistancePrefScreenState extends State<VacationDistancePrefScreen>
                   activeTrackColor: color.txtBlue,
                   inactiveTrackColor: color.lightestBlueIndicator,
                   activeTickMarkColor: Colors.transparent,
-                  thumbShape: const RoundSliderThumbShape(
-                    enabledThumbRadius: 14.0,
-                    pressedElevation: 8.0,
-                  ),
-                  thumbColor: Colors.white,
+                  thumbShape: CustomSliderThumb(displayValue: _value),
+                  thumbColor: color.txtBlue,
                   overlayColor: const Color(0xff2280EF).withOpacity(0.2),
                   overlayShape: const RoundSliderOverlayShape(overlayRadius: 20.0),
                   valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
                   valueIndicatorColor: Colors.blue,
+                  showValueIndicator: ShowValueIndicator.never,
                   valueIndicatorTextStyle: const TextStyle(
                     color: Colors.white,
                     fontSize: 20.0,

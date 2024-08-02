@@ -27,6 +27,7 @@ class _EventHistoryScreenState extends State<EventHistoryScreen> {
   List data=[];
   var itemlen;
   String formattedDate="";
+  String formattedmon="";
   String status="";
 
   ScrollController? _controller;
@@ -178,11 +179,11 @@ class _EventHistoryScreenState extends State<EventHistoryScreen> {
                     // final LastElement= historyItem.lastIndexWhere((e) =>  e.status == selectedCat);
                     String dateString = data[index]["e_starts_at"];
                     DateTime dateTime = DateTime.parse(dateString);
-                    formattedDate = DateFormat('dd MMM').format(dateTime);
+                    formattedDate = DateFormat('dd').format(dateTime);
+                    formattedmon = DateFormat('MMM').format(dateTime);
                     status=data[index]["p_status"]=="cancelled"?"Cancelled":"Completed";
                     final LastElement= data.lastIndexWhere((e) =>  e["p_status"] == selectedCat.toLowerCase());
-                    return
-                      selectedCat=="All" ?  Container(
+                    return selectedCat=="All" ?  Container(
                         // color: Colors.red,
                         padding: const EdgeInsets.only(top: 3),
                         child: Column(children: [
@@ -190,7 +191,7 @@ class _EventHistoryScreenState extends State<EventHistoryScreen> {
                           const SizedBox(width: 10), details(index)
                         ],), const SizedBox(height: 3),
                         index==data.length-1 ?const SizedBox():const Divider(color: color.lightestBlue),],),
-                      ):selectedCat==status?
+                      ) : selectedCat==status?
                       Container(
                         padding: const EdgeInsets.only(top: 3),
                         child: Column(children: [
@@ -295,8 +296,7 @@ class _EventHistoryScreenState extends State<EventHistoryScreen> {
                             crossAxisAlignment: CrossAxisAlignment.center,
                             children: [
                               // buildText("30", 15, FontWeight.w600, color.txtBlack,fontFamily: FontFamily.hellix),
-                              buildText2(formattedDate, 16, FontWeight.w600, color.txtBlack,fontFamily: FontFamily.hellix),
-                              // buildText("Nov", 15, FontWeight.w600, color.txtBlack,fontFamily: FontFamily.hellix),
+                              buildText2("$formattedDate\n$formattedmon", 16, FontWeight.w600, color.txtBlack,fontFamily: FontFamily.hellix),
                             ],),
                         ),Expanded(child: Container())
                       ],

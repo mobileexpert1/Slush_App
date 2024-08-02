@@ -17,6 +17,7 @@ import 'package:slush/constants/loader.dart';
 import 'package:http/http.dart' as http;
 import 'package:slush/constants/prefs.dart';
 import 'package:slush/controller/detail_controller.dart';
+import 'package:slush/controller/event_controller.dart';
 import 'package:slush/screens/events/bottomNavigation.dart';
 import 'package:slush/screens/sign_up/details.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
@@ -91,10 +92,11 @@ class createAccountController extends ChangeNotifier {
         print(LocaleHandler.emailVerified);
         if (LocaleHandler.emailVerified == "true") {
           Provider.of<detailedController>(context, listen: false).setCurrentIndex();
+          LocaleHandler.EditProfile = false;
           Get.to(() => const DetailScreen());
         } else {
           sentEmailToverify();
-          Fluttertoast.showToast(msg: "Not Verified yet! please check your email");
+          Fluttertoast.showToast(msg: "Email verification pending. Please check your email.");
         }
         return response;
       } else {
@@ -268,6 +270,7 @@ class createAccountController extends ChangeNotifier {
         onTap: () async {
           if (LocaleHandler.emailVerified == "true") {
             Provider.of<detailedController>(context, listen: false).setCurrentIndex();
+            LocaleHandler.EditProfile = false;
             Get.to(() => const DetailScreen());}
           else { Fluttertoast.showToast(msg: "Not Verified yet!"); }
           Get.back();

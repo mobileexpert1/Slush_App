@@ -8,6 +8,7 @@ import 'package:get/get.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
+import 'package:slush/constants/loader.dart';
 import 'package:slush/constants/prefs.dart';
 import 'package:slush/screens/getstarted/slider_scree.dart';
 import 'package:slush/screens/setting/account_suspended.dart';
@@ -49,6 +50,9 @@ class _DeactivateProfileState extends State<DeactivateProfile> {
       }),
     );
     print('Status Code :::::${response.statusCode}');
+    setState(() {
+      LoaderOverlay.hide();
+    });
     if(response.statusCode==201)
     {
       setState(() {
@@ -135,12 +139,15 @@ class _DeactivateProfileState extends State<DeactivateProfile> {
                                           button = true;
                                         });
                                       },
-                                      child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                        children: [
-                                          buildText(deleteProfile[index], 18, FontWeight.w500, color.txtBlack),
-                                          selectedIndex==index?SvgPicture.asset(AssetsPics.checkbox) : SvgPicture.asset(AssetsPics.blankCheckbox),
-                                        ],
+                                      child: Container(
+                                        color: Colors.transparent,
+                                        child: Row(
+                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                          children: [
+                                            buildText(deleteProfile[index], 18, FontWeight.w500, color.txtBlack),
+                                            selectedIndex==index?SvgPicture.asset(AssetsPics.checkbox) : SvgPicture.asset(AssetsPics.blankCheckbox),
+                                          ],
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -167,6 +174,9 @@ class _DeactivateProfileState extends State<DeactivateProfile> {
                 padding: const EdgeInsets.only(left: 15,right: 15,bottom: 15),
                 child: blue_button(context, "Next",validation: button,press:
                     () {
+                  setState(() {
+                    LoaderOverlay.show(context);
+                  });
                       deactivateAccount(deleteProfile[selectedIndex]);
                   // Get.offAll(()=>AccountSuspended());
                 },),

@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
+import 'package:slush/screens/feed/profile.dart';
 import 'package:slush/widgets/text_widget.dart';
 
 PreferredSizeWidget commonBar(BuildContext context,Color bg,{VoidCallback? press=onPress}) {
@@ -114,7 +115,7 @@ PreferredSizeWidget commonBarWithTextleft(BuildContext context,Color bg,String t
       ));
 }
 
-PreferredSizeWidget commonBarWithTextleftforChat(BuildContext context,Color bg,String txt,{VoidCallback? press=onPress,VoidCallback? press2=onPress,bool tran=false,}) {
+PreferredSizeWidget commonBarWithTextleftforChat(BuildContext context,Color bg,String txt,{VoidCallback? press=onPress,VoidCallback? onnametap=onPress,VoidCallback? press2=onPress,bool tran=false,}) {
   return AppBar(
       forceMaterialTransparency: tran,
       systemOverlayStyle: const SystemUiOverlayStyle(
@@ -148,9 +149,12 @@ PreferredSizeWidget commonBarWithTextleftforChat(BuildContext context,Color bg,S
       ),
     )
   ],
-      title: Container(padding: const EdgeInsets.only(top: 10),
-        child: Align(
-            alignment: Alignment.centerLeft,child: buildText(txt, 24, FontWeight.w600, color.txtBlack)),
+      title: GestureDetector(
+        onTap: onnametap,
+        child: Container(padding: const EdgeInsets.only(top: 10),
+          child: Align(
+              alignment: Alignment.centerLeft,child: buildText(txt, 24, FontWeight.w600, color.txtBlack)),
+        ),
       ));
 }
 void onPress(){

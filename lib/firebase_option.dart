@@ -53,21 +53,21 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyC7jeOGnkPt3i1WQrDFwj-R6Su27PvVVAo',
-    appId: '1:419287615881:android:2a6199a79b4306920e7958',
-    messagingSenderId: '419287615881',
-    projectId: 'slush-b0575',
-    storageBucket: "slush-b0575.appspot.com",
+    apiKey: 'AIzaSyDD4g9d7N0HaM4a5sXIVjqdX6IU1dFAQog',
+    appId: '1:422898489031:android:b7d621a5a4a9bdcb0bd0e2',
+    messagingSenderId: '422898489031',
+    projectId: 'virtual-speed-date-325915',
+    storageBucket: "virtual-speed-date-325915.appspot.com",
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCLueaFxf0Ds_oTf94ysK8mHIH3VYiAAsc',
-    appId: '1:419287615881:ios:554134efc03c4a9b0e7958',
-    messagingSenderId: '419287615881',
-    projectId: 'slush-b0575',
-    storageBucket: 'slush-b0575.appspot.com',
-    iosClientId: '',
-    iosBundleId: 'com.example.slush',
+    apiKey: 'AIzaSyAMjiyaz61KrWi50WgJYOzmAr4ojqQ-Y7w',
+    appId: '1:422898489031:ios:f16edecd3a83915d0bd0e2',
+    messagingSenderId: '422898489031',
+    projectId: 'virtual-speed-date-325915',
+    storageBucket: 'virtual-speed-date-325915.appspot.com',
+    iosClientId: '422898489031-h5ij8sg3n5iunf63qqo62p9uc2baccj8.apps.googleusercontent.com',
+    iosBundleId: 'com.slushdating.slush',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(

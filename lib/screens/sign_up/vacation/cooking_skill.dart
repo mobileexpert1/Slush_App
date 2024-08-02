@@ -32,6 +32,11 @@ class _VacationCookingSkillScreenState extends State<VacationCookingSkillScreen>
         int index = cooking.indexOf(LocaleHandler.cookingSkill);
         selectedSkill=index;
       }
+    }else if(LocaleHandler.EditProfile&&LocaleHandler.dataa["cooking_skill"]==null&&LocaleHandler.cookingSkill!=""){
+      if(cooking.contains(LocaleHandler.cookingSkill)){
+        int index = cooking.indexOf(LocaleHandler.cookingSkill);
+        selectedSkill=index;
+      }
     }
   }
 

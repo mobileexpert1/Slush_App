@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -85,6 +86,8 @@ class _DetailNameScreenState extends State<DetailNameScreen> {
             borderRadius: BorderRadius.circular(8),
             border: Border.all(color:enableField == txt? color.txtBlue:color.txtWhite, width:1)),
         child: TextFormField(
+          textCapitalization: TextCapitalization.words,
+          keyboardType: TextInputType.name,
           textInputAction: TextInputAction.done,
           onTap: press,
           focusNode: node,
@@ -92,6 +95,9 @@ class _DetailNameScreenState extends State<DetailNameScreen> {
           cursorColor: color.txtBlue,
           autovalidateMode: auto,
           validator: validation,
+          inputFormatters: <TextInputFormatter>[
+            UpperCaseTextFormatter()
+          ],
           onChanged: (val){
             if(val.trim()!=""){
               controller.text=val.trim();
@@ -111,4 +117,18 @@ class _DetailNameScreenState extends State<DetailNameScreen> {
       ),
     );
   }
+}
+
+class UpperCaseTextFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    return TextEditingValue(
+      text: capitalize(newValue.text),
+      selection: newValue.selection,
+    );
+  }
+}
+String capitalize(String value) {
+  if(value.trim().isEmpty) return "";
+  return "${value[0].toUpperCase()}${value.substring(1).toLowerCase()}";
 }

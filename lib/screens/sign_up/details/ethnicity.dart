@@ -31,7 +31,7 @@ class _DetailEthnicityScreenState extends State<DetailEthnicityScreen> {
     EthnicityList(10, "Other"),
   ];
 
-  List selectedTitle=[];
+  // List selectedTitle=[];
   var data;
 
   bool textValue=true;
@@ -46,15 +46,17 @@ class _DetailEthnicityScreenState extends State<DetailEthnicityScreen> {
 
   void check(){
     var i=0;
-    if(LocaleHandler.EditProfile){
+    if(LocaleHandler.EditProfile&&LocaleHandler.entencityname.isEmpty){
       for(i=0;i<LocaleHandler.dataa["ethnicity"].length;i++){
-        selectedTitle.add(LocaleHandler.dataa["ethnicity"][i]["name"]);
+        // selectedTitle.add(LocaleHandler.dataa["ethnicity"][i]["name"]);
+        LocaleHandler.entencityname.add(LocaleHandler.dataa["ethnicity"][i]["name"]);
+      setState(() {});
       }
     }
   }
 
   Future getEthencityList()async{
-    final url=ApiList.getEthencity;
+    const url=ApiList.getEthencity;
     var uri=Uri.parse(url);
     var response=await http.get(uri,headers: {
       'Content-Type': 'application/json',
@@ -71,61 +73,60 @@ class _DetailEthnicityScreenState extends State<DetailEthnicityScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      // color: color.backGroundClr,
-      child:Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-           SizedBox(height:LocaleHandler.EditProfile?0: 3.h-3),
-       LocaleHandler.EditProfile? buildText("Share your ethnicity with us.", 28, FontWeight.w600, color.txtBlack):   buildText2("Your ethnicity?", 28, FontWeight.w600, color.txtBlack),
-          const SizedBox(height: 5),
-          LocaleHandler.EditProfile?SizedBox(): buildText("Share your ethnicity with us.", 15, FontWeight.w500, color.txtBlack,fontFamily: FontFamily.hellix),
-          // const SizedBox(height: 29),
-      data==null?Center(child: Padding(
-        padding: const EdgeInsets.only(top: 100),
-        child: CircularProgressIndicator(color: color.txtBlue),
-      )): Expanded(
-            child: ListView.builder(
-                padding: EdgeInsets.only(top: 20,bottom: 150),
-                itemCount: data.length,
-                itemBuilder: (context,index){
-                  return GestureDetector(
-                    onTap: (){
-                      setState(() {
-                        selcetedIndex=index;
-                        if(selectedTitle.contains(data[index]["name"])){
-                          selectedTitle.remove(data[index]["name"]);
-                          LocaleHandler.entencity.remove(data[index]["id"]);
-                        }else{
-                          LocaleHandler.entencity.add(data[index]["id"]);
-                          selectedTitle.add(data[index]["name"]);}
-                      });
-                    },
-                    child: Container(
-                      margin: const EdgeInsets.only(bottom: 15),
-                      height: 7.h-3,
-                      width: MediaQuery.of(context).size.width,
-                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12),
-                          color: selectedTitle.contains(data[index]["name"])?color.lightestBlue:color.txtWhite,
-                          border: Border.all(width: 1,color: selectedTitle.contains(data[index]["name"])?color.txtBlue:color.txtWhite)
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.only(left: 20,right: 16,top: 0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            buildText(data[index]["name"], 18, FontWeight.w600, color.txtBlack),
-                          ],),
-                      ),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+         SizedBox(height:LocaleHandler.EditProfile?0: 3.h-3),
+     LocaleHandler.EditProfile? buildText("Share your ethnicity with us.", 28, FontWeight.w600, color.txtBlack):   buildText2("Your ethnicity?", 28, FontWeight.w600, color.txtBlack),
+        const SizedBox(height: 5),
+        LocaleHandler.EditProfile?const SizedBox(): buildText("Share your ethnicity with us.", 15, FontWeight.w500, color.txtBlack,fontFamily: FontFamily.hellix),
+        // const SizedBox(height: 29),
+    data==null?const Center(child: Padding(
+      padding: EdgeInsets.only(top: 100),
+      child: CircularProgressIndicator(color: color.txtBlue),
+    )): Expanded(
+          child: ListView.builder(
+              padding: const EdgeInsets.only(top: 20,bottom: 150),
+              itemCount: data.length,
+              itemBuilder: (context,index){
+                return GestureDetector(
+                  onTap: (){
+                    setState(() {
+                      selcetedIndex=index;
+                      if(LocaleHandler.entencityname.contains(data[index]["name"])){
+                        // selectedTitle.remove(data[index]["name"]);
+                        LocaleHandler.entencity.remove(data[index]["id"]);
+                        LocaleHandler.entencityname.remove(data[index]["name"]);
+                      }else{
+                        LocaleHandler.entencity.add(data[index]["id"]);
+                        LocaleHandler.entencityname.add(data[index]["name"]);
+                        // selectedTitle.add(data[index]["name"]);
+                       }
+                    });
+                  },
+                  child: Container(
+                    margin: const EdgeInsets.only(bottom: 15),
+                    height: 7.h-3,
+                    width: MediaQuery.of(context).size.width,
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(12),
+                        color: LocaleHandler.entencityname.contains(data[index]["name"])?color.lightestBlue:color.txtWhite,
+                        border: Border.all(width: 1,color: LocaleHandler.entencityname.contains(data[index]["name"])?color.txtBlue:color.txtWhite)
                     ),
-                  );
-                }),
-          ),
-        SizedBox(height: 2.h-4)
-        ],),
-
-    );
+                    child: Padding(
+                      padding: const EdgeInsets.only(left: 20,right: 16,top: 0),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          buildText(data[index]["name"], 18, FontWeight.w600, color.txtBlack),
+                        ]),
+                    ),
+                  ),
+                );
+              }),
+        ),
+      SizedBox(height: 2.h-4)
+      ],);
   }
 }
 

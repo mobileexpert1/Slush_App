@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:shimmer/shimmer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +21,7 @@ import 'package:slush/widgets/blue_button.dart';
 import 'package:slush/widgets/text_widget.dart';
 import 'package:http/http.dart'as http;
 import 'package:slush/widgets/toaster.dart';
+import 'package:intl/intl.dart';
 
 class Subscription1 extends StatefulWidget {
   const Subscription1({super.key});
@@ -32,8 +35,16 @@ class _Subscription1State extends State<Subscription1> {
   int currentIndex = 0;
   int selectedIndex = 2;
   bool upgradepressed=true;
+
+  final InAppPurchase _iap = InAppPurchase.instance;
+  bool _available = true;
+  List<ProductDetails> _products = [];
+  List<PurchaseDetails> _purchases = [];
+  late StreamSubscription<List<PurchaseDetails>> _subscription;
+
   @override
   void initState() {
+    subscriptionDetails();
     _pageController.addListener(() {
       setState(() {
         currentIndex = _pageController.page!.round();
@@ -41,15 +52,81 @@ class _Subscription1State extends State<Subscription1> {
     });
     print(LocaleHandler.subscriptionPurchase);
     super.initState();
+
+    _initialize();
+    final Stream<List<PurchaseDetails>> purchaseUpdated = _iap.purchaseStream;
+    _subscription = purchaseUpdated.listen((purchases) {
+      _handlePurchaseUpdates(purchases);
+    }, onDone: () {
+      _subscription.cancel();
+    }, onError: (error) {
+      // handle error here
+    });
+
+  }
+  Future<void> _initialize() async {
+    final bool isAvailable = await _iap.isAvailable();
+    setState(() {
+      _available = isAvailable;
+    });
+
+    if (_available) {
+      const Set<String> _kIds = {'silversubscription','goldsubscription','platinumsubscription'};
+      final ProductDetailsResponse response = await _iap.queryProductDetails(_kIds);
+      setState(() {
+        _products = response.productDetails;
+      });
+    }
   }
 
-Future subscribeApi(int nu)async{
+  void _handlePurchaseUpdates(List<PurchaseDetails> purchases) async {
+    for (var purchase in purchases) {
+      if (purchase.status == PurchaseStatus.purchased) {
+        // Verify purchase here and deliver the product
+        bool valid = await _verifyPurchase(purchase);
+        if (valid) {
+          subscribeApi(selectedIndex);
+          _deliverProduct(purchase);
+        } else {
+          _handleInvalidPurchase(purchase);
+          return;
+        }
+      }
+      if (purchase.pendingCompletePurchase) {
+        await _iap.completePurchase(purchase);
+      }
+    }
+  }
+
+  Future<bool> _verifyPurchase(PurchaseDetails purchase) async {
+    // Verify the purchase here (usually by checking with your server)
+    return true; // assuming the purchase is valid
+  }
+
+  void _deliverProduct(PurchaseDetails purchase) {
+    // Deliver the product to the user
+    setState(() {
+      _purchases.add(purchase);
+    });
+  }
+
+  void _handleInvalidPurchase(PurchaseDetails purchase) {
+    // Handle invalid purchase here
+  }
+
+  void _buySubscription(ProductDetails product) {
+    final PurchaseParam purchaseParam = PurchaseParam(productDetails: product);
+    _iap.buyNonConsumable(purchaseParam: purchaseParam);
+  }
+
+
+  Future subscribeApi(int nu)async{
     setState(() {LoaderOverlay.show(context);});
-    final url=ApiList.subscribe;
+    const url=ApiList.subscribe;
     var uri=Uri.parse(url);
     var response=await http.post(uri,
         headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${LocaleHandler.accessToken}'},
-    body: jsonEncode({"packageId":nu})
+        body: jsonEncode({"packageId":nu})
     );
     var i =jsonDecode(response.body);
     setState(() {LoaderOverlay.hide();});
@@ -59,7 +136,29 @@ Future subscribeApi(int nu)async{
     }
     else if(response.statusCode==401){showToastMsgTokenExpired();}
     else{Fluttertoast.showToast(msg: i["message"]);}
-}
+  }
+
+  var data;
+  String startDates="";
+  String endDates="";
+
+  Future subscriptionDetails()async{
+    const url=ApiList.subscriptiondetail;
+    print(url);
+    final uri=Uri.parse(url);
+    var response=await http.get(uri,headers: {'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${LocaleHandler.accessToken}'});
+    var dat =jsonDecode(response.body);
+    if(response.statusCode==200){setState(() {data=dat["data"];
+    if(data!=null){
+      DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(data["startsAt"] * 1000);
+      startDates = DateFormat('MMM dd, yyyy').format(dateTime);
+      DateTime dateTime2 = DateTime.fromMillisecondsSinceEpoch(data["endsAt"] * 1000);
+      endDates = DateFormat('MMM dd, yyyy').format(dateTime2);
+    }});}
+    else if(response.statusCode==401){showToastMsgTokenExpired();}
+    else{}
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -72,16 +171,16 @@ Future subscribeApi(int nu)async{
         width: MediaQuery.of(context).size.width,
         child: Stack(
           children: [
-        SizedBox(
-        height: MediaQuery.of(context).size.height,
-        width: MediaQuery.of(context).size.width,
-        child: Image.asset(AssetsPics.background,fit: BoxFit.cover,),
-        ),
+            SizedBox(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              child: Image.asset(AssetsPics.background,fit: BoxFit.cover,),
+            ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15),
               child: Column(
                 children: [
-                   Container(height:defaultTargetPlatform==TargetPlatform.iOS?15: size.height*0.03),
+                  Container(height:defaultTargetPlatform==TargetPlatform.iOS?15: size.height*0.03),
                   Container(
                     // height: 158,
                     decoration: BoxDecoration(color:  color.example3, borderRadius: BorderRadius.circular(12)),
@@ -94,7 +193,7 @@ Future subscribeApi(int nu)async{
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               buildText("Your current plan", 18.sp, FontWeight.w600, color.txtBlack),
-                              buildText("Free", 17.sp, FontWeight.w500, color.txtgrey2,fontFamily: FontFamily.hellix),
+                              buildText(data==null?"No Plan":capitalize(data["package"]["name"]), 17.sp, FontWeight.w500, color.txtgrey2,fontFamily: FontFamily.hellix),
                             ],
                           ),
                           const SizedBox(height: 10),
@@ -102,15 +201,18 @@ Future subscribeApi(int nu)async{
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               buildText("Time period", 18.sp, FontWeight.w600, color.txtBlack),
-                              buildText("Jan 24 ,2023- Jan 24 ,2024", 17.sp, FontWeight.w500, color.txtgrey2,fontFamily: FontFamily.hellix),
+                              buildText("$startDates- $endDates", 17.sp, FontWeight.w500, color.txtgrey2,fontFamily: FontFamily.hellix),
                             ],
                           ),
                           SizedBox(height: size.height*0.02),
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              GestureDetector(
-                                onTap: (){setState(() {upgradepressed=false;});},
+                              // todo unsubscribe and upgrade butttons but api not available yet
+                            /*  data==null?const SizedBox(): GestureDetector(
+                                onTap: (){setState(() {upgradepressed=false;
+                                showToastMsg("Coming soon...");
+                                });},
                                 child: Container(
                                   alignment: Alignment.center,
                                   height: size.height*0.055,
@@ -120,31 +222,31 @@ Future subscribeApi(int nu)async{
                                   BoxDecoration(borderRadius: BorderRadius.circular(12),
                                       color: Colors.transparent, border: Border.all(width: 1.5,color: color.txtBlue)
                                   ) : BoxDecoration(borderRadius: BorderRadius.circular(12),
-                                      gradient: LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter,
+                                      gradient: const LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter,
                                           colors:[color.gradientLightBlue, color.txtBlue])
                                   ),
                                   // child: buildText(LocaleHandler.subscriptionPurchase=="yes"?"Unsubscribe":"Subscribe",18,FontWeight.w600, upgradepressed? color.txtBlue:color.txtWhite),
                                   child: buildText("Unsubscribe",18,FontWeight.w600, upgradepressed? color.txtBlue:color.txtWhite),
                                 ),
                               ),
-                              GestureDetector(
-                                onTap: (){setState(() {upgradepressed=true;});},
+                              data==null?const SizedBox(): GestureDetector(
+                                onTap: (){setState(() {upgradepressed=true;
+                                showToastMsg("Coming soon...");});},
                                 child: Container(
                                   alignment: Alignment.center,
                                   height: size.height*0.055,
                                   width: MediaQuery.of(context).size.width/2-37,
-
                                   //width: MediaQuery.of(context).size.width/2-45,
                                   padding: const EdgeInsets.symmetric(horizontal: 10),
                                   decoration:upgradepressed? BoxDecoration(borderRadius: BorderRadius.circular(12),
-                                      gradient: LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter,
-                                        colors:[color.gradientLightBlue, color.txtBlue])
+                                      gradient: const LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter,
+                                          colors:[color.gradientLightBlue, color.txtBlue])
                                   ):BoxDecoration(borderRadius: BorderRadius.circular(12),
                                       color: Colors.transparent, border: Border.all(width: 1.5,color: color.txtBlue)
                                   ),
                                   child: buildText("Upgrade",18,FontWeight.w600,upgradepressed?color.txtWhite:color.txtBlue),
                                 ),
-                              ),
+                              ),*/
                             ],),
                         ],
                       ),
@@ -154,351 +256,225 @@ Future subscribeApi(int nu)async{
                 ],
               ),
             ),
-            Container(
-              child: Column(children: [
-                Spacer(),
-           Container(
-             padding: const EdgeInsets.only(left: 15,right: 15,top: 10),
-             decoration: BoxDecoration(
-                 color: color.txtWhite,
-                 borderRadius: BorderRadius.circular(15)
-             ),
-             child: Column(children: [
-               SizedBox(
-                 height:defaultTargetPlatform==TargetPlatform.iOS? size.height*0.18:size.height*0.19,
-                 child:
-                 selectedIndex ==2 ?
-                 PageView(
-                   controller: _pageController,
-                   children: [
-                     customScroller(text1: 'See who has Liked you', text2: 'See everyone that likes you', iconName: AssetsPics.like),
-                     customScroller(text1: 'Sparks', text2: '3 sparks a day', iconName: AssetsPics.shock),
-                     customScroller(text1: 'Unlimited Swipes', text2: 'Endless swiping', iconName: AssetsPics.watch),
-                   ],
-                 ) : PageView(
-                   controller: _pageController,
-                   children: [
-                     customScroller(text1: 'See who has Liked you', text2: 'See everyone that likes you', iconName: AssetsPics.like),
-                     customScroller(text1: 'Sparks', text2: '3 sparks a day', iconName: AssetsPics.shock),
-                     customScroller(text1: 'Unlimited Swipes', text2:  'Endless swiping', iconName: AssetsPics.watch),
-                     customScroller(text1: 'AI Dating Coach', text2: 'Your dating coach', iconName: AssetsPics.dating),
-                     customScroller(text1: 'No ads', text2: 'Your dating coach', iconName: AssetsPics.noAds),
-                   ],
-                 ),
-               ),
-               Container(height: size.height*0.01),
-               Row(
-                 mainAxisAlignment: MainAxisAlignment.center,
-                 children:
-                 List<Widget>.generate( selectedIndex == 2 ? 3 : 5, (int index) {
-                   return Container(
-                     margin: const EdgeInsets.only(left: 2.5,right: 2.5,bottom: 12.0),
-                     width: currentIndex == index?14: 12.0,
-                     height: currentIndex == index?14: 12.0,
-                     decoration: BoxDecoration(
-                       color:currentIndex == index? color.txtWhite:Colors.transparent,
-                       borderRadius: BorderRadius.circular(20),
-                       border: Border.all(color: currentIndex == index ?
-                       Colors.blue : color.txtgrey, width: currentIndex == index ? 3 : 1.5 ,),
-                     ),
-                   );
-                 }),
-               ),
-               SizedBox(height: size.height*0.01),
-               SizedBox(
-                 height: 25.h,
-                 width: MediaQuery.of(context).size.width,
-                 // color: Colors.green,
-                 child: Stack(
-                   alignment: Alignment.center,
-                   children: [
-                     Row(children: [
-                       GestureDetector(
-                         onTap: (){setState(() {selectedIndex=1;});},
-                         child: Container(
-                           height: 164,
-                           width: MediaQuery.of(context).size.width/3.3,
-                           decoration: BoxDecoration(
-                               color: Colors.transparent,
-                               border: Border.all(color: color.example3),
-                               borderRadius: BorderRadius.circular(12)
-                           ),
-                           child: Column(
-                             mainAxisAlignment: MainAxisAlignment.center,
-                             children: [
-                               SvgPicture.asset( AssetsPics.crownOff,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
-                               buildText("Slush", 20, FontWeight.w600, color.txtBlack,),
-                               buildText("Silver", 20, FontWeight.w600, color.txtBlack,),
-                               const SizedBox(height: 10,),
-                               buildText("£9.99", 20, FontWeight.w600, color.txtBlack,),
-                             ],
-                           ),
-                         ),
-                       ),
-                       GestureDetector(
-                         onTap: (){setState(() {selectedIndex=2;});},
-                         child: Container(
-                           height: 164,
-                           width: MediaQuery.of(context).size.width/3.3,
-                           decoration: BoxDecoration(
-                               color: Colors.transparent,
-                               border: Border.all(color: color.example3),
-                               borderRadius: BorderRadius.circular(12)
-                           ),
-                           child: Column(
-                             mainAxisAlignment: MainAxisAlignment.center,
-                             children: [
-                               SvgPicture.asset( AssetsPics.crownOff,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
-                               buildText("Slush", 20, FontWeight.w600, color.txtBlack,),
-                               buildText("Gold", 20, FontWeight.w600, color.txtBlack,),
-                               const SizedBox(height: 10,),
-                               buildText("£19.99", 20, FontWeight.w600, color.txtBlack,),
-                             ],
-                           ),
-                         ),
-                       ),
-                       GestureDetector(
-                         onTap: (){setState(() {selectedIndex=3;});},
-                         child: Container(
-                           height: 164,
-                           width: MediaQuery.of(context).size.width/3.3,
-                           decoration: BoxDecoration(
-                               color: Colors.transparent,
-                               border: Border.all(color: color.example3),
-                               borderRadius: BorderRadius.circular(12)
-                           ),
-                           child: Column(
-                             mainAxisAlignment: MainAxisAlignment.center,
-                             children: [
-                               SvgPicture.asset( AssetsPics.crownOff,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
-                               buildText("Slush", 20, FontWeight.w600, color.txtBlack,),
-                               buildText("Platinum", 20, FontWeight.w600, color.txtBlack,),
-                               const SizedBox(height: 10,),
-                               buildText("£29.99", 20, FontWeight.w600, color.txtBlack,),
-                             ],
-                           ),
-                         ),
-                       ),
-                     ],),
-                     selectedIndex==2? GestureDetector(
-                       onTap: () {
-                         setState(() {});
-                         selectedIndex = 2 ;
-                       },
-                       child: Container(
-                         height: 185 ,
-                         // width: MediaQuery.of(context).size.width/3.5,
-                         width: MediaQuery.of(context).size.width/2.9,
-                         decoration: BoxDecoration(color: color.txtBlue ,
-                             border: Border.all(color: color.example3),
-                             borderRadius: BorderRadius.circular(12)
-                         ),
-                         child: Column(
-                           mainAxisAlignment: MainAxisAlignment.center,
-                           children: [
-                             SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
-                             buildText("Slush", 20, FontWeight.w600, color.txtWhite ),
-                             buildText("Gold", 20, FontWeight.w600,color.txtWhite ),
-                             const SizedBox(height: 10,),
-                             buildText("£19.99", 20, FontWeight.w600, color.txtWhite ),
-                           ],
-                         ),
-                       ),
-                     ):SizedBox(),
-                     Positioned(
-                       // bottom: selectedIndex == 2 ? 0 : 8,
-                       bottom:Platform.isAndroid ? selectedIndex == 2 ? 0 : 8 :selectedIndex == 2 ? 11 : 22,
-                       child: Container(
-                         alignment: Alignment.center,
-                         height: 22,
-                         width: 82,
-                         decoration: BoxDecoration(
-                             borderRadius: BorderRadius.circular(6),
-                             color: selectedIndex == 2 ? color.txtWhite : color.txtBlue
-                         ),
-                         child: buildText("Popular", 13, FontWeight.w600,selectedIndex == 2 ? color.txtBlue : color.txtWhite,fontFamily: FontFamily.hellix),
-                       ),
-                     ),
-                     selectedIndex==1? Positioned(
-                       left: 0.0,
-                       child: Container(
-                         height: 185 ,
-                         width: MediaQuery.of(context).size.width/3.1,
-                         decoration: BoxDecoration(color: color.txtBlue , border: Border.all(color: color.example3), borderRadius: BorderRadius.circular(12)),
-                         child: Column(
-                           mainAxisAlignment: MainAxisAlignment.center,
-                           children: [
-                             SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
-                             buildText("Slush", 20, FontWeight.w600, color.txtWhite ),
-                             buildText("Silver", 20, FontWeight.w600,color.txtWhite ),
-                             const SizedBox(height: 10,),
-                             buildText("£9.99", 20, FontWeight.w600, color.txtWhite ),
-                           ],
-                         ),
-                       ),
-                     ):SizedBox(),
-                     selectedIndex==3? Positioned(
-                       right: 0.0,
-                       child: Container(
-                         height: 185 ,
-                         width: MediaQuery.of(context).size.width/3.1,
-                         decoration: BoxDecoration(color: color.txtBlue ,
-                             border: Border.all(color: color.example3),
-                             borderRadius: BorderRadius.circular(12)
-                         ),
-                         child: Column(
-                           mainAxisAlignment: MainAxisAlignment.center,
-                           children: [
-                             SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
-                             buildText("Slush", 20, FontWeight.w600, color.txtWhite ),
-                             buildText("PLatinum", 20, FontWeight.w600,color.txtWhite ),
-                             const SizedBox(height: 10,),
-                             buildText("£29.99", 20, FontWeight.w600, color.txtWhite ),
-                           ],
-                         ),
-                       ),
-                     ):SizedBox(),
-  /*                   Positioned(
-                       right: 15,
-                       child: GestureDetector(
-                         onTap: () {
-                           setState(() {
-                           });
-                           selectedIndex = 3 ;
-                         },
-                         child: Container(
-                           height: selectedIndex == 3 ? 185 : 164,
-                           //width: MediaQuery.of(context).size.width/3.5,
-                           width: selectedIndex == 2 ? MediaQuery.of(context).size.width/3.2 : MediaQuery.of(context).size.width/3.5,
-                           decoration: BoxDecoration(
-                               color: selectedIndex == 3 ? color.txtBlue : Colors.transparent,
-                               border: Border.all(color: color.example3),
-                               borderRadius: BorderRadius.circular(12)
-                           ),
-                           child: Column(
-                             mainAxisAlignment: MainAxisAlignment.center,
-                             children: [
-                               SvgPicture.asset(selectedIndex == 3 ?AssetsPics.crownOn : AssetsPics.crownOff,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
-                               buildText("Slush", 20, FontWeight.w600, selectedIndex == 3 ? color.txtWhite : color.txtBlack,),
-                               buildText("Platinum", 20, FontWeight.w600, selectedIndex == 3 ? color.txtWhite : color.txtBlack,),
-                               const SizedBox(height: 10,),
-                               buildText("£29.99", 20, FontWeight.w600, selectedIndex == 3 ? color.txtWhite : color.txtBlack,),
-                             ],
-                           ),
-                         ),
-                       ),
-                     ),
-                     selectedIndex == 2 ?  Positioned(
-                       left: 15,
-                       child: GestureDetector(
-                         onTap: () {
-                           setState(() {
-                           });
-                           selectedIndex = 1 ;
-                         },
-                         child: Container(
-                           height: selectedIndex == 1 ? 185 : 164,
-                           width: selectedIndex == 1 ? MediaQuery.of(context).size.width/3.3 : MediaQuery.of(context).size.width/3.5,
-                           decoration: BoxDecoration(
-                               color: selectedIndex == 1 ? color.txtBlue : Colors.transparent,
-                               border: Border.all(color: color.example3),
-                               borderRadius: BorderRadius.circular(12)
-                           ),
-                           child: Column(
-                             mainAxisAlignment: MainAxisAlignment.center,
-                             children: [
-                               SvgPicture.asset(selectedIndex == 1 ?AssetsPics.crownOn : AssetsPics.crownOff,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
-                               buildText("Slush", 20, FontWeight.w600, selectedIndex == 1 ? color.txtWhite : color.txtBlack,),
-                               buildText("Silver", 20, FontWeight.w600, selectedIndex == 1 ? color.txtWhite : color.txtBlack,),
-                               const SizedBox(height: 10,),
-                               buildText("£9.99", 20, FontWeight.w600, selectedIndex == 1 ? color.txtWhite : color.txtBlack,),
-                             ],
-                           ),
-                         ),
-                       ),
-                     ):SizedBox(),
-                     GestureDetector(
-                       onTap: () {
-                         setState(() {
-                         });
-                         selectedIndex = 2 ;
-                       },
-                       child: Container(
-                         height: selectedIndex == 2 ? 185 : 164,
-                         // width: MediaQuery.of(context).size.width/3.5,
-                         width: selectedIndex == 2 ? MediaQuery.of(context).size.width/3.2 : MediaQuery.of(context).size.width/3.5,
-                         decoration: BoxDecoration(
-                             color: selectedIndex == 2 ? color.txtBlue : Colors.transparent,
-                             border: Border.all(color: color.example3),
-                             borderRadius: BorderRadius.circular(12)
-                         ),
-                         child: Column(
-                           mainAxisAlignment: MainAxisAlignment.center,
-                           children: [
-                             SvgPicture.asset(selectedIndex == 2 ?AssetsPics.crownOn : AssetsPics.crownOff,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
-                             buildText("Slush", 20, FontWeight.w600, selectedIndex == 2 ? color.txtWhite : color.txtBlack,),
-                             buildText("Gold", 20, FontWeight.w600, selectedIndex == 2 ? color.txtWhite : color.txtBlack,),
-                             const SizedBox(height: 10,),
-                             buildText("£19.99", 20, FontWeight.w600, selectedIndex == 2 ? color.txtWhite : color.txtBlack,),
-                           ],
-                         ),
-                       ),
-                     ),
-                     Positioned(
-                       bottom: selectedIndex == 2 ? 0 : 8,
-                       child: Container(
-                         alignment: Alignment.center,
-                         height: 22,
-                         width: 82,
-                         decoration: BoxDecoration(
-                             borderRadius: BorderRadius.circular(6),
-                             color: selectedIndex == 2 ? color.txtWhite : color.txtBlue
-                         ),
-                         child: buildText("Popular", 13, FontWeight.w600,selectedIndex == 2 ? color.txtBlue : color.txtWhite,fontFamily: FontFamily.hellix),
-                       ),
-                     ),
-                     selectedIndex != 2 ?  Positioned(
-                       left: 15,
-                       child: GestureDetector(
-                         onTap: () {
-                           setState(() {
-                           });
-                           selectedIndex = 1 ;
-                         },
-                         child: Container(
-                           height: selectedIndex == 1 ? 185 : 164,
-                           width: selectedIndex == 1 ? MediaQuery.of(context).size.width/3.3 : MediaQuery.of(context).size.width/3.5,
-                           decoration: BoxDecoration(
-                               color: selectedIndex == 1 ? color.txtBlue : Colors.transparent,
-                               border: Border.all(color: color.example3),
-                               borderRadius: BorderRadius.circular(12)
-                           ),
-                           child: Column(
-                             mainAxisAlignment: MainAxisAlignment.center,
-                             children: [
-                               SvgPicture.asset(selectedIndex == 1 ?AssetsPics.crownOn : AssetsPics.crownOff,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
-                               buildText("Slush", 20, FontWeight.w600, selectedIndex == 1 ? color.txtWhite : color.txtBlack,),
-                               buildText("Silver", 20, FontWeight.w600, selectedIndex == 1 ? color.txtWhite : color.txtBlack,),
-                               const SizedBox(height: 10,),
-                               buildText("£9.99", 20, FontWeight.w600, selectedIndex == 1 ? color.txtWhite : color.txtBlack,),
-                             ],
-                           ),
-                         ),
-                       ),
-                     ):SizedBox(),*/
-                   ],
-                 ),
-               ),
-               const SizedBox(height: 18),
-               blue_button(context, "Continue",press: (){
-                 subscribeApi(selectedIndex);
-                 // callFunction();
-               }),
-                SizedBox(height:defaultTargetPlatform==TargetPlatform.iOS?25: 10)
-             ],),
-           )
-              ],),
-            )
+            Column(children: [
+              const Spacer(),
+              Container(
+                padding: const EdgeInsets.only(left: 15,right: 15,top: 10),
+                decoration: BoxDecoration(
+                    color: color.txtWhite,
+                    borderRadius: BorderRadius.circular(15)
+                ),
+                child: Column(children: [
+                  SizedBox(
+                    height:defaultTargetPlatform==TargetPlatform.iOS? size.height*0.20:size.height*0.19,
+                    child:
+                    selectedIndex ==2 ?
+                    PageView(
+                      controller: _pageController,
+                      children: [
+                        customScroller(text1: 'See who has Liked you', text2: 'See everyone that likes you', iconName: AssetsPics.like),
+                        customScroller(text1: 'Sparks', text2: '3 sparks a day', iconName: AssetsPics.shock),
+                        customScroller(text1: 'Unlimited Swipes', text2: 'Endless swiping', iconName: AssetsPics.watch),
+                      ],
+                    ) : PageView(
+                      controller: _pageController,
+                      children: [
+                        customScroller(text1: 'See who has Liked you', text2: 'See everyone that likes you', iconName: AssetsPics.like),
+                        customScroller(text1: 'Sparks', text2: '3 sparks a day', iconName: AssetsPics.shock),
+                        customScroller(text1: 'Unlimited Swipes', text2:  'Endless swiping', iconName: AssetsPics.watch),
+                        customScroller(text1: 'AI Dating Coach', text2: 'Your dating coach', iconName: AssetsPics.dating),
+                        customScroller(text1: 'No ads', text2: 'Your dating coach', iconName: AssetsPics.noAds),
+                      ],
+                    ),
+                  ),
+                  Container(height: size.height*0.01),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children:
+                    List<Widget>.generate( selectedIndex == 2 ? 3 : 5, (int index) {
+                      return Container(
+                        margin: const EdgeInsets.only(left: 2.5,right: 2.5,bottom: 12.0),
+                        width: currentIndex == index?14: 12.0,
+                        height: currentIndex == index?14: 12.0,
+                        decoration: BoxDecoration(
+                          color:currentIndex == index? color.txtWhite:Colors.transparent,
+                          borderRadius: BorderRadius.circular(20),
+                          border: Border.all(color: currentIndex == index ?
+                          Colors.blue : color.txtgrey, width: currentIndex == index ? 3 : 1.5 ,),
+                        ),
+                      );
+                    }),
+                  ),
+                  SizedBox(height: size.height*0.01),
+                  SizedBox(
+                    height: 25.h,
+                    width: MediaQuery.of(context).size.width,
+                    // color: Colors.green,
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Row(children: [
+                          GestureDetector(
+                            onTap: (){setState(() {selectedIndex=1;});},
+                            child: Container(
+                              height: 164,
+                              width: MediaQuery.of(context).size.width/3.3,
+                              decoration: BoxDecoration(
+                                  color: Colors.transparent,
+                                  border: Border.all(color: color.example3),
+                                  borderRadius: BorderRadius.circular(12)
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SvgPicture.asset( AssetsPics.crownOff,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
+                                  buildText("Slush", 20, FontWeight.w600, color.txtBlack,),
+                                  buildText("Silver", 20, FontWeight.w600, color.txtBlack,),
+                                  const SizedBox(height: 10,),
+                                  buildText("£9.99", 20, FontWeight.w600, color.txtBlack,),
+                                ],
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: (){setState(() {selectedIndex=2;});},
+                            child: Container(
+                              height: 164,
+                              width: MediaQuery.of(context).size.width/3.3,
+                              decoration: BoxDecoration(
+                                  color: Colors.transparent,
+                                  border: Border.all(color: color.example3),
+                                  borderRadius: BorderRadius.circular(12)
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SvgPicture.asset( AssetsPics.crownOff,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
+                                  buildText("Slush", 20, FontWeight.w600, color.txtBlack,),
+                                  buildText("Gold", 20, FontWeight.w600, color.txtBlack,),
+                                  const SizedBox(height: 10,),
+                                  buildText("£19.99", 20, FontWeight.w600, color.txtBlack,),
+                                ],
+                              ),
+                            ),
+                          ),
+                          GestureDetector(
+                            onTap: (){setState(() {selectedIndex=3;});},
+                            child: Container(
+                              height: 164,
+                              width: MediaQuery.of(context).size.width/3.3,
+                              decoration: BoxDecoration(
+                                  color: Colors.transparent,
+                                  border: Border.all(color: color.example3),
+                                  borderRadius: BorderRadius.circular(12)
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  SvgPicture.asset( AssetsPics.crownOff,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
+                                  buildText("Slush", 20, FontWeight.w600, color.txtBlack,),
+                                  buildText("Platinum", 20, FontWeight.w600, color.txtBlack,),
+                                  const SizedBox(height: 10,),
+                                  buildText("£29.99", 20, FontWeight.w600, color.txtBlack,),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],),
+                        selectedIndex==2? GestureDetector(
+                          onTap: () {
+                            setState(() {});
+                            selectedIndex = 2 ;
+                          },
+                          child: Container(
+                            height: 185 ,
+                            // width: MediaQuery.of(context).size.width/3.5,
+                            width: MediaQuery.of(context).size.width/2.9,
+                            decoration: BoxDecoration(color: color.txtBlue ,
+                                border: Border.all(color: color.example3),
+                                borderRadius: BorderRadius.circular(12)
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
+                                buildText("Slush", 20, FontWeight.w600, color.txtWhite ),
+                                buildText("Gold", 20, FontWeight.w600,color.txtWhite ),
+                                const SizedBox(height: 10,),
+                                buildText("£19.99", 20, FontWeight.w600, color.txtWhite ),
+                              ],
+                            ),
+                          ),
+                        ):const SizedBox(),
+                        Positioned(
+                          // bottom: selectedIndex == 2 ? 0 : 8,
+                          bottom:Platform.isAndroid ? selectedIndex == 2 ? 0 : 8 :selectedIndex == 2 ? 11 : 22,
+                          child: Container(
+                            alignment: Alignment.center,
+                            height: 22,
+                            width: 82,
+                            decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(6),
+                                color: selectedIndex == 2 ? color.txtWhite : color.txtBlue
+                            ),
+                            child: buildText("Popular", 13, FontWeight.w600,selectedIndex == 2 ? color.txtBlue : color.txtWhite,fontFamily: FontFamily.hellix),
+                          ),
+                        ),
+                        selectedIndex==1? Positioned(
+                          left: 0.0,
+                          child: Container(
+                            height: 185 ,
+                            width: MediaQuery.of(context).size.width/3.1,
+                            decoration: BoxDecoration(color: color.txtBlue , border: Border.all(color: color.example3), borderRadius: BorderRadius.circular(12)),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
+                                buildText("Slush", 20, FontWeight.w600, color.txtWhite ),
+                                buildText("Silver", 20, FontWeight.w600,color.txtWhite ),
+                                const SizedBox(height: 10,),
+                                buildText("£9.99", 20, FontWeight.w600, color.txtWhite ),
+                              ],
+                            ),
+                          ),
+                        ):const SizedBox(),
+                        selectedIndex==3? Positioned(
+                          right: 0.0,
+                          child: Container(
+                            height: 185 ,
+                            width: MediaQuery.of(context).size.width/3.1,
+                            decoration: BoxDecoration(color: color.txtBlue ,
+                                border: Border.all(color: color.example3),
+                                borderRadius: BorderRadius.circular(12)
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
+                                buildText("Slush", 20, FontWeight.w600, color.txtWhite ),
+                                buildText("PLatinum", 20, FontWeight.w600,color.txtWhite ),
+                                const SizedBox(height: 10,),
+                                buildText("£29.99", 20, FontWeight.w600, color.txtWhite ),
+                              ],
+                            ),
+                          ),
+                        ):const SizedBox(),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 18),
+                  blue_button(context, "Continue",press: (){
+                    // subscribeApi(selectedIndex);
+                    int num=selectedIndex==1?2:selectedIndex==2?0:1;
+                    if(LocaleHandler.subscriptionPurchase=="no"){
+                    _buySubscription(_products[num]);}
+                    else{Fluttertoast.showToast(msg: "already purchased a subscription");}
+                    // callFunction();
+                  }),
+                  SizedBox(height:defaultTargetPlatform==TargetPlatform.iOS?25: 10)
+                ],),
+              )
+            ],)
           ],
         ),
       ),
@@ -554,4 +530,40 @@ Future subscribeApi(int nu)async{
       Get.to(()=>BottomNavigationScreen());
     });
   }
+}
+
+
+class ShimmerList extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Shimmer.fromColors(
+      baseColor: Colors.grey[300]!,
+      highlightColor: Colors.grey[100]!,
+      child: ListView.builder(
+        itemCount: 5, // Adjust the count based on your needs
+        itemBuilder: (context, index) {
+          return ListTile(
+            title: Container(
+              height: 20,
+              width: 200,
+              color: Colors.white,
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
+String capitalize(String input) {
+  if (input == null || input.isEmpty) {
+    return '';
+  }
+
+  return input.split(' ').map((word) {
+    if (word.isNotEmpty) {
+      return word[0].toUpperCase() + word.substring(1).toLowerCase();
+    }
+    return '';
+  }).join(' ');
 }

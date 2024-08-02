@@ -123,7 +123,7 @@ class _CreateNewAccountState extends State<CreateNewAccount> {
                       } else if (!RegExp(LocaleKeysValidation.password).hasMatch(passwordController.text)) {
                         setState(() {
                           button = false;
-                          passwordErrorText = "At least 1 Upper,Lower,Num and Special Character";
+                          passwordErrorText = "Your password must include at least one uppercase letter, one lowercase letter, one number, and one special character.";
                         });
                       } else if (passwordController.text == confPasswordController.text &&
                           !RegExp(LocaleKeysValidation.email).hasMatch(emailController.text) == false &&
@@ -202,7 +202,7 @@ class _CreateNewAccountState extends State<CreateNewAccount> {
                       } else {
                         setState(() {
                           button = false;
-                          cpasswordErrorText = "Confirm Password Mismatched!";
+                          cpasswordErrorText = "The passwords do not match. Please try again.";
                         });
                       }
                       return null;

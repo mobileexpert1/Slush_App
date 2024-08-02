@@ -10,8 +10,6 @@ import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/screens/events/free_event.dart';
-import 'package:slush/screens/events/you_ticket.dart';
-import 'package:slush/screens/feed/tutorials/tutorial.dart';
 import 'package:slush/widgets/app_bar.dart';
 import 'package:slush/widgets/text_widget.dart';
 import 'package:http/http.dart'as http;
@@ -110,13 +108,14 @@ class _MyEventListScreenState extends State<MySavedEvent> {
                       itemBuilder: (context,index){
                         int timestamp = data[index]["event"]["startsAt"];
                         DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-                        String formattedDate = DateFormat('dd MMM').format(dateTime);
+                        String formattedDate = DateFormat('dd').format(dateTime);
+                        String formattedmon = DateFormat('MMM').format(dateTime);
                         String formattedTime = DateFormat.jm().format(dateTime);
                         return GestureDetector(
                           onTap: (){tapped(index);},
                           child: Column(children: [
                             Row(children: [
-                              imagewithdate(index,formattedDate),
+                              imagewithdate(index,formattedDate,formattedmon),
                               const SizedBox(width: 10),
                               details(index,formattedTime)
                             ],),
@@ -190,7 +189,7 @@ class _MyEventListScreenState extends State<MySavedEvent> {
       ],);
   }
 
-  Widget imagewithdate(int index,String date) {
+  Widget imagewithdate(int index,String date,String mon) {
     return Container(
       margin: const EdgeInsets.only(bottom: 3,top: 3),
       height: 84,
@@ -212,7 +211,7 @@ class _MyEventListScreenState extends State<MySavedEvent> {
         Container(
           margin: const EdgeInsets.only(left: 5,top: 4),
           // height:44,
-          width: 46,
+          width: 42,
           decoration: BoxDecoration(color: color.txtWhite,borderRadius: BorderRadius.circular(8)),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -222,7 +221,8 @@ class _MyEventListScreenState extends State<MySavedEvent> {
               // Text("30"),
               // Text("30"),
               // buildText("Nov", 15, FontWeight.w600, color.txtBlack,fontFamily: FontFamily.hellix),
-              buildText2(date, 15, FontWeight.w600, color.txtBlack,fontFamily: FontFamily.hellix),
+              // buildText2(date, 15, FontWeight.w600, color.txtBlack,fontFamily: FontFamily.hellix),
+              buildText2( "$date\n$mon", 16, FontWeight.w600, color.txtBlack,fontFamily: FontFamily.hellix),
             ],),
         ),
 

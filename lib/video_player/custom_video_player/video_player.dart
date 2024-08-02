@@ -35,11 +35,7 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget>
    var fileInfo;
 
    initializeController() async {
-    //  fileInfo = await kCacheManager.getFileFromCache(widget.reelUrl);
-    // if (fileInfo == null) {
-    //   await kCacheManager.downloadFile(widget.reelUrl);
-    //   fileInfo = await kCacheManager.getFileFromCache(widget.reelUrl);
-    // }
+
     if (mounted) {
       // _controller = VideoPlayerController.file(fileInfo!.file)
       if(Platform.isAndroid){_controller = VideoPlayerController.networkUrl(Uri.parse(widget.reelUrl));}

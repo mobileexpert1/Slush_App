@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -11,7 +10,6 @@ import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/loader.dart';
 import 'package:slush/constants/localkeys.dart';
-import 'package:slush/screens/forgot_password/create_password.dart';
 import 'package:slush/screens/forgot_password/otp_screen.dart';
 import 'package:slush/widgets/app_bar.dart';
 import 'package:slush/widgets/blue_button.dart';
@@ -64,13 +62,26 @@ class _ForgotPasswordState extends State<ForgotPassword> {
               heading: 'Please go to your email and click the\n link to reset your password.',
               btnTxt: "Go back to login",
               img: AssetsPics.mailImg,onTap: (){Get.back();
-              customDialogOTPBox(context,loginController.text.trim());
+              // customDialogOTPBox(context,loginController.text.trim());
+              showGeneralDialog(
+                  context: context,
+                  pageBuilder: (context, anim1, anim2) => TimerDialog(text:loginController.text.trim()),
+                  barrierDismissible: false,
+                  barrierLabel: '',
+                  transitionDuration: Duration(milliseconds: 300),
+                  transitionBuilder: (context, anim1, anim2, child) {
+                    return FadeTransition(
+                      opacity: anim1,
+                      child: child,
+                    );
+                  });
               });
         }
         else if(response.statusCode==400){Fluttertoast.showToast(msg: data["message"]);}
         else{Fluttertoast.showToast(msg: "Servre Error");}
       }
     } on SocketException catch (_) {
+      setState(() {LoaderOverlay.hide();});
       showToastMsg("No Interenet Connection...",clrbg: Colors.red,clrtxt: color.txtWhite);
     }
   }

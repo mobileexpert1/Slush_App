@@ -1,10 +1,20 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:get/get.dart';
+import 'package:get/get_core/src/get_main.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/widgets/app_bar.dart';
 import 'package:slush/widgets/text_widget.dart';
+import 'package:http/http.dart' as http;
+import '../../constants/LocalHandler.dart';
+import '../../constants/api.dart';
+import '../../widgets/toaster.dart';
+import '../profile/Profile_screem.dart';
+
 
 class NotificationScreen extends StatefulWidget {
   const NotificationScreen({Key? key}) : super(key: key);
@@ -14,38 +24,119 @@ class NotificationScreen extends StatefulWidget {
 }
 
 class _NotificationScreen1State extends State<NotificationScreen> {
-  List<Notification> items=[
-    Notification(1, "Ashwin Bose has liked you", "Would you match now ?","2m ago","","Likes"),
-    Notification(2, "Profile Update ", "Only 15% of profile if updated ","4m ago","Go to Profile",""),
-    Notification(3, "Aahan has liked you back", "It’s a match","4m ago","Chat Now","Match"),
-    Notification(4,
-        "Account Security Alert", "We’ve detected unsual activity. Please\nverify your accounr for added security.",
-        "4m ago","",""),
-  ];
-
-  bool textValue=false;
 
   List category=["All","General","Match","Likes"];
+  String selectedCategory = "All";
   int selectedIndex=0;
-bool noNotification=true;
+  List dataa=[];
+  int totalitems = 0;
+  int currentpage = 0;
+  String status="";
 
-@override
-  void initState() {
-  Future.delayed(Duration(seconds: 10),(){
-    setState(() {
-      // noNotification=false;
+  List unLiked = [];
+  List liked = [];
+  int _Page = 1;
+  int totalPages = 0;
+  int currentPage = 0;
+  bool _isLoadMoreRunning = false;
+  ScrollController? _controller;
+
+  var timeFormat = DateTime.now();
+
+
+  Future getNotification() async {
+    dataa.clear();
+    final url = selectedIndex == 1 ?
+    "${ApiList.notification}page=1&limit=10&notification_type=general" :
+    selectedIndex == 2 ?
+    "${ApiList.notification}page=1&limit=10&notification_type=match" :
+    selectedIndex == 3 ?
+    "${ApiList.notification}page=1&limit=10&notification_type=likes" :
+    "${ApiList.notification}page=1&limit=10&notification_type=";
+    print(url);
+    var uri = Uri.parse(url);
+    var response = await http.get(uri, headers: {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ${LocaleHandler.accessToken}'
     });
-  });
-  super.initState();
+    var data = jsonDecode(response.body)["data"];
+    if (response.statusCode == 200) {
+      setState(() {
+        totalitems = data["meta"]["totalItems"];
+        currentpage = data["meta"]["currentPage"];
+        dataa = data["items"];
+      });
+    } else if (response.statusCode == 401) {
+      showToastMsgTokenExpired();
+    } else {
+      Fluttertoast.showToast(msg: 'Something Went Wrong');
+    }
   }
 
+  Future loadMore()async{
+    if(_Page<totalPages && _isLoadMoreRunning == false && currentPage<totalPages && _controller!.position.extentAfter < 300){
+      setState(() {
+        _isLoadMoreRunning =true;
+      });
+      _Page=_Page+1;
+      final url= selectedIndex == 1 ?
+      "${ApiList.notification}page=1&limit=10&notification_type=general" :
+      selectedIndex == 2 ?
+      "${ApiList.notification}page=1&limit=10&notification_type=match" :
+      selectedIndex == 3 ?
+      "${ApiList.notification}page=1&limit=10&notification_type=likes" :
+      "${ApiList.notification}page=1&limit=10&notification_type=";
+      print(url);
+      var uri=Uri.parse(url);
+      var response = await http.get(uri, headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${LocaleHandler.accessToken}'});
+      setState(() {
+        _isLoadMoreRunning = false;
+      });
+      var data = jsonDecode(response.body)["data"];
+      if(response.statusCode==200){
+        totalitems = data["meta"]["totalItems"];
+        currentpage = data["meta"]["currentPage"];
+        dataa = data["items"];
+        final List fetchedNotifications = data["items"];
+        if(fetchedNotifications.isNotEmpty){
+          setState(() {
+            dataa.addAll(fetchedNotifications);
+          });}
+      }
+    };
+  }
+
+  Future actionForHItLike(String action,String id)async{
+    final url= "${ApiList.action}${id}/action";
+    print(url);
+    var uri=Uri.parse(url);
+    var response=await http.post(uri,
+        headers: {'Content-Type': 'application/json', "Authorization": "Bearer ${LocaleHandler.accessToken}"},
+        body: jsonEncode({"action":action})
+    );
+    print(response.statusCode);
+    if(response.statusCode==201){Get.back(result: true);}
+    else if(response.statusCode==401){}
+    else{}
+  }
+
+  @override
+  void initState() {
+    getNotification();
+    _controller = ScrollController()..addListener(loadMore);
+    Future.delayed(const Duration(seconds: 10),(){
+      setState(() {
+        // noNotification=false;
+      });
+    });
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     final size=MediaQuery.of(context).size;
 
     return Scaffold(
-      // backgroundColor: color.backGroundClr,
       appBar: commonBarWithTextleft(context, color.backGroundClr, "Notification"),
       body: Stack(
         children: [
@@ -63,13 +154,17 @@ bool noNotification=true;
                       height: 46,
                       width: MediaQuery.of(context).size.width,
                       child: ListView.builder(
-                        // shrinkWrap: true,
                           scrollDirection: Axis.horizontal,
                           itemCount: category.length,
                           itemBuilder: (context,index){
                             return Row(children: [
                               GestureDetector(
-                                  onTap: (){setState(() {selectedIndex=index;});},
+                                  onTap: (){
+                                    setState(() {
+                                      selectedIndex=index;
+                                      selectedCategory = category[index];
+                                      getNotification();
+                                    });},
                                   child:selectedIndex==index? selectedButton(category[index]):unselectedButton(category[index])),
                               index==0?Container(margin: const EdgeInsets.only(left: 6,right: 6),
                                 height: 23,width: 2,color: const Color.fromRGBO(217, 217, 217, 1),
@@ -79,8 +174,12 @@ bool noNotification=true;
                   const SizedBox(height: 10),
                   Container(
                     decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(12), color: color.txtWhite),
-                    child:noNotification?Stack(
+                        borderRadius: BorderRadius.circular(12), color: color.txtWhite),
+                    child: dataa == null ? const Padding(
+                      padding: EdgeInsets.only(top: 200),
+                      child: CircularProgressIndicator(color: color.txtBlue),
+                    ): totalitems ==0 ?
+                    Stack(
                       alignment: Alignment.center,
                       children: [
                         Positioned(
@@ -110,102 +209,242 @@ bool noNotification=true;
                               ],
                             ),
                             SizedBox(height: 8.h),
-                            buildText("No notification? ", 30, FontWeight.w600, color.txtBlue),
+                            buildText("No notification?", 30, FontWeight.w600, color.txtBlue),
                             SizedBox(height: 2.h),
-                            buildText2("You have not recieved any \n notifications yet.", 18, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix),
+                            buildText2("You have not received any \n notifications yet.", 18, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix),
                             SizedBox(height: 22.h)
                           ],
                         ),
                       ],
-                    ): ListView.builder(
-                        padding: EdgeInsets.all(0.0),
+                    ):
+                    ListView.builder(
+                        padding: const EdgeInsets.all(0.0),
                         shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
-                        itemCount: items.length,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: dataa.length,
                         itemBuilder: (context,index){
-                          return Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 8),
-                            child: Column(
-                              children: [
-                                Row(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  // mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    SvgPicture.asset(AssetsPics.mailImg,height: 40),
-                                    const SizedBox(width: 15),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        Row(
-                                          children: [
-                                            buildText(items[index].title, 16, FontWeight.w600, color.txtBlack,fontFamily: FontFamily.hellix),
-                                            const SizedBox(width: 10,),
-                                            items[index].pContainer == "" ? const SizedBox() : Container(
-                                              padding: const EdgeInsets.only(right: 3),
-                                              alignment: Alignment.center,
-                                              width: 55,
-                                              height: 17,
-                                              color: color.gradientLightBlue,
-                                              transform: Matrix4.skewX(-.3),
-                                              child: Transform(
-                                                  transform: Matrix4.skewX(.2),
-                                                  child: buildText(items[index].pContainer, 13, FontWeight.w600, color.txtWhite,fontFamily: FontFamily.hellix)),
-                                            ),
-                                          ],
-                                        ),
-                                        buildText(items[index].subTitle, 15, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix),
-                                        const SizedBox(height: 8),
-                                        index == 0 ?  Row(
-                                          children: [
-                                            Container(
-                                              height: 48,
-                                              width: 48,
-                                              decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(100),
-                                                  border: Border.all(color: color.lightestBlue)
+
+                          String notificationType = dataa[index]["notification_type"].toString().capitalize!;
+                          int createdAt = dataa[index]["createdAt"];
+                          int currentTimestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+                          int differenceInSeconds = currentTimestamp - createdAt;
+                          Duration differenceDuration = Duration(seconds: differenceInSeconds);
+
+                          String timeAgo;
+                          if (differenceDuration.inSeconds < 60) {
+                            timeAgo = 'now';
+                          } else if (differenceDuration.inMinutes < 60) {
+                            timeAgo = '${differenceDuration.inMinutes} min ago';
+                          } else if (differenceDuration.inHours < 24) {
+                            timeAgo = '${differenceDuration.inHours} h ago';
+                          } else {
+                            timeAgo = '${differenceDuration.inDays} d ago';
+                          }
+
+                          status=dataa[index]["notification_type"]=="likes"?"Likes":
+                          dataa[index]["notification_type"]=="match"?"Match":
+                          dataa[index]["notification_type"]=="general"?"General":"All";
+                          final lastElement= dataa.lastIndexWhere((e) =>  e["notification_type"] == selectedCategory.toLowerCase());
+
+                          return
+                            selectedCategory == "All" ?
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 8),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      SvgPicture.asset(AssetsPics.mailImg,height: 40),
+                                      const SizedBox(width: 15),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              SizedBox(
+                                                  width: 189,
+                                                  child: buildText(dataa[index]["notification_title"], 16, FontWeight.w600, color.txtBlack,fontFamily: FontFamily.hellix)),
+                                              const SizedBox(width: 8,),
+                                              dataa[index]["notification_type"] == "" ? const SizedBox() : Container(
+                                                padding: const EdgeInsets.only(right: 5,left: 3),
+                                                alignment: Alignment.center,
+                                                height: 17,
+                                                color: color.gradientLightBlue,
+                                                transform: Matrix4.skewX(-.3),
+                                                child: Transform(
+                                                    transform: Matrix4.skewX(.2),
+                                                    child: buildText(notificationType, 13, FontWeight.w600, color.txtWhite,fontFamily: FontFamily.hellix)),
                                               ),
-                                              child: const Icon(Icons.heart_broken_sharp),
-                                            ),
-                                            const SizedBox(width: 15,),
-                                            Container(
-                                              height: 48,
-                                              width: 48,
-                                              decoration: BoxDecoration(
-                                                  borderRadius: BorderRadius.circular(100),
-                                                  border: Border.all(color: color.lightestBlue)
-                                              ),
-                                              child: const Icon(Icons.heart_broken_sharp),
-                                            ),
-                                          ],
-                                        ) :
-                                        items[index].button == ""? const SizedBox() : Container(
-                                          alignment: Alignment.center,
-                                          height: 36,
-                                          padding: const EdgeInsets.symmetric(horizontal: 15),
-                                          decoration: BoxDecoration(borderRadius: BorderRadius.circular(19),
-                                              gradient:  const LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter,
-                                                colors:[color.gradientLightBlue, color.txtBlue],)
+                                            ],
                                           ),
-                                          child: buildText(items[index].button,16,FontWeight.w600,color.txtWhite),
-                                        ),
-
-                                        const SizedBox(height: 10,),
-                                        buildText(items[index].time, 14, FontWeight.w600, color.dropDowngreytxt,fontFamily: FontFamily.hellix),
-                                      ],
-                                    )
-                                  ],
-                                ),
-                                index == items.length -1 ? const SizedBox() : const Divider(
-                                  height: 30,
-                                  thickness: 1,
-                                  color: color.example3,
-                                ),
-
-                              ],
-                            ),
-                          );
+                                          buildText(dataa[index]["notification_description"], 15, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix),
+                                          const SizedBox(height: 8),
+                                          dataa[index]["notification_type"] == "likes" ?  Row(
+                                            children: [
+                                              GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    unLiked.remove(dataa[index]["userId"]);
+                                                  });
+                                                  actionForHItLike(
+                                                      "DISLIKED", dataa[index]["userId"].toString());
+                                                },
+                                                child: SvgPicture.asset(AssetsPics.notificationDislike,height:45,),
+                                              ),
+                                              const SizedBox(width: 12,),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    liked.add(dataa[index]["userId"]);
+                                                  });
+                                                  actionForHItLike("LIKED", dataa[index]["userId"].toString());
+                                                },
+                                                child: SvgPicture.asset(AssetsPics.notificationLike,height:45,),
+                                              ),
+                                            ],
+                                          ) :
+                                          dataa[index]["notification_type"] == "match"? GestureDetector(
+                                            onTap: () {
+                                              // Get.to(()=> TextChatScreen(name: dataa[index]["fromUser"]["firstName"]));
+                                            },
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              height: 36,
+                                              padding: const EdgeInsets.symmetric(horizontal: 15),
+                                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(19),
+                                                  gradient:  const LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter,
+                                                    colors:[color.gradientLightBlue, color.txtBlue],)
+                                              ),
+                                              child: buildText("Chat Now",16,FontWeight.w600,color.txtWhite),
+                                            ),
+                                          )  :
+                                          dataa[index]["notification_type"] == "general"? GestureDetector(
+                                            onTap: () {
+                                              Get.to(()=> UserProfileScreen());                                            },
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              height: 36,
+                                              padding: const EdgeInsets.symmetric(horizontal: 15),
+                                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(19),
+                                                  gradient:  const LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter,
+                                                    colors:[color.gradientLightBlue, color.txtBlue],)
+                                              ),
+                                              child: buildText("Go to Profile",16,FontWeight.w600,color.txtWhite),
+                                            ),
+                                          ) : const SizedBox(),
+                                          const SizedBox(height: 10,),
+                                          buildText(timeAgo, 14, FontWeight.w600, color.dropDowngreytxt,fontFamily: FontFamily.hellix),
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                  index == dataa.length -1 ? const SizedBox() : const Divider(height: 30, thickness: 1, color: color.example3,),
+                                ],
+                              ),
+                            ): selectedCategory == status ?
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 8),
+                              child: Column(
+                                children: [
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      SvgPicture.asset(AssetsPics.mailImg,height: 40),
+                                      const SizedBox(width: 15),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              SizedBox(
+                                                  width: 189,
+                                                  child: buildText(dataa[index]["notification_title"], 16, FontWeight.w600, color.txtBlack,fontFamily: FontFamily.hellix)),
+                                              const SizedBox(width: 8,),
+                                              dataa[index]["notification_type"] == "" ? const SizedBox() : Container(
+                                                padding: const EdgeInsets.only(right: 5,left: 3),
+                                                alignment: Alignment.center,
+                                                // width: 55,
+                                                height: 17,
+                                                color: color.gradientLightBlue,
+                                                transform: Matrix4.skewX(-.3),
+                                                child: Transform(
+                                                    transform: Matrix4.skewX(.2),
+                                                    child: buildText(notificationType, 13, FontWeight.w600, color.txtWhite,fontFamily: FontFamily.hellix)),
+                                              ),
+                                            ],
+                                          ),
+                                          buildText(dataa[index]["notification_description"], 15, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix),
+                                          const SizedBox(height: 8),
+                                          dataa[index]["notification_type"] == "likes" ?  Row(
+                                            children: [
+                                              GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    unLiked.remove(dataa[index]["userId"]);
+                                                  });
+                                                  actionForHItLike(
+                                                      "DISLIKED", dataa[index]["userId"].toString());
+                                                },
+                                                child: SvgPicture.asset(AssetsPics.notificationDislike,height:45,),
+                                              ),
+                                              const SizedBox(width: 12,),
+                                              GestureDetector(
+                                                onTap: () {
+                                                  setState(() {
+                                                    liked.add(dataa[index]["userId"]);
+                                                  });
+                                                  actionForHItLike("LIKED", dataa[index]["userId"].toString());
+                                                },
+                                                child: SvgPicture.asset(AssetsPics.notificationLike,height:45,),
+                                              ),
+                                            ],
+                                          ) :
+                                          dataa[index]["notification_type"] == "match"? GestureDetector(
+                                            onTap: () {
+                                              // Get.to(()=> TextChatScreen(name: dataa[index]["fromUser"]["firstName"]));
+                                            },
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              height: 36,
+                                              padding: const EdgeInsets.symmetric(horizontal: 15),
+                                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(19),
+                                                  gradient:  const LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter,
+                                                    colors:[color.gradientLightBlue, color.txtBlue],)
+                                              ),
+                                              child: buildText("Chat Now",16,FontWeight.w600,color.txtWhite),
+                                            ),
+                                          ) :
+                                          dataa[index]["notification_type"] == "general"? GestureDetector(
+                                            onTap: () {
+                                              Get.to(()=> UserProfileScreen());
+                                            },
+                                            child: Container(
+                                              alignment: Alignment.center,
+                                              height: 36,
+                                              padding: const EdgeInsets.symmetric(horizontal: 15),
+                                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(19),
+                                                  gradient:  const LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter,
+                                                    colors:[color.gradientLightBlue, color.txtBlue],)
+                                              ),
+                                              child: buildText("Go to Profile",16,FontWeight.w600,color.txtWhite),
+                                            ),
+                                          ): const SizedBox(),
+                                          const SizedBox(height: 10,),
+                                          buildText(timeAgo, 14, FontWeight.w600, color.dropDowngreytxt,fontFamily: FontFamily.hellix),
+                                        ],
+                                      )
+                                    ],
+                                  ),
+                                  index == dataa.length -1 ? const SizedBox() :
+                                  lastElement==index ? const SizedBox():
+                                  const Divider(height: 30, thickness: 1, color: color.example3,),
+                                ],
+                              ),
+                            ):const SizedBox();
                         }),
                   ),
+                  _isLoadMoreRunning? const Center(child: CircularProgressIndicator(color: color.txtBlue)):const SizedBox(),
                   const SizedBox(height: 50),
                 ],),
             ),
@@ -244,13 +483,4 @@ bool noNotification=true;
       child: buildText(btntxt, 16, FontWeight.w600, color.txtBlack),
     );
   }
-}
-class Notification{
-  int id;
-  String title;
-  String subTitle;
-  String time;
-  String button;
-  String pContainer;
-  Notification(this.id,this.title,this.subTitle,this.time,this.button,this.pContainer);
 }

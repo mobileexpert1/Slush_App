@@ -69,7 +69,9 @@ class _DetailScreenState extends State<DetailScreen> {
             detailcntrl.setIndex(currentIndex+1);
           }) : commonBar(context, Colors.transparent,press: (){
           if(currentIndex!=0){
-            if(!trimmerstrt){detailcntrl.setIndex(currentIndex-1);}}
+            if(!trimmerstrt){detailcntrl.setIndex(currentIndex-1);}
+            Provider.of<detailedController>(context,listen: false).pauseVideo();
+          }
           else{Get.back();}
       }),
       body: Selector<detailedController,int>(
@@ -176,7 +178,8 @@ class _DetailScreenState extends State<DetailScreen> {
 
   void hitApi(detailedController detailcntrl,String action){
   if(currentIndex!=9){detailcntrl.setIndex(currentIndex+1);}
-    detailcntrl.registerUserDetail(context, action);
+  if(currentIndex==9){Provider.of<detailedController>(context,listen: false).pauseVideo();}
+  detailcntrl.registerUserDetail(context, action);
   }
 }
 

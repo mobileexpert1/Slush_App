@@ -34,6 +34,11 @@ class _DeviceManagementState extends State<DeviceManagement> {
       title: 'OnePlus 8t',
       subTitle1: 'Android : 10 | App Version : 2.69.01',
       subTitle2: 'Logged in on Sunday, 25 April 2020  |  7:00 AM',),
+    Devices(
+      Id: 3,
+      title: 'OnePlus 8t',
+      subTitle1: 'Android : 10 | App Version : 2.69.01',
+      subTitle2: 'Logged in on Sunday, 25 April 2020  |  7:00 AM',),
   ];
 
   @override
@@ -52,15 +57,13 @@ class _DeviceManagementState extends State<DeviceManagement> {
         deviceData = _readWebBrowserInfo(await deviceInfoPlugin.webBrowserInfo);
       } else {
         deviceData = switch (defaultTargetPlatform) {
-        TargetPlatform.android =>_readAndroidBuildData(await deviceInfoPlugin.androidInfo),
+    TargetPlatform.android =>_readAndroidBuildData(await deviceInfoPlugin.androidInfo),
     TargetPlatform.iOS =>_readIosDeviceInfo(await deviceInfoPlugin.iosInfo),
     TargetPlatform.linux =>_readLinuxDeviceInfo(await deviceInfoPlugin.linuxInfo),
     TargetPlatform.windows =>_readWindowsDeviceInfo(await deviceInfoPlugin.windowsInfo),
     TargetPlatform.macOS =>_readMacOsDeviceInfo(await deviceInfoPlugin.macOsInfo),
     TargetPlatform.fuchsia => <String, dynamic>{'Error:': 'Fuchsia platform isn\'t supported'},
-    };
-    }
-    } on PlatformException {
+    };}} on PlatformException {
     deviceData = <String, dynamic>{'Error:': 'Failed to get platform version.'};
     }
 
@@ -216,12 +219,14 @@ class _DeviceManagementState extends State<DeviceManagement> {
             child: Image.asset(AssetsPics.background,fit: BoxFit.cover,),
           ),
           Padding(
-            padding: const EdgeInsets.only(left: 20,right: 20,top: 30),
+            padding: const EdgeInsets.only(left: 20,right: 20),
             child: SingleChildScrollView(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  SizedBox(height: size.height*0.03),
                   buildText("Current device", 16, FontWeight.w600, color.txtgrey2,fontFamily: FontFamily.hellix),
+                  SizedBox(height: size.height*0.02-4),
                   Container(
                     padding: EdgeInsets.all(16),
                     width: size.width,
@@ -234,10 +239,10 @@ class _DeviceManagementState extends State<DeviceManagement> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         ...[
-                          buildText(Platform.isAndroid? "${_deviceData['brand']} (${_deviceData['model']})":_deviceData['model'], 18, FontWeight.w500, Colors.black),
+                          buildText(Platform.isAndroid? "${_deviceData['brand']} (${_deviceData['model']})":_deviceData['model'], 18, FontWeight.w500, Colors.black,fontFamily: FontFamily.baloo2M),
                           buildText(Platform.isAndroid?"Android :${_deviceData['version.release']} ":"${_deviceData["systemName"]} :${_deviceData["systemVersion"]}", 15, FontWeight.w400, color.txtgrey3,fontFamily: FontFamily.hellix),
                           buildText("App Version : 3.11.02", 15, FontWeight.w400, color.txtgrey3,fontFamily: FontFamily.hellix),
-                          buildText("Logged in on Friday, 11 Feb 2022 | 08:00pm", 15, FontWeight.w400, color.txtgrey3,fontFamily: FontFamily.hellix),
+                          buildText("Logged in on Friday, 11 Feb 2022 | 08:00pm", 15, FontWeight.w400, color.txtgreyhex,fontFamily: FontFamily.hellix),
                           // buildText("OnePLUS One Plus 5 (ONEPLUS A5000)", 18, FontWeight.w500, Colors.black),
                         // buildText("Android : Android 12", 15, FontWeight.w400, color.txtgrey3,fontFamily: FontFamily.hellix),
                         // buildText("App Version : 3.11.02", 15, FontWeight.w400, color.txtgrey3,fontFamily: FontFamily.hellix),
@@ -254,7 +259,7 @@ class _DeviceManagementState extends State<DeviceManagement> {
                     ),
                   ),
                   const SizedBox(height: 16,),
-                  SingleChildScrollView(
+                 /* SingleChildScrollView(
                     child: Container(
                       padding: EdgeInsets.all(16),
                       width: size.width,
@@ -285,7 +290,7 @@ class _DeviceManagementState extends State<DeviceManagement> {
                                             Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
-                                                buildText(devices[index].title, 18, FontWeight.w500, Colors.black),
+                                                buildText(devices[index].title, 18, FontWeight.w500, Colors.black,fontFamily: FontFamily.baloo2M),
                                                 const SizedBox(height: 4),
                                                 buildText(devices[index].subTitle1, 15, FontWeight.w500,Colors.black,fontFamily: FontFamily.hellix),
                                               ],),
@@ -298,7 +303,7 @@ class _DeviceManagementState extends State<DeviceManagement> {
                                                 child: SvgPicture.asset(AssetsPics.delete))
                                           ],),
                                       ),
-                                      buildText(devices[index].subTitle2, 14, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix),
+                                      buildText(devices[index].subTitle2, 14, FontWeight.w500, color.txtgreyhex,fontFamily: FontFamily.hellix),
                                       const SizedBox(height: 15,),
                                       index == devices.length -1 ? const SizedBox() : const Divider(
                                         height: 5,
@@ -313,7 +318,7 @@ class _DeviceManagementState extends State<DeviceManagement> {
                         ],
                       ),
                     ),
-                  )
+                  )*/
                 ],
               ),
             ),

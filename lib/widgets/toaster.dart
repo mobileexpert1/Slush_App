@@ -63,7 +63,7 @@ Future showAlertMsg(context, String msg ){
       context: context,
       type: QuickAlertType.success,
       text: msg,
-      autoCloseDuration: Duration(seconds: 5)
+      autoCloseDuration: const Duration(seconds: 5)
   );
 }
 
@@ -77,18 +77,18 @@ SnackbarController snackBaar(BuildContext context,String img,bool isPng){
     titleText: Stack(
       alignment: Alignment.center,
       children: [
-        Container(
+        SizedBox(
             width: MediaQuery.of(context).size.width,
             child:isPng?Image.asset(img,fit: BoxFit.cover): SvgPicture.asset(img,fit: BoxFit.cover)),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Container(
+           isPng?const SizedBox(): Container(
               color: Colors.transparent,
               transform: Matrix4.translationValues(MediaQuery.of(context).size.width * -.11, 0, 0.0),
               child: SvgPicture.asset(AssetsPics.bannerheart),
             ),
-            Container(
+            isPng?const SizedBox():   Container(
               color: Colors.transparent,
               transform: Matrix4.translationValues(MediaQuery.of(context).size.width * .01, 0, 10.0),
               child: SvgPicture.asset(AssetsPics.bannerheart),
@@ -102,7 +102,6 @@ SnackbarController snackBaar(BuildContext context,String img,bool isPng){
     borderWidth: 0.0,
     overlayBlur: 0.0,
     barBlur: 0.0,
-
     isDismissible: true,
 
 
@@ -126,7 +125,6 @@ SnackbarController snackBaar(BuildContext context,String img,bool isPng){
     // colorText: Colors.yellow,
     // showProgressIndicator: true,
 
-
   );
 }
 
@@ -140,7 +138,7 @@ SnackbarController snackBaarblue(BuildContext context,String img,String txt){
       titleText: Stack(
         alignment: Alignment.center,
         children: [
-          Container(
+          SizedBox(
               width: MediaQuery.of(context).size.width,
               child: SvgPicture.asset(img,fit: BoxFit.cover)),
           Row(

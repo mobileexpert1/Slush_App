@@ -1,14 +1,15 @@
-// import 'package:another_flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/svg.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/prefs.dart';
+import 'package:slush/controller/event_controller.dart';
+import 'package:slush/controller/profile_controller.dart';
 import 'package:slush/screens/events/payment_history.dart';
 import 'package:slush/screens/getstarted/slider_scree.dart';
 import 'package:slush/screens/setting/account_settings.dart';
@@ -21,14 +22,9 @@ import 'package:slush/widgets/app_bar.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
 import 'package:slush/widgets/text_widget.dart';
 import 'package:slush/widgets/toaster.dart';
-// import 'package:toastification/toastification.dart';
-// import 'package:top_snackbar_flutter/custom_snack_bar.dart';
-// import 'package:top_snackbar_flutter/top_snack_bar.dart';
 import 'package:http/http.dart'as http;
 import 'package:url_launcher/url_launcher.dart';
 
-import '../events/event.dart';
-import 'package:intl/intl.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -43,14 +39,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Settings(1,AssetsPics.notification, "Notification Settings", AssetsPics.rightArrow,),
     Settings(2,AssetsPics.acSetting, "Account Settings", AssetsPics.rightArrow,),
     Settings(3,AssetsPics.discovery,  "Discovery Settings", AssetsPics.rightArrow,),
-    Settings(4,AssetsPics.deviceManagement,  "Device Management", AssetsPics.rightArrow,),
+    // Settings(4,AssetsPics.deviceManagement,  "Device Management", AssetsPics.rightArrow,),
     Settings(5,AssetsPics.savedsetting,  "Saved Event", ""),
     Settings(6,AssetsPics.payment_history,  "Payment History", ""),
     Settings(7,AssetsPics.about,  "About Us", ""),
     Settings(8,AssetsPics.FAQ,  "FAQs", ""),
     Settings(9,AssetsPics.terms, "Terms and Condition", ""),
   ];
-
 
   @override
   Widget build(BuildContext context) {
@@ -70,9 +65,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   Container(
                     decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: color.txtWhite),
                     child: ListView.builder(
-                        padding: EdgeInsets.all(0.0),
+                        padding: const EdgeInsets.all(0.0),
                       shrinkWrap: true,
-                        physics: NeverScrollableScrollPhysics(),
+                        physics: const NeverScrollableScrollPhysics(),
                         itemCount: settingsType.length,
                         itemBuilder: (context,index){
                           return Column(
@@ -99,7 +94,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           btnTxt1: "Cancel",btnTxt2: "Yes, logout",onTap2: (){
                             logout();
                             removeData();
-                            // Get.offAll(()=>SliderScreen());
+                            // Get.offAll(()=>const SliderScreen());
                           }
                           );
                     },
@@ -107,7 +102,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       padding:  const EdgeInsets.only(left: 25),
                       alignment: Alignment.centerLeft,
                       // height: 60,
-                      height: size.height*0.08,
+                      height: size.height*0.07,
                       width: size.width,
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(12),
@@ -131,15 +126,21 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
+
   Future<void> callNavigationFunction(int i) async {
-         if(i==1){Get.to(()=>NotificationSettings());}
-    else if(i==2){Get.to(()=>AccountSettings());}
-    else if(i==3){Get.to(()=>DiscoverySettings());}
-    else if(i==4){Get.to(()=>DeviceManagement());}
+         if(i==1){Get.to(()=>const NotificationSettings());}
+    else if(i==2){Get.to(()=>const AccountSettings());}
+    else if(i==3){Get.to(()=>const DiscoverySettings());}
+    else if(i==4){Get.to(()=>const DeviceManagement());
+    }
     else if(i==5){Get.to(()=>MySavedEvent());}
-    else if(i==6){Get.to(()=>PaymentHistoryScreen());}
-    else if(i==7){showToastMsg("Coming soon...");}
-    else if(i==8){Get.to(()=>AboutSlush());}
+    else if(i==6){Get.to(()=>const PaymentHistoryScreen());}
+    else if(i==7){
+           // snackBaar(context, AssetsPics.verifyinprocesssvg,false);
+           // snackBaar(context, AssetsPics.verifyinprocess,true);
+      showToastMsg("Coming soon...");
+    }
+    else if(i==8){Get.to(()=>const AboutSlush());}
     else if(i==9){
            const url = 'https://www.slushdating.com/terms-of-use';
            if (await canLaunch(url)) {
@@ -156,7 +157,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     else {}
   }
 
-/*  showSnackBarFun(context) {
+  /*  showSnackBarFun(context) {
     SnackBar snackBar = SnackBar(
       // content: const Text('Yay! A SnackBar at the top!', style: TextStyle(fontSize: 20)),
       content: Image.asset(AssetsPics.unMatchedbg,fit: BoxFit.cover),
@@ -172,7 +173,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     LocaleHandler.bearer="Bearer ${LocaleHandler.accessToken}";
     const url = ApiList.logout;
     print(url);
-    print(LocaleHandler.accessToken);
     var uri=Uri.parse(url);
     var response = await http.post(
       uri,
@@ -181,14 +181,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
         'Authorization': "Bearer ${LocaleHandler.accessToken}",
       },
     );
-    print("::::::::::::::::${response.statusCode}");
-      print('Logout successful');
       // Fluttertoast.showToast(msg: "Logout Successfully");
         showToastMsgTokenExpired(msg: "Logout successful");
         // Preferences.setToken(LocaleHandler.bearer='');
   }
+
   void removeData(){
     setState(() {
+      LocaleHandler.avatar="";
       LocaleHandler.accessToken='';
       LocaleHandler.refreshToken='';
       LocaleHandler.bearer='';
@@ -203,8 +203,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       LocaleHandler.userId = "";
       LocaleHandler.role = "";
       LocaleHandler.subscriptionPurchase = "";
+      LocaleHandler.bottomSheetIndex=0;
       Preferences.setValue("token",LocaleHandler.accessToken);
-
       Preferences.setrefreshToken(LocaleHandler.refreshToken);
       Preferences.setNextAction("");
       Preferences.setNextDetailAction("");
@@ -215,6 +215,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
       Preferences.setValue("role", LocaleHandler.role);
       Preferences.setValue("subscriptionPurchase", LocaleHandler.subscriptionPurchase);
     });
+    Provider.of<eventController>(context, listen: false).removeMyEvent();
+    Provider.of<profileController>(context,listen: false).removeData();
   }
 
 }

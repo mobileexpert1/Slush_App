@@ -40,10 +40,7 @@ class _DetailProfilePictureState extends State<DetailProfilePicture> {
           radius: const Radius.circular(12),
           borderType: BorderType.RRect,
           stackFit: StackFit.loose,
-          dashPattern:const [
-            7,
-            7,
-          ],
+          dashPattern:const [7, 7],
           child: GestureDetector(
             onTap: (){
               showModalBottomSheet<void>(
@@ -108,7 +105,7 @@ class _DetailProfilePictureState extends State<DetailProfilePicture> {
                                       radius: 8,
                                       backgroundColor: val.selcetedIndex=="1"?color.txtWhite:color.txtWhite,
                                       // backgroundImage: SvgPicture.asset(AssetsPics.arrowLeft),
-                                      child: val.selcetedIndex=="1"?SvgPicture.asset(AssetsPics.blueTickCheck,fit: BoxFit.cover,):const SizedBox(),
+                                      child: val.selcetedIndex=="1"?SvgPicture.asset(AssetsPics.blueTickCheck, fit: BoxFit.cover):const SizedBox(),
                                     ),
                                   )
                                 ],
@@ -130,7 +127,9 @@ class _DetailProfilePictureState extends State<DetailProfilePicture> {
                 return  val.croppedFile != null?
                 ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: Image.file(File(val.croppedFile!.path),fit: BoxFit.cover,))
+                    // child: Image.file(File(val.croppedFile!.path),fit: BoxFit.cover)
+                    child: Image.file(File(val.croppedFile!.path))
+                )
                     : Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [

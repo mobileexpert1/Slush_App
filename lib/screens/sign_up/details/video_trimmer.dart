@@ -13,6 +13,13 @@ class VideoTrimmerScreen extends StatefulWidget {
 }
 
 class _VideoTrimmerScreenState extends State<VideoTrimmerScreen> {
+  @override
+  void initState() {
+    callSetState();
+    super.initState();
+  }
+  callSetState(){Future.delayed(Duration(seconds: 2),(){    setState(() {});});
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -58,14 +65,14 @@ class _VideoTrimmerScreenState extends State<VideoTrimmerScreen> {
                 Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     GestureDetector(
-                    onTap: (){detailcntrl.cancelSelectedTrimVideo();}, child: Icon(Icons.clear, size: 45.0, color: color.txtBlue)),
+                    onTap: (){detailcntrl.cancelSelectedTrimVideo();}, child: const Icon(Icons.clear, size: 45.0, color: color.txtBlue)),
                     GestureDetector(child: valuee.isPlaying
                           ? const Icon(Icons.pause, size: 60.0, color: color.txtBlue)
                           : const Icon(Icons.play_arrow, size: 60.0, color: color.txtBlue),
                       onTap: ()async {
                         detailcntrl.trimmVideoPLayPause(valuee.isPlaying?false:true);
                         detailcntrl.playTrimmmervideo(); } ),
-                    GestureDetector( onTap: (){detailcntrl.saveVideo();},child: Icon(Icons.check, size: 45.0, color: color.txtBlue)),
+                    GestureDetector( onTap: (){detailcntrl.saveVideo();},child: const Icon(Icons.check, size: 45.0, color: color.txtBlue)),
                   ],)
               ],
             ),
@@ -109,7 +116,7 @@ class _EditVideoTrimmerScreenState extends State<EditVideoTrimmerScreen> {
                         children: [
                           TrimViewer(
                             trimmer: valuee.trimmer,
-                            durationTextStyle: TextStyle(color: Colors.black),
+                            durationTextStyle: const TextStyle(color: Colors.black),
                             viewerHeight: 50.0,
                             viewerWidth: MediaQuery.of(context).size.width,
                             durationStyle: DurationStyle.FORMAT_MM_SS,
@@ -134,7 +141,7 @@ class _EditVideoTrimmerScreenState extends State<EditVideoTrimmerScreen> {
                   Row(mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
                       GestureDetector(
-                          onTap: (){editcntrl.cancelSelectedTrimVideo();}, child: Icon(Icons.clear, size: 45.0, color: color.txtBlue)),
+                          onTap: (){editcntrl.cancelSelectedTrimVideo();}, child: const Icon(Icons.clear, size: 45.0, color: color.txtBlue)),
                       GestureDetector(child: valuee.isPlaying
                           ? const Icon(Icons.pause, size: 60.0, color: color.txtBlue)
                           : const Icon(Icons.play_arrow, size: 60.0, color: color.txtBlue),
@@ -142,7 +149,7 @@ class _EditVideoTrimmerScreenState extends State<EditVideoTrimmerScreen> {
                             editcntrl.trimmVideoPLayPause(valuee.isPlaying?false:true);
                             editcntrl.playTrimmmervideo();
                       } ),
-                      GestureDetector( onTap: (){editcntrl.saveVideo(context);},child: Icon(Icons.check, size: 45.0, color: color.txtBlue)),
+                      GestureDetector( onTap: (){editcntrl.saveVideo(context);},child: const Icon(Icons.check, size: 45.0, color: color.txtBlue)),
                     ],)
                 ],
               ),
