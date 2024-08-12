@@ -72,14 +72,13 @@ String get timerEventName=>_timerEventName;
       timestampSeconds = now.microsecondsSinceEpoch ~/ 1000000;
       for(var i=0;i<_myevent.length;i++){
         if(timestampSeconds<_myevent[i]["startsAt"]){
+          // Future.delayed(const Duration(seconds: 5));
           setDateFormat(_myevent[i]["startsAt"]);
         _timerEventName =  _myevent[i]["title"] + " - " + _myevent[i]["type"]+"...";
         _startEventTime=_myevent[i]["startsAt"];
         LocaleHandler.eventId=_myevent[i]["eventId"];
-          _indexnum=i;
-        break;
-        }
-      }
+        _indexnum=i;
+        break;}}
       }
       if(eventType==""){}
       notifyListeners();
@@ -266,9 +265,7 @@ Future getListData() async {
             ),
           );
         },);
-      } else {
-        _startTime = duration;
-      }
+      } else {_startTime = duration;}
     DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(duration * 1000);
     DateTime timeFormat = DateTime.now();
     timestampSecondsCurrent = timeFormat.microsecondsSinceEpoch ~/ 1000000;

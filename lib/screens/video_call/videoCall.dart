@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:agora_uikit/agora_uikit.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -12,10 +13,14 @@ import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/localkeys.dart';
 import 'package:slush/controller/video_call_controller.dart';
+import 'package:slush/screens/events/bottomNavigation.dart';
 import 'package:slush/screens/video_call/feedback_screen.dart';
+import 'package:slush/screens/waiting_room/firebase_firestore_service.dart';
+import 'package:slush/screens/waiting_room/waiting_completed_screen.dart';
 import 'package:slush/widgets/blue_button.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
 import 'package:slush/widgets/text_widget.dart';
+import 'package:slush/widgets/toaster.dart';
 
 class VideoCallScreen extends StatefulWidget {
   const VideoCallScreen({Key? key}) : super(key: key);
@@ -40,12 +45,12 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   // bool camOnn = false;
   // bool micOnn = false;
   static const appId = 'ace5073becd844af9e3a1651abf1b1ef';
-  // static const token = '007eJxTYPCekn513TS5y48uX0wuOu81+Xfk4Q6rLZx16fsmmm66uvqfAkNicqqpgblxUmpyioWJSWKaZapxoqGZqWFiUpphkmFq2nGXaWkNgYwM5ivjWRkZIBDE52EwNDAy0jU3MQNiCwYGAHhjI80=';
-  static const token = '007eJxTYFA558h1UUpsgbTf4o1dB9KV2y4aimhlijNEyPL8F90uaazAkJicampgbpyUmpxiYWKSmGaZapxoaGZqmJiUZphkmJp2d9uMtIZARobO93WsjAwQCOJzMJSkFpeAMAMDALn9Hu4=';
-  String channelId = 'testtest';
+  // static const token = '007eJxTYFA558h1UUpsgbTf4o1dB9KV2y4aimhlijNEyPL8F90uaazAkJicampgbpyUmpxiYWKSmGaZapxoaGZqmJiUZphkmJp2d9uMtIZARobO93WsjAwQCOJzMJSkFpeAMAMDALn9Hu4=';
+  // String channelId = 'testtest';
 
   @override
   void initState() {
+    // FireStoreService().deleteCallStatusToPicked();
     super.initState();
     initializeAgora();
     // _initAgora();
@@ -60,16 +65,22 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       appId: appId,
       channelName: LocaleHandler.channelId,
       tempToken: LocaleHandler.rtctoken,
+
     ),
     enabledPermission: [Permission.camera, Permission.microphone],
   );
 
   Future<void> initializeAgora() async {
+    print('Permission.camera.isGranted;-;-;-;-');
+    print(Permission.camera.isGranted);
+    print(Permission.microphone.isGranted);
     await [Permission.camera, Permission.microphone].request();
     // Initialize the client
     await client.initialize();
     await client.engine.muteLocalVideoStream(LocaleHandler.camOn);
     await client.engine.muteLocalAudioStream(LocaleHandler.micOn);
+    await client.engine.startPreview();
+
     client.engine.registerEventHandler(
       RtcEngineEventHandler(
         onUserJoined: (connection, remoteUid, elapsed) {
@@ -83,7 +94,21 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
           // Handle the remote user cutting the call
           _handleRemoteUserLeft();
         },
+        onFirstRemoteVideoFrame: (connection, remoteUid, width, height, elapsed) {
+          print('First remote video frame received from user $remoteUid');
+          setState(() {});
+          // You can trigger UI updates or handle the remote video frame here
+        },
       ),
+    );
+    final ChannelMediaOptions options = ChannelMediaOptions(
+      autoSubscribeVideo: true,
+      autoSubscribeAudio: true,
+    );
+    await client.engine.joinChannel(
+      token: LocaleHandler.rtctoken,  // Pass the token here
+      channelId: LocaleHandler.channelId,  // Pass the channel ID here
+      uid: 0, options: options,  // Auto-assign UID if not required
     );
   }
 
@@ -101,10 +126,9 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     // Implement your logic here when the remote user cuts the call
     print('Remote user cut the call');
     // For example, you can navigate to a different screen or show a dialog
-    Get.to(() => const FeedbackVideoChatScreen());
+    Get.offAll(() => const FeedbackVideoChatScreen());
     _onExit();
   }
-
 
   @override
   void dispose() {
@@ -118,9 +142,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     setState(() {});
   }
 
-
-
-
+  bool onlyrejectonce=true;
   @override
   Widget build(BuildContext context) {
     final timerProvider = Provider.of<TimerProvider>(context);
@@ -136,7 +158,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     }});
 
     return PopScope(
-      canPop: true,
+      canPop: false,
       child: Scaffold(
         backgroundColor: color.txtWhite,
         body: SafeArea(
@@ -170,8 +192,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                           // _engine.muteLocalAudioStream(micOnn);
                           client.engine.muteLocalAudioStream(LocaleHandler.micOn);
                         },
-                        child: SizedBox(height: 60, width: 60,
-                            child: SvgPicture.asset(LocaleHandler.micOn ? AssetsPics.micOff : AssetsPics.micOn))),
+                        child: SizedBox(height: 60, width: 60, child: SvgPicture.asset(LocaleHandler.micOn ? AssetsPics.micOff : AssetsPics.micOn))),
                     //AssetsPics.microphoneOn:AssetsPics.microphone
                     const SizedBox(width: 20),
                     GestureDetector(
@@ -189,25 +210,19 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                               client.engine.leaveChannel();
                               _onExit();
                               print("disconnect");
-                              Get.off(() => const FeedbackVideoChatScreen());
+                              Get.offAll(() => const FeedbackVideoChatScreen());
                             });
                             // Get.back();
                           }
                         },
-                        child: SizedBox(
-                            height: 60,
-                            width: 60,
-                            child: SvgPicture.asset(AssetsPics.callCut))),
+                        child: SizedBox(height: 60, width: 60, child: SvgPicture.asset(AssetsPics.callCut))),
                     const SizedBox(width: 20),
                     GestureDetector(
                         onTap: ()async {
-                          setState(() {
-                            LocaleHandler.camOn = !LocaleHandler.camOn;
-                          });
+                          setState(() {LocaleHandler.camOn = !LocaleHandler.camOn;});
                           await client.engine.muteLocalVideoStream(LocaleHandler.camOn);
                         },
-                        child: SizedBox(height: 60, width: 60,
-                            child: SvgPicture.asset(LocaleHandler.camOn ? AssetsPics.camOff : AssetsPics.camOn))),
+                        child: SizedBox(height: 60, width: 60, child: SvgPicture.asset(LocaleHandler.camOn ? AssetsPics.camOff : AssetsPics.camOn))),
                   ]),
               Align(
                 alignment: Alignment.topCenter,
@@ -216,11 +231,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                   alignment: Alignment.center,
                   height: 5.h,
                   width: 27.w,
-                  decoration: BoxDecoration(
-                      color: Colors.white30,
-                      borderRadius: BorderRadius.circular(33)),
-                  child: buildText(
-                      formattedTime, 25, FontWeight.w600, color.txtWhite),
+                  decoration: BoxDecoration(color: Colors.white30, borderRadius: BorderRadius.circular(33)),
+                  child: buildText(formattedTime, 25, FontWeight.w600, color.txtWhite),
                 ),
               ),
 
@@ -228,14 +240,39 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                 top: 25,
                 right: 25,
                 child: GestureDetector(
-                    onTap: () {
-                      client.engine.switchCamera();
-                    },
-                    child: SizedBox(
-                        height: 26,
-                        width: 26,
-                        child: SvgPicture.asset(AssetsPics.camrotate))),
+                    onTap: () {client.engine.switchCamera();},
+                    child: SizedBox(height: 26, width: 26, child: SvgPicture.asset(AssetsPics.camrotate))),
               ),
+
+
+                Flexible(
+                    child: StreamBuilder<DocumentSnapshot>(
+                      stream: FireStoreService().getCallStatusStream(),
+                      builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                        if (snapshot.hasError) {return buildSizedBox();}
+                        if (!snapshot.hasData || !snapshot.data!.exists) {return buildSizedBox();}
+                        else if (snapshot.hasData) {
+                          var data = snapshot.data!.data() as Map<String, dynamic>;
+                          if (data['callstatus'] == "wait" && data['createdUserId'] != LocaleHandler.userId) {}
+                          else if (data['callstatus'] == "wait" && data['createdUserId'] == LocaleHandler.userId) {
+                            return  Center(child: blue_buttonwidehi(context, "Waiting for you date to join...", press: () {}),);
+                          } else if (data['callstatus'] == "accept" && data['createdUserId'] == LocaleHandler.userId) {return SizedBox();}
+                          else if (data['callstatus'] == "reject" ) {
+                            WidgetsBinding.instance.addPostFrameCallback((_) {if(onlyrejectonce){onlyrejectonce=false;
+                            showToastMsg("${LocaleHandler.eventParticipantData["firstName"]} is didn't Pick you call");
+                            if(LocaleHandler.dateno==LocaleHandler.totalDate){
+                              LocaleHandler.dateno=0;
+                              showToastMsg("Event is over");
+                              Get.offAll(()=>BottomNavigationScreen());
+                              Provider.of<TimerProvider>(context,listen: false).stopTimerr();}
+                            else{Get.offAll(()=>WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));}
+                            }});
+                          }
+                        }
+                        return buildSizedBox();
+                      },
+                    ),
+                  ),
             ],
           ),
         ),
@@ -245,10 +282,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
 
   String reportReason="";
   customBuilderSheet(BuildContext context, String title, String btnTxt,
-      {required String heading,
-      VoidCallback? onTapp = pressed,
-      VoidCallback? onTap = pressed,
-      bool? forAdvanceTap}) {
+      {required String heading, VoidCallback? onTapp = pressed,
+      VoidCallback? onTap = pressed, bool? forAdvanceTap}) {
     return showGeneralDialog(
       barrierDismissible: true,
         barrierLabel: "Label",
@@ -285,9 +320,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                                     padding: const EdgeInsets.symmetric(vertical: 10),
                                     child: GestureDetector(
                                       onTap: () {
-                                        setState(() {
-                                          selectedIndex = index;
-                                          reportReason=reportingMatter[index];
+                                        setState(() {selectedIndex = index;reportReason=reportingMatter[index];
                                         });
                                       },
                                       child: Container(
@@ -295,29 +328,18 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                                         child: Row(
                                           children: [
                                             CircleAvatar(
-                                              backgroundColor:
-                                                  selectedIndex == index ? color.txtBlue : color.txtBlack,
+                                              backgroundColor: selectedIndex == index ? color.txtBlue : color.txtBlack,
                                               radius: 9,
                                               child: CircleAvatar(
                                                 radius: 8,
-                                                backgroundColor:
-                                                    selectedIndex == index
-                                                        ? color.txtWhite
-                                                        : color.txtWhite,
+                                                backgroundColor: selectedIndex == index ? color.txtWhite : color.txtWhite,
                                                 child: selectedIndex == index
-                                                    ? SvgPicture.asset(
-                                                        AssetsPics.blueTickCheck,
-                                                        fit: BoxFit.cover,
-                                                      )
+                                                    ? SvgPicture.asset(AssetsPics.blueTickCheck, fit: BoxFit.cover,)
                                                     : const SizedBox(),
                                               ),
                                             ),
-                                            const SizedBox(
-                                              width: 10,
-                                            ),
-                                            buildText2(reportingMatter[index], 18,
-                                                FontWeight.w500, color.txtgrey,
-                                                fontFamily: FontFamily.hellix),
+                                            const SizedBox(width: 10),
+                                            buildText2(reportingMatter[index], 18, FontWeight.w500, color.txtgrey, fontFamily: FontFamily.hellix),
                                           ],
                                         ),
                                       ),
@@ -342,5 +364,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
           );
         });
   }
+  SizedBox buildSizedBox() => const SizedBox(height: 10);
 }
+
 

@@ -1,6 +1,7 @@
 
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:slush/controller/detail_controller.dart';
@@ -65,8 +66,17 @@ class _DeatilProfileVideoScreenState extends State<DeatilProfileVideoScreen> {
                             Padding(
                               padding: const EdgeInsets.only(left: 20,right: 20),
                               child: GestureDetector(
-                                onTap: (){
-                                  detailcntrl.tappedOption(context, ImageSource.camera, "0");
+                                onTap: ()async{
+                                  var camstatus = await Permission.camera.status;
+                                  var micstatus = await Permission.microphone.status;
+                                  if (camstatus.isGranted && micstatus.isGranted) {detailcntrl.tappedOption(context, ImageSource.camera, "0");}
+                                  else if (camstatus.isDenied || micstatus.isDenied){
+                                    var newStatus = await Permission.camera.request();
+                                    var newmStatus = await Permission.microphone.request();
+                                    if (newStatus.isGranted && newmStatus.isGranted){detailcntrl.tappedOption(context, ImageSource.camera, "0");}
+                                    else if (newStatus.isPermanentlyDenied || newmStatus.isPermanentlyDenied){openAppSettings();}
+                                  }
+                                  else if (camstatus.isPermanentlyDenied || micstatus.isPermanentlyDenied){openAppSettings();}
                                 },
                                 child: Consumer<detailedController>(
                                   builder: (context,val,child){
@@ -140,12 +150,12 @@ class _DeatilProfileVideoScreenState extends State<DeatilProfileVideoScreen> {
                             alignment: Alignment.center,
                             children: [
                               AspectRatio(
-                              aspectRatio: val.controller!.value.aspectRatio,
-                              child: VideoPlayer(val.controller!)),
+                                  aspectRatio: val.controller!.value.aspectRatio,
+                                  child: VideoPlayer(val.controller!)),
                               GestureDetector(
                                   onTap: (){
                                     val.controller?.play();
-                                    },
+                                  },
                                   // child:val.controller.value.isPlaying?SizedBox(): SvgPicture.asset(AssetsPics.videoplayicon)),
                                   child: SvgPicture.asset(AssetsPics.videoplayicon)),
                             ],
@@ -233,37 +243,36 @@ class _DeatilProfileVideoScreenState extends State<DeatilProfileVideoScreen> {
   Future<void> buildShowModalBottomSheet(BuildContext context) {
     final detailcntrl=Provider.of<detailedController>(context,listen: false);
     return showModalBottomSheet<void>(
-                  context: context,
-                  backgroundColor: Colors.transparent,
-                  builder: (BuildContext context) {
-                    return Container(
-                      margin:  EdgeInsets.only(left: 16,right: 16,bottom: 3.h-2),
-                      padding: const EdgeInsets.all(18),
-                      decoration: BoxDecoration(color: color.txtWhite,
-                          borderRadius: BorderRadius.circular(16)
-                      ),
-                      width: MediaQuery.of(context).size.width,
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            margin: const EdgeInsets.only(bottom: 18),
-                            height: 220,
-                            width: MediaQuery.of(context).size.width,
-                            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
-                            child: ClipRRect(
-                                borderRadius: BorderRadius.circular(12),
-                                child: Image.asset(AssetsPics.videodemo,fit: BoxFit.cover,alignment: Alignment.topCenter,)),
-                          ),
-                          blue_button(context, "Ok",press: (){
-                            Get.back();
+      context: context,
+      backgroundColor: Colors.transparent,
+      builder: (BuildContext context) {
+        return Container(
+          margin:  EdgeInsets.only(left: 16,right: 16,bottom: 3.h-2),
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(color: color.txtWhite,
+              borderRadius: BorderRadius.circular(16)
+          ),
+          width: MediaQuery.of(context).size.width,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                margin: const EdgeInsets.only(bottom: 18),
+                height: 220,
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
+                child: ClipRRect(
+                    borderRadius: BorderRadius.circular(12),
+                    child: Image.asset(AssetsPics.videodemo,fit: BoxFit.cover,alignment: Alignment.topCenter,)),
+              ),
+              blue_button(context, "Ok",press: (){
+                Get.back();
 
-                          })
-                        ],),
-                    );
-                  },
-                );
+              })
+            ],),
+        );
+      },
+    );
   }
 }
-

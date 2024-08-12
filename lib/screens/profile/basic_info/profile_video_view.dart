@@ -49,7 +49,7 @@ class _ProfileVideoViewerState extends State<ProfileVideoViewer> {
     final profilecntrl=Provider.of<profileController>(context,listen: false);
     final size = MediaQuery.of(context).size;
     return PopScope(
-      canPop: true,
+      canPop: false,
       onPopInvoked: disposeVideo,
       child: Scaffold(
         backgroundColor: color.txtBlack,

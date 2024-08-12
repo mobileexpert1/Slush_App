@@ -642,7 +642,7 @@ class _MatchedPersonProfileScreenState
 
            ],
          ),
-      floatingActionButton: FloatingActionButton.extended(
+      floatingActionButton:dataa==null?SizedBox(): FloatingActionButton.extended(
         heroTag: 'uniqueTag',
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(50)),
         backgroundColor: color.txtBlue,

@@ -99,13 +99,27 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
         body: jsonEncode({"status": action, "user": userId}));
     if (response.statusCode == 201) {
       var data=jsonDecode(response.body);
-      Provider.of<profileController>(context,listen: false).getTotalSparks();
       if(data["isMatch"]&&action!="DISLIKED") {
         Provider.of<reelController>(context, listen: false).videoPause(true, index);
         Provider.of<reelController>(context, listen: false).congoScreen(true, widget.data[index]["user"]["avatar"],name,userId);
         // Get.to(() => TransparentCongoWithBottomScreen(userId: widget.data[index]["user"]["id"], name: name));
       }
+      Provider.of<profileController>(context,listen: false).getTotalSparks();
     } else {}
+  }
+
+  Future actionForHItLike(String action,String id)async{
+    final url= "${ApiList.action}${id}/action";
+    print(url);
+    var uri=Uri.parse(url);
+    var response=await http.post(uri,
+        headers: {'Content-Type': 'application/json', "Authorization": "Bearer ${LocaleHandler.accessToken}"},
+        body: jsonEncode({"action":action})
+    );
+    if(response.statusCode==201){
+    Provider.of<profileController>(context,listen: false).getTotalSparks();}
+    else if(response.statusCode==401){}
+    else{}
   }
 
   final debounce = Debounce(milliseconds: 300);
@@ -149,7 +163,7 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                           // reelcntrol.setVolumne(false,index-1);
                           reelcntrol.playNextReel(index);
                           isPLaying = !isPLaying;
-                          // reelcntrol.swippedVideo(context, widget.data[index]["id"]);
+                          reelcntrol.swippedVideo(context, widget.data[index]["id"]);
                           // reelcntrol.videoPause(isPLaying,index-1);
                         });
                       } else {
@@ -164,7 +178,6 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                       Provider.of<reelController>(context,listen: false).changeBioHieght(false);
                     },
                     itemBuilder: (context, index) {
-                      // String name=widget.data[index]["user"]["fullName"]!=null?widget.data[index]["user"]["fullName"] :widget.data[index]["user"]["nickName"]??"";
                       String name = widget.data[index]["user"]["fullName"] ?? widget.data[index]["user"]["nickName"] ?? "";
                       print(":_------------${widget.data[index]["hasLiked"]}");
                       return GestureDetector(
@@ -265,7 +278,19 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                           Consumer<reelTutorialController>(builder: (context, val, child) {
                                             return Row(
                                               children: [
-                                                buildText(val.cou == 3 ? "" : name, 17, FontWeight.w600, color.txtWhite),
+                                                Container(
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.black54.withOpacity(0.1),
+                                                      borderRadius: BorderRadius.circular(20),
+                                                      boxShadow: [
+                                                        BoxShadow(
+                                                          color: Colors.black.withOpacity(0.3),
+                                                          blurRadius: 15.0,
+                                                          offset: const Offset(5,5), // Change the offset for different shadow effects
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    child: buildText(val.cou == 3 ? "" : name, 17, FontWeight.w600, color.txtWhite)),
                                                 const SizedBox(width: 6),
                                                 val.cou == 3?const SizedBox():  SvgPicture.asset(widget.data[index]["isVerified"] ==1 ? AssetsPics.verify : AssetsPics.verifygrey)
                                               ],
@@ -326,7 +351,7 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                                         });
                                                   }else{
                                                     if(LocaleHandler.sparkLiked.contains(widget.data[index]["user"]["id"])){
-                                                      showToastMsg("already Spark liked");
+                                                      showToastMsg("Already Spark liked");
                                                     }
                                                     else{
                                                       // Provider.of<reelController>(context, listen: false).videoPause(true, index);

@@ -89,9 +89,10 @@ class _DidnotFindAnyoneScreenState extends State<DidnotFindAnyoneScreen> {
                       LocaleHandler.subScribtioonOffer=false;
                     });
                     if(LocaleHandler.dateno==LocaleHandler.totalDate){
+                      LocaleHandler.dateno=0;
                       showToastMsg("Event is over");
                       Get.offAll(()=>BottomNavigationScreen());
-                    Provider.of<TimerProvider>(context).stopTimerr();}
+                    Provider.of<TimerProvider>(context,listen: false).stopTimerr();}
                     else{Get.offAll(()=>WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));}
                     // Provider.of<TimerProvider>(context,listen: false).gotoWaitingRoom();
 

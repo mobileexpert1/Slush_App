@@ -12,11 +12,9 @@ import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/loader.dart';
-import 'package:slush/controller/controller.dart';
 import 'package:slush/controller/event_controller.dart';
 import 'package:slush/screens/chat/text_chat_screen.dart';
 import 'package:slush/screens/events/bottomNavigation.dart';
-import 'package:slush/widgets/app_bar.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
 import 'package:slush/widgets/text_widget.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -110,6 +108,20 @@ class _ChatScreenState extends State<ChatScreen> {
     super.dispose();
   }
 
+  void chatDelete(int id,int i)async{
+    final url="${ApiList.getSingleChat}$id/deleteconversation";
+    print(url);
+    var uri =Uri.parse(url);
+    var response=await http.get(uri,
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${LocaleHandler.accessToken}'});
+    if(response.statusCode==200){
+      snackBaar(context,AssetsPics.removed,false);
+      setState(() {data.removeAt(i);});
+    }
+    else{}
+  }
+
+   SlidableController ? _slidableController ;
   @override
   Widget build(BuildContext context) {
     final size=MediaQuery.of(context).size;
@@ -307,11 +319,13 @@ class _ChatScreenState extends State<ChatScreen> {
                              onTap: (){
                                Get.to(()=> TextChatScreen(id: personData["userId"], name: personData["firstName"],))!.then((value) {
                                  setState(() {_startTimer();});
+                                 getChat();
                                });
                                // LocaleHandler.chatUserId=personData["userId"];
                                _timer!.cancel();
                              },
                              child: Slidable(
+                                 controller: _slidableController,
                                  // key: const ValueKey(0),
                                key: Key(index.toString()),
                                closeOnScroll: true,
@@ -335,7 +349,9 @@ class _ChatScreenState extends State<ChatScreen> {
                                      onTap2: (){
                                        setState(() {
                                          Get.back();
-                                         snackBaar(context,AssetsPics.removed,false);
+                                         chatDelete(personData["userId"],index);
+                                         setState(() {data.removeAt(index);});
+                                         _slidableController?.close();
                                          // futuredelayed(2, true);
                                          futuredelayed(10, false);
                                        });});

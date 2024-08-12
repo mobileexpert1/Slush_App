@@ -57,11 +57,15 @@ class ApiList {
   static const String deleteProfile= baseUrl + 'users/delete-profile';
   static const String changePassword= baseUrl + 'users/change-password';
   static const String subscribe= baseUrl + 'users/subscribe';
+  static const String updateSubscription= baseUrl + 'users/update-subscription';
+  static const String cancelSubscription= baseUrl + 'users/cancel-subscription';
   static const String sparkPurchase= baseUrl + 'users/spark-purchase';
   static const String swipecount= baseUrl + 'users/swipe-count';
   static const String paymentHIstory= baseUrl + 'users/payment-history/';
   static const String remainspark= baseUrl + 'users/remain-spark';
   static const String subscriptiondetail= baseUrl + 'users/subscription-detail';
+  static const String updatesubscription= baseUrl + 'users/update-subscription';
+  static const String cancelsubscription= baseUrl + 'users/cancel-subscription';
   static const String imagevarificationUpload= baseUrl + 'users/verification-image-upload'; //todo not working right now
 
 

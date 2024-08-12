@@ -61,13 +61,22 @@ class DefaultFirebaseOptions {
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
+    // apiKey: 'AIzaSyAMjiyaz61KrWi50WgJYOzmAr4ojqQ-Y7w',
+    // appId: '1:422898489031:ios:f16edecd3a83915d0bd0e2',
+    // messagingSenderId: '422898489031',
+    // projectId: 'virtual-speed-date-325915',
+    // storageBucket: 'virtual-speed-date-325915.appspot.com',
+    // iosClientId: '422898489031-h5ij8sg3n5iunf63qqo62p9uc2baccj8.apps.googleusercontent.com',
+    // iosBundleId: 'com.slushdating.slush',
     apiKey: 'AIzaSyAMjiyaz61KrWi50WgJYOzmAr4ojqQ-Y7w',
-    appId: '1:422898489031:ios:f16edecd3a83915d0bd0e2',
+    appId: '1:422898489031:ios:9a1db605e741a4f50bd0e2',
     messagingSenderId: '422898489031',
     projectId: 'virtual-speed-date-325915',
     storageBucket: 'virtual-speed-date-325915.appspot.com',
-    iosClientId: '422898489031-h5ij8sg3n5iunf63qqo62p9uc2baccj8.apps.googleusercontent.com',
-    iosBundleId: 'com.slushdating.slush',
+    iosClientId: '422898489031-r79nump83gqn306o49d0v8544kbu9750.apps.googleusercontent.com',
+    iosBundleId: 'com.mobile.app.virtualspeeddate',
+
+
   );
 
   static const FirebaseOptions macos = FirebaseOptions(

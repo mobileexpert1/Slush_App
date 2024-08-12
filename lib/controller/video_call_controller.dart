@@ -25,10 +25,12 @@ class TimerProvider with ChangeNotifier {
         notifyListeners();
       } else {
         _timer?.cancel();
+        _duration= const Duration(minutes: 3);
         print('Timer finished');
       }
     });
   }
+
 
   void stopTimer() {
     _timer?.cancel();
@@ -75,8 +77,21 @@ class TimerProvider with ChangeNotifier {
 
   void stopTimerr() {
     _timerr?.cancel();
+    _min=360;
     _durationn = const Duration(minutes: 6);
   }
 
 
+  Future updateFixtureStatus(int participantid, String status) async {
+    final url = "${ApiList.fixtures}${LocaleHandler.eventId}/fixtures";
+    print(url);
+    var uri = Uri.parse(url);
+    var response = await http.patch(uri,
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${LocaleHandler.accessToken}'},
+        body: jsonEncode({"participantId": participantid, "status": status}));
+    print(response.statusCode);
+    if (response.statusCode == 200) {
+      print(jsonDecode(response.body)["message"]);
+    }
+  }
 }

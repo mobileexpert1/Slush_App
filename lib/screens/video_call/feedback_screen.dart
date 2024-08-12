@@ -51,14 +51,20 @@ class _FeedbackVideoChatScreenState extends State<FeedbackVideoChatScreen> {
     startTimer();
   }
   void startTimer() {
+    FireStoreService().deleteCallStatusToPicked();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_secondsLeft > 0) {
-        setState(() {
-          _secondsLeft--;
-        });
+        setState(() {_secondsLeft--;});
       } else {
-        actionForHItLike("DISLIKED",LocaleHandler.eventParticipantData["participantId"]);
+        if(LocaleHandler.dateno==LocaleHandler.totalDate){
+          LocaleHandler.dateno=0;
+          showToastMsg("Event is over");
+          Get.offAll(()=>BottomNavigationScreen());
+          Provider.of<TimerProvider>(context,listen: false).stopTimerr();}
+        else{Get.offAll(()=>WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));}
         _timer.cancel();
+
+        // actionForHItLike("DISLIKED",LocaleHandler.eventParticipantData["participantId"]);
         // customBuilderSheet(context, 'Is everything OK?',"Submit", heading: LocaleText.feedbackguide1);
         // Get.back();
         // Get.back();
@@ -84,16 +90,15 @@ class _FeedbackVideoChatScreenState extends State<FeedbackVideoChatScreen> {
     var uri=Uri.parse(url);
     var response=await http.post(uri,
     headers: {'Content-Type': 'application/json', "Authorization": "Bearer ${LocaleHandler.accessToken}"},
-      body: jsonEncode({"action":action})
-    );
+      body: jsonEncode({"action":action}));
     var data=jsonDecode(response.body);
     if(response.statusCode==201){
-      FireStoreService().deleteCallStatusToPicked();
       showToastMsg("$action Successfully");
       if(LocaleHandler.dateno==LocaleHandler.totalDate){
+        LocaleHandler.dateno=0;
         showToastMsg("Event is over");
         Get.offAll(()=>BottomNavigationScreen());
-      Provider.of<TimerProvider>(context).stopTimerr();}
+      Provider.of<TimerProvider>(context,listen: false).stopTimerr();}
       else{Get.offAll(()=>WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));}
     }
     else if(response.statusCode==401){}
@@ -101,31 +106,31 @@ class _FeedbackVideoChatScreenState extends State<FeedbackVideoChatScreen> {
   }
 
   Future actionForHItLike(String action, int userId) async {
-    FireStoreService().deleteCallStatusToPicked();
     final url = ApiList.interact;
     print(url);
     var uri = Uri.parse(url);
     var response = await http.post(uri,
-        headers: {'Content-Type': 'application/json',
-          "Authorization": "Bearer ${LocaleHandler.accessToken}"
-        },
+        headers: {'Content-Type': 'application/json', "Authorization": "Bearer ${LocaleHandler.accessToken}"},
         body: jsonEncode({"status": action, "user": userId}));
     if(LocaleHandler.dateno==LocaleHandler.totalDate){
+      LocaleHandler.dateno=0;
       showToastMsg("Event is over");
       Get.offAll(()=>BottomNavigationScreen());
-    Provider.of<TimerProvider>(context).stopTimerr();}
+      Provider.of<TimerProvider>(context,listen: false).stopTimerr();}
     else{Get.offAll(()=>WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));}
     if (response.statusCode == 201) {
       var data=jsonDecode(response.body);
-      Provider.of<profileController>(context,listen: false).getTotalSparks();
-      if(data["isMatch"]&&action!="DISLIKED") {Get.off(()=>const CongratMatchScreen());}
+      if(data["isMatch"]&&action!="DISLIKED") {Get.off(()=> CongratMatchScreen(likedscreen: false));}
       else{
+        print(";-;-;-;-${LocaleHandler.dateno==LocaleHandler.totalDate}");
         if(LocaleHandler.dateno==LocaleHandler.totalDate){
+          LocaleHandler.dateno=0;
           showToastMsg("Event is over");
           Get.offAll(()=>BottomNavigationScreen());
-        Provider.of<TimerProvider>(context).stopTimerr();}
+        Provider.of<TimerProvider>(context,listen: false).stopTimerr();}
         else{Get.offAll(()=>WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));}
       }
+      Provider.of<profileController>(context,listen: false).getTotalSparks();
     } else {}
   }
 
@@ -148,7 +153,7 @@ class _FeedbackVideoChatScreenState extends State<FeedbackVideoChatScreen> {
     const duration = Duration(minutes: 60);
     final milliseconds = duration.inMilliseconds;
     return PopScope(
-      canPop: true,
+      canPop: false,
       child: Scaffold(
         body: Stack(
           children: [
@@ -163,6 +168,8 @@ class _FeedbackVideoChatScreenState extends State<FeedbackVideoChatScreen> {
                 padding: const EdgeInsets.symmetric(horizontal: 18,vertical: 15),
                 child: Column(
                 children: [
+
+
                   CircularPercentIndicator(radius: 37,
                   backgroundColor: Colors.transparent,
                       progressColor: color.txtBlack,
@@ -171,13 +178,11 @@ class _FeedbackVideoChatScreenState extends State<FeedbackVideoChatScreen> {
                       circularStrokeCap: CircularStrokeCap.round,
                       lineWidth: 4.6,
                       percent:  1,
-                    center: Column(
-                      children: [
-                        const SizedBox(height: 17),
+                    center: Column(children: [const SizedBox(height: 17),
                         buildText2(formatDuration(Duration(seconds: _secondsLeft)), 30, FontWeight.w700, color.txtBlack),
-                      ],
-                    ),
-                  ),
+                      ],),),
+
+
                   SizedBox(height: 2.h+2),
                   buildText("Did you like them?", 24, FontWeight.w600, color.txtBlack),
                   SizedBox(height: 2.h+2),
@@ -205,11 +210,18 @@ class _FeedbackVideoChatScreenState extends State<FeedbackVideoChatScreen> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       buildText(LocaleHandler.eventParticipantData["firstName"], 20, FontWeight.w600, color.txtBlack),
-                      buildText(calculateAge(LocaleHandler.eventParticipantData["date_of_birth"]), 20, FontWeight.w600, color.txtBlack),
+                      buildText(" ,${calculateAge(LocaleHandler.eventParticipantData["date_of_birth"])}", 20, FontWeight.w600, color.txtBlack),
                     ],
                   ),
                   SizedBox(height: 2.h+2),
-                  buildText2(LocaleText.feedbackguide, 16, FontWeight.w400, color.txtgrey),
+                  SizedBox(
+                    height: size.height*0.12,
+                      child: ListView(
+                        children: [
+                          // buildText2(LocaleText.feedbackguide, 16, FontWeight.w400, color.txtgrey),
+                          buildText2(LocaleHandler.eventParticipantData["bio"]??"", 16, FontWeight.w400, color.txtgrey),
+                        ],
+                      )),
                 ],
               ),),
             ),

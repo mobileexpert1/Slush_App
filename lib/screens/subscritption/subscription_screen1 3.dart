@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -15,6 +16,7 @@ import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/loader.dart';
+import 'package:slush/controller/profile_controller.dart';
 import 'package:slush/screens/events/bottomNavigation.dart';
 import 'package:slush/widgets/app_bar.dart';
 import 'package:slush/widgets/blue_button.dart';
@@ -22,6 +24,8 @@ import 'package:slush/widgets/text_widget.dart';
 import 'package:http/http.dart'as http;
 import 'package:slush/widgets/toaster.dart';
 import 'package:intl/intl.dart';
+
+import '../../widgets/bottom_sheet.dart';
 
 class Subscription1 extends StatefulWidget {
   const Subscription1({super.key});
@@ -52,7 +56,6 @@ class _Subscription1State extends State<Subscription1> {
     });
     print(LocaleHandler.subscriptionPurchase);
     super.initState();
-
     _initialize();
     final Stream<List<PurchaseDetails>> purchaseUpdated = _iap.purchaseStream;
     _subscription = purchaseUpdated.listen((purchases) {
@@ -62,8 +65,8 @@ class _Subscription1State extends State<Subscription1> {
     }, onError: (error) {
       // handle error here
     });
-
   }
+
   Future<void> _initialize() async {
     final bool isAvailable = await _iap.isAvailable();
     setState(() {
@@ -85,7 +88,7 @@ class _Subscription1State extends State<Subscription1> {
         // Verify purchase here and deliver the product
         bool valid = await _verifyPurchase(purchase);
         if (valid) {
-          subscribeApi(selectedIndex);
+         selectedIndex == 1 ? subscribeApi(selectedIndex = 1) : showToastMsg("Coming soon...");
           _deliverProduct(purchase);
         } else {
           _handleInvalidPurchase(purchase);
@@ -119,14 +122,66 @@ class _Subscription1State extends State<Subscription1> {
     _iap.buyNonConsumable(purchaseParam: purchaseParam);
   }
 
+  Future purchaseSpark(int sparkCount)async{
+    const url=ApiList.sparkPurchase;
+    var uri=Uri.parse(url);
+    var response=await http.post(uri,
+        headers: {'Content-Type': 'application/json', "Authorization": "Bearer ${LocaleHandler.accessToken}"},
+        body: jsonEncode({"spark_value":sparkCount})
+    );
+    if(response.statusCode==201){}
+    else if(response.statusCode==401){}
+    else{}
+  }
 
-  Future subscribeApi(int nu)async{
+  Future subscribeApi(int num)async{
     setState(() {LoaderOverlay.show(context);});
     const url=ApiList.subscribe;
     var uri=Uri.parse(url);
     var response=await http.post(uri,
         headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${LocaleHandler.accessToken}'},
-        body: jsonEncode({"packageId":nu})
+        body: jsonEncode({"packageId":num})
+    );
+    var i =jsonDecode(response.body);
+    setState(() {LoaderOverlay.hide();});
+    if(response.statusCode==201){
+      Fluttertoast.showToast(msg: i["message"]);
+      int count=selectedIndex==1?1:selectedIndex==2?3:5;
+      if(count==5){purchaseSpark(5);
+        purchaseSpark(5);}
+      else if(count==3){purchaseSpark(5);}
+      else if(count==1){ purchaseSpark(3);}
+      // purchaseSpark()
+      callFunction();
+    }
+    else if(response.statusCode==401){showToastMsgTokenExpired();}
+    else{Fluttertoast.showToast(msg: i["message"]);}
+  }
+
+  Future upgradePlanApi(int num)async{
+    setState(() {LoaderOverlay.show(context);});
+    const url=ApiList.updateSubscription;
+    var uri=Uri.parse(url);
+    var response=await http.post(uri,
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${LocaleHandler.accessToken}'},
+        body: jsonEncode({"packageId":num})
+    );
+    var i =jsonDecode(response.body);
+    setState(() {LoaderOverlay.hide();});
+    if(response.statusCode==201){
+      Fluttertoast.showToast(msg: i["message"]);
+      callFunction();
+    }
+    else if(response.statusCode==401){showToastMsgTokenExpired();}
+    else{Fluttertoast.showToast(msg: i["message"]);}
+  }
+  Future cancelPlanApi()async{
+    setState(() {LoaderOverlay.show(context);});
+    const url=ApiList.cancelSubscription;
+    var uri=Uri.parse(url);
+    var response=await http.post(uri,
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${LocaleHandler.accessToken}'},
+        body: jsonEncode({"remark":"Remark"})
     );
     var i =jsonDecode(response.body);
     setState(() {LoaderOverlay.hide();});
@@ -201,7 +256,7 @@ class _Subscription1State extends State<Subscription1> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               buildText("Time period", 18.sp, FontWeight.w600, color.txtBlack),
-                              buildText("$startDates- $endDates", 17.sp, FontWeight.w500, color.txtgrey2,fontFamily: FontFamily.hellix),
+                              buildText("$startDates- $endDates", 16.sp, FontWeight.w500, color.txtgrey2,fontFamily: FontFamily.hellix),
                             ],
                           ),
                           SizedBox(height: size.height*0.02),
@@ -209,9 +264,16 @@ class _Subscription1State extends State<Subscription1> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               // todo unsubscribe and upgrade butttons but api not available yet
-                            /*  data==null?const SizedBox(): GestureDetector(
+                              data==null?const SizedBox():
+                              GestureDetector(
                                 onTap: (){setState(() {upgradepressed=false;
-                                showToastMsg("Coming soon...");
+                                customDialogBoxWithtwobutton(context, "Are you sure to Unsubscribe?", " ",
+                                    img: AssetsPics.cancelticketpng,btnTxt1: "No",btnTxt2: "Yes",
+                                    onTap2: (){
+                                      cancelPlanApi();
+                                    },isPng: true
+                                );
+                                // cancelPlanApi();
                                 });},
                                 child: Container(
                                   alignment: Alignment.center,
@@ -231,7 +293,9 @@ class _Subscription1State extends State<Subscription1> {
                               ),
                               data==null?const SizedBox(): GestureDetector(
                                 onTap: (){setState(() {upgradepressed=true;
-                                showToastMsg("Coming soon...");});},
+                               selectedIndex == 1 ? upgradePlanApi(selectedIndex=1): showToastMsg("Coming soon...");
+                                });
+                                },
                                 child: Container(
                                   alignment: Alignment.center,
                                   height: size.height*0.055,
@@ -246,7 +310,7 @@ class _Subscription1State extends State<Subscription1> {
                                   ),
                                   child: buildText("Upgrade",18,FontWeight.w600,upgradepressed?color.txtWhite:color.txtBlue),
                                 ),
-                              ),*/
+                              ),
                             ],),
                         ],
                       ),
@@ -268,7 +332,7 @@ class _Subscription1State extends State<Subscription1> {
                   SizedBox(
                     height:defaultTargetPlatform==TargetPlatform.iOS? size.height*0.20:size.height*0.19,
                     child:
-                    selectedIndex ==2 ?
+                    selectedIndex ==1 ?
                     PageView(
                       controller: _pageController,
                       children: [
@@ -276,11 +340,20 @@ class _Subscription1State extends State<Subscription1> {
                         customScroller(text1: 'Sparks', text2: '3 sparks a day', iconName: AssetsPics.shock),
                         customScroller(text1: 'Unlimited Swipes', text2: 'Endless swiping', iconName: AssetsPics.watch),
                       ],
+                    ) : selectedIndex ==2 ?  PageView(
+                      controller: _pageController,
+                      children: [
+                        customScroller(text1: 'See who has Liked you', text2: 'See everyone that likes you', iconName: AssetsPics.like),
+                        customScroller(text1: 'Sparks', text2: '5 sparks a day', iconName: AssetsPics.shock),
+                        customScroller(text1: 'Unlimited Swipes', text2:  'Endless swiping', iconName: AssetsPics.watch),
+                        customScroller(text1: 'AI Dating Coach', text2: 'Your dating coach', iconName: AssetsPics.dating),
+                        customScroller(text1: 'No ads', text2: 'Your dating coach', iconName: AssetsPics.noAds),
+                      ],
                     ) : PageView(
                       controller: _pageController,
                       children: [
                         customScroller(text1: 'See who has Liked you', text2: 'See everyone that likes you', iconName: AssetsPics.like),
-                        customScroller(text1: 'Sparks', text2: '3 sparks a day', iconName: AssetsPics.shock),
+                        customScroller(text1: 'Sparks', text2: '10 sparks a day', iconName: AssetsPics.shock),
                         customScroller(text1: 'Unlimited Swipes', text2:  'Endless swiping', iconName: AssetsPics.watch),
                         customScroller(text1: 'AI Dating Coach', text2: 'Your dating coach', iconName: AssetsPics.dating),
                         customScroller(text1: 'No ads', text2: 'Your dating coach', iconName: AssetsPics.noAds),
@@ -291,7 +364,7 @@ class _Subscription1State extends State<Subscription1> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children:
-                    List<Widget>.generate( selectedIndex == 2 ? 3 : 5, (int index) {
+                    List<Widget>.generate( selectedIndex == 1 ? 3 : 5, (int index) {
                       return Container(
                         margin: const EdgeInsets.only(left: 2.5,right: 2.5,bottom: 12.0),
                         width: currentIndex == index?14: 12.0,
@@ -452,7 +525,7 @@ class _Subscription1State extends State<Subscription1> {
                               children: [
                                 SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
                                 buildText("Slush", 20, FontWeight.w600, color.txtWhite ),
-                                buildText("PLatinum", 20, FontWeight.w600,color.txtWhite ),
+                                buildText("Platinum", 20, FontWeight.w600,color.txtWhite ),
                                 const SizedBox(height: 10,),
                                 buildText("£29.99", 20, FontWeight.w600, color.txtWhite ),
                               ],
@@ -464,11 +537,16 @@ class _Subscription1State extends State<Subscription1> {
                   ),
                   const SizedBox(height: 18),
                   blue_button(context, "Continue",press: (){
+                    selectedIndex == 1 ? subscribeApi(selectedIndex = 1) : showToastMsg("Coming soon...");
+
                     // subscribeApi(selectedIndex);
                     int num=selectedIndex==1?2:selectedIndex==2?0:1;
-                    if(LocaleHandler.subscriptionPurchase=="no"){
-                    _buySubscription(_products[num]);}
-                    else{Fluttertoast.showToast(msg: "already purchased a subscription");}
+                    if(LocaleHandler.subscriptionPurchase!="yes"){
+
+                      // if(Platform.isAndroid){_buySubscription(_products[num]);}
+                      // else{subscribeApi(selectedIndex);}
+                    }
+                    else{Fluttertoast.showToast(msg: "Already purchased a subscription");}
                     // callFunction();
                   }),
                   SizedBox(height:defaultTargetPlatform==TargetPlatform.iOS?25: 10)
@@ -526,7 +604,7 @@ class _Subscription1State extends State<Subscription1> {
       LocaleHandler.isThereAnyEvent=false;
       LocaleHandler.isThereCancelEvent=false;
       LocaleHandler.unMatchedEvent=false;
-      LocaleHandler.subScribtioonOffer=true;
+      LocaleHandler.subScribtioonOffer=false;
       Get.to(()=>BottomNavigationScreen());
     });
   }

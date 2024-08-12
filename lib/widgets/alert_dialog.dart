@@ -5,6 +5,7 @@ import 'package:flutter/widgets.dart';
 import 'package:provider/provider.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/color.dart';
+import 'package:slush/controller/waitingroom_controller.dart';
 import 'package:slush/screens/splash/splash_controller.dart';
 import 'package:slush/widgets/text_widget.dart';
 
@@ -48,6 +49,33 @@ Widget connectionAlert(BuildContext context){
             backgroundColor: Colors.red[400],
             // title: buildText2('Slush is locked', 25, FontWeight.w600, color.txtBlack),
             content: buildText2('No Internet connection...', 18, FontWeight.w400, color.txtBlack),
+          ),
+        ));
+  });
+}
+
+Widget permissionSpeeddateAlert(BuildContext context){
+  return  Consumer<waitingRoom>(builder: (context,val,child){return
+    Visibility(
+        visible: LocaleHandler.speeddatePermission,
+        child: Container(
+          height:  MediaQuery.of(context).size.height,
+          width:  MediaQuery.of(context).size.height,
+          color: Colors.black54,
+          child: AlertDialog(
+            surfaceTintColor: Colors.transparent,
+            backgroundColor: Colors.white,
+            title: buildText2('Event is locked', 25, FontWeight.w600, color.txtBlack),
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                buildText2('Please give permission for Event speed date of camera and microphone', 18, FontWeight.w400, color.txtBlack),
+                Divider(),
+                TextButton(onPressed: () {
+                  Provider.of<waitingRoom>(context,listen: false).changeValue();},
+                    child: buildText('Go to settings', 17, FontWeight.w600, color.txtBlue))
+              ],
+            ),
           ),
         ));
   });

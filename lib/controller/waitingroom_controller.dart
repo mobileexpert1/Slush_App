@@ -2,6 +2,7 @@ import 'dart:async';
 import 'dart:convert';
 import 'package:http/http.dart'as http;
 import 'package:flutter/cupertino.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
 
@@ -59,7 +60,6 @@ class waitingRoom extends ChangeNotifier{
     notifyListeners();
   }
 
-
   Future getRtcToken()async{
     const url=ApiList.rtcToken;
     var uri=Uri.parse(url);
@@ -73,15 +73,22 @@ class waitingRoom extends ChangeNotifier{
   notifyListeners();
   }
 
-  Future updateFixtureStatus(int participantid,String status)async{
-    final url="${ApiList.fixtures}${LocaleHandler.eventId}/fixtures";
-    print(url);
-    var uri=Uri.parse(url);
-    var response=await http.patch(uri,headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${LocaleHandler.accessToken}'},
-    body: jsonEncode({"participantId": participantid, "status": status}));
-    print(response.statusCode);
-    // if(response.statusCode==200)
-    getFixtures();
+
+
+  void changeValue()async{
+    final camStatus = await Permission.camera.status;
+    final micStatus = await Permission.microphone.status;
+    if (camStatus.isGranted && micStatus.isGranted) {LocaleHandler.speeddatePermission=false;}
+    else if (camStatus.isDenied || micStatus.isDenied){
+      LocaleHandler.speeddatePermission=true;
+      var newcamStatus = await Permission.camera.request();
+      var newmicStatus = await Permission.microphone.request();
+      if (newcamStatus.isGranted && newmicStatus.isGranted){LocaleHandler.speeddatePermission=false;}
+      else if (newcamStatus.isPermanentlyDenied || newmicStatus.isPermanentlyDenied){
+        LocaleHandler.speeddatePermission=true;openAppSettings();}
+    }
+    else if (camStatus.isPermanentlyDenied || micStatus.isPermanentlyDenied){
+      LocaleHandler.speeddatePermission=true;openAppSettings();}
     notifyListeners();
   }
 

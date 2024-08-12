@@ -1,9 +1,9 @@
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:provider/provider.dart';
-import 'package:slush/controller/chat_provider.dart';
 import 'package:slush/controller/controller.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -23,9 +23,25 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:slush/screens/splash/splash.dart';
 import 'package:slush/screens/splash/splash_controller.dart';
 import 'package:slush/screens/video_call/notification_serivce.dart';
+
+import 'notification.dart';
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // Handle background messages
   print("Handling a background message: ${message.messageId}");
+  // LocalNotificationService.display(message);
+}
+void printLog(dynamic msg) {
+  _printLog('\x1B[32m() => ${msg.toString()}\x1B[0m');
+}
+
+void functionLog({required dynamic msg, required dynamic fun}) {
+  _printLog("\x1B[31m${fun.toString()} ::==> ${msg.toString()}\x1B[0m");
+}
+
+void _printLog(dynamic msg) {
+  if (kDebugMode) {
+    debugPrint(msg.toString());
+  }
 }
 
 Future<void> main() async {
@@ -37,6 +53,7 @@ Future<void> main() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   MobileAds.instance.initialize();
+  FirebaseLocalNotification.initMessaging();
   runApp(const MyApp());
 }
 
@@ -45,48 +62,47 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-   return ResponsiveSizer(
-       builder: (context, orientation, screenType){
-     return MultiProvider(
-       providers: [
-         // Create Account
-         ChangeNotifierProvider(create: (_)=>SplashController()),
-         ChangeNotifierProvider<createAccountController>(create: (_)=>createAccountController()),
-         //details Screen
-         ChangeNotifierProvider<detailedController>(create: (_)=>detailedController()),
-         // profile
-         ChangeNotifierProvider<profileController>(create: (_)=>profileController()),
-         //event
-         ChangeNotifierProvider<eventController>(create: (_)=>eventController()),
-         // Update profile
-         ChangeNotifierProvider<editProfileController>(create: (_)=>editProfileController()),
-         // match
-         // ChangeNotifierProvider<matchController>(create: (_)=>matchController()),
-         ChangeNotifierProvider<reelTutorialController>(create: (_)=>reelTutorialController()),
-         ChangeNotifierProvider<nameControllerr>(create: (_)=>nameControllerr()),
-         ChangeNotifierProvider<reelController>(create: (_)=>reelController()),
-         //login
-         ChangeNotifierProvider<loginControllerr>(create: (_)=>loginControllerr()),
-         //waitingRoom
-         ChangeNotifierProvider<waitingRoom>(create: (_)=>waitingRoom()),
-         ChangeNotifierProvider<TimerProvider>(create: (_)=>TimerProvider()),
-         ChangeNotifierProvider<SettingController>(create: (_)=>SettingController()),
+    return ResponsiveSizer(
+        builder: (context, orientation, screenType){
+          return MultiProvider(
+            providers: [
+              // Create Account
+              ChangeNotifierProvider(create: (_)=>SplashController()),
+              ChangeNotifierProvider<createAccountController>(create: (_)=>createAccountController()),
+              //details Screen
+              ChangeNotifierProvider<detailedController>(create: (_)=>detailedController()),
+              // profile
+              ChangeNotifierProvider<profileController>(create: (_)=>profileController()),
+              //event
+              ChangeNotifierProvider<eventController>(create: (_)=>eventController()),
+              // Update profile
+              ChangeNotifierProvider<editProfileController>(create: (_)=>editProfileController()),
+              // match
+              // ChangeNotifierProvider<matchController>(create: (_)=>matchController()),
+              ChangeNotifierProvider<reelTutorialController>(create: (_)=>reelTutorialController()),
+              ChangeNotifierProvider<nameControllerr>(create: (_)=>nameControllerr()),
+              ChangeNotifierProvider<reelController>(create: (_)=>reelController()),
+              //login
+              ChangeNotifierProvider<loginControllerr>(create: (_)=>loginControllerr()),
+              //waitingRoom
+              ChangeNotifierProvider<waitingRoom>(create: (_)=>waitingRoom()),
+              ChangeNotifierProvider<TimerProvider>(create: (_)=>TimerProvider()),
+              ChangeNotifierProvider<SettingController>(create: (_)=>SettingController()),
 
 
-       ],
-       child: GetMaterialApp(
-         title: 'Flutter Demo',
-         theme: ThemeData(
-           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-           // colorScheme: ColorScheme,
-           useMaterial3: true),
-         debugShowCheckedModeBanner: false,
-         navigatorKey: navigatorKey,
-         home: const SplashScreen(),
-         // home: ReadyToCallScreen(data: "sasa"),
-       ),
-     );
-   });
+            ],
+            child: GetMaterialApp(
+              title: 'Flutter Demo',
+              theme: ThemeData(
+                  colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+                  // colorScheme: ColorScheme,
+                  useMaterial3: true),
+              debugShowCheckedModeBanner: false,
+              navigatorKey: navigatorKey,
+              home: const SplashScreen(),
+              // home: ReadyToCallScreen(data: "sasa"),
+            ),
+          );
+        });
   }
 }
-

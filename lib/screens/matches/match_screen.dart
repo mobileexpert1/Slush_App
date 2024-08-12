@@ -14,10 +14,15 @@ import 'package:slush/constants/image.dart';
 import 'package:slush/constants/loader.dart';
 import 'package:slush/screens/matches/matched_person_profile.dart';
 import 'package:slush/screens/matches/unMacthed_person_profile.dart';
+import 'package:slush/screens/subscritption/subscription_screen1%203.dart';
+import 'package:slush/screens/video_call/congo_match_screen.dart';
 import 'package:slush/widgets/blue_button.dart';
 import 'package:slush/widgets/text_widget.dart';
 import 'package:http/http.dart' as http;
 import 'package:slush/widgets/toaster.dart';
+import 'package:flutter_shakemywidget/flutter_shakemywidget.dart';
+
+import '../events/bottomNavigation.dart';
 
 class MatchesScreen extends StatefulWidget {
   const MatchesScreen({Key? key}) : super(key: key);
@@ -32,6 +37,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
   ScrollController? _controller;
   List unLiked = [];
   List liked = [];
+  final shakeKey = GlobalKey<ShakeWidgetState>();
 
   @override
   void initState() {
@@ -134,8 +140,12 @@ class _MatchesScreenState extends State<MatchesScreen> {
         },
         body: jsonEncode({"action": action}));
     print(response.statusCode);
+    var data=jsonDecode(response.body);
     if (response.statusCode == 201) {
       getListData();
+      if(data["isMatch"]&&action!="DISLIKED"){
+        Get.to(()=> const CongratMatchScreen(likedscreen: true));
+      }
     } else if (response.statusCode == 401) {
       showToastMsgTokenExpired();
     } else {}
@@ -194,24 +204,17 @@ class _MatchesScreenState extends State<MatchesScreen> {
                           });
                         })
                             : blue_button_half(context, "Matches"),
-                        isLiked
-                            ? blue_button_half(context, "Liked You")
+                        isLiked ? blue_button_half(context, "Liked You")
                             : white_button_half(context, "Liked You",
                             press: () {
-                              setState(() {
-                                isLiked = true;
-                                getListData();
-                              });
+                              setState(() {isLiked = true;
+                              getListData();});
                             }),
-                      ],
-                    ),
+                      ]),
                     const SizedBox(height: 1),
                     // LocaleHandler.noMatches?Stack(
-                    data == null
-                        ? buildStacknodata()
-                        : data["meta"]["totalItems"] == 0
-                        ? buildStacknodata()
-                        : GridView.builder(
+                    data == null ? buildStacknodata() : data["meta"]["totalItems"] == 0
+                        ? buildStacknodata() : GridView.builder(
                         shrinkWrap: true,
                         physics: const NeverScrollableScrollPhysics(),
                         gridDelegate:
@@ -227,13 +230,9 @@ class _MatchesScreenState extends State<MatchesScreen> {
                           var item = post;
                           return isLiked
                               ? Visibility(
-                              visible: unLiked.contains(item[index]["userId"])
-                                  ? false
-                                  : liked.contains(item[index]["userId"])
-                                  ? false
-                                  : true,
-                              child: buildlikedStack(item, index))
-                              : buildStack(item, index);
+                              visible: unLiked.contains(item[index]["userId"]) ? false
+                                  : liked.contains(item[index]["userId"]) ? false : true,
+                              child: buildlikedStack(item, index)) : buildStack(item, index);
                         }),
                     const SizedBox(height: 60),
                     _isLoadMoreRunning
@@ -248,35 +247,33 @@ class _MatchesScreenState extends State<MatchesScreen> {
           isLiked
               ? Positioned(
             bottom: 90.0,
-            child: LocaleHandler.subscriptionPurchase == "yes"
-                ? const SizedBox()
-                : Container(
-              padding: const EdgeInsets.only(left: 15, right: 20),
-              margin: EdgeInsets.only(
-                  left: 15, bottom: Platform.isIOS ? 30 : 0),
-              height: 8.h,
-              width: size.width - 35,
-              decoration: BoxDecoration(
-                  color: color.purpleColor,
-                  borderRadius: BorderRadius.circular(12)),
-              child: Row(
-                children: [
-                  Expanded(
-                      child: buildText(
-                          "Update to Slush Silver to see who has liked you!",
-                          18,
-                          FontWeight.w500,
-                          color.txtWhite)),
-                  const SizedBox(width: 10),
-                  Container(
-                      height: 3.h,
-                      width: 3.h,
-                      child: SvgPicture.asset(AssetsPics.crownOn))
-                ],
+            child: LocaleHandler.subscriptionPurchase == "yes" ? const SizedBox() :
+            ShakeMe(
+              // 4. pass the GlobalKey as an argument
+              key: shakeKey,
+              // 5. configure the animation parameters
+              shakeCount: 3,
+              shakeOffset: 10,
+              shakeDuration: const Duration(milliseconds: 500),
+              // 6. Add the child widget that will be animated
+              child: GestureDetector(
+                onTap: (){Get.to(()=>const Subscription1());},
+                child: Container(
+                  padding: const EdgeInsets.only(left: 15, right: 20),
+                  margin: EdgeInsets.only(left: 15, bottom: Platform.isIOS ? 30 : 0),
+                  height: 8.h, width: size.width - 35,
+                  decoration: BoxDecoration(color: color.purpleColor, borderRadius: BorderRadius.circular(12)),
+                  child: Row(
+                    children: [
+                      Expanded(child: buildText("Update to Slush Silver to see who has liked you!", 18, FontWeight.w500, color.txtWhite)),
+                      const SizedBox(width: 10),
+                      SizedBox(height: 3.h, width: 3.h, child: SvgPicture.asset(AssetsPics.crownOn))
+                    ],
+                  ),
+                ),
               ),
             ),
-          )
-              : const SizedBox()
+          ) : const SizedBox()
         ],
       ),
     ),);
@@ -431,7 +428,12 @@ class _MatchesScreenState extends State<MatchesScreen> {
             if(LocaleHandler.subscriptionPurchase == "yes"){
             Get.to(() => UnMatchedPersonProfileScreen(id: item[index]["userId"].toString()))!.then((value) async {
               if (value == true) {setState(() {liked.add(item[index]["userId"]);});}});}
-            else{showToastMsg("please Update to Slush Silver");}
+            else{
+              shakeKey.currentState?.shake();
+              LocaleHandler.eventParticipantData=item[index];
+              Get.to(()=> const CongratMatchScreen(likedscreen: true));
+              // showToastMsg("Please Update to Slush Silver");
+            }
           },
           child: Container(
             decoration: BoxDecoration(
@@ -460,8 +462,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
                 children: [
                   const Spacer(),
                   ClipRRect(
-                    borderRadius: const BorderRadius.vertical(
-                        bottom: Radius.circular(16)),
+                    borderRadius: const BorderRadius.vertical(bottom: Radius.circular(16)),
                     child: ClipRect(
                       child: BackdropFilter(
                         filter: ImageFilter.blur(sigmaX: 2.0, sigmaY: 2.0),
@@ -479,13 +480,8 @@ class _MatchesScreenState extends State<MatchesScreen> {
             : IgnorePointer(
                 child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
-                child: ClipRect(
-                    child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 2.0, sigmaY: 2.0),
-                        child: Container(
-                            width: 21.h,
-                            alignment: Alignment.bottomCenter,
-                            color: Colors.black.withOpacity(0.1)))),
+                child: ClipRect(child: BackdropFilter(filter: ImageFilter.blur(sigmaX: 6.0, sigmaY: 6.0),
+                        child: Container(width: 21.h, alignment: Alignment.bottomCenter, color: Colors.black.withOpacity(0.1)))),
               )),
         LocaleHandler.subscriptionPurchase == "yes"
             ? Positioned(
@@ -527,7 +523,9 @@ class _MatchesScreenState extends State<MatchesScreen> {
                    if(LocaleHandler.subscriptionPurchase == "yes"){
                     setState(() {unLiked.remove(item[index]["userId"]);});
                     actionForHItLike("DISLIKED", item[index]["userId"].toString());}
-                   else{showToastMsg("please Update to Slush Silver");}
+                   else{//showToastMsg("Please Update to Slush Silver");
+                   shakeKey.currentState?.shake();
+                   }
                   },
                   child: const Icon(Icons.clear, color: Colors.white)),
               Container(
@@ -541,9 +539,19 @@ class _MatchesScreenState extends State<MatchesScreen> {
                   onTap: () {
                    if(LocaleHandler.subscriptionPurchase == "yes"){
                     setState(() {liked.add(item[index]["userId"]);});
-                    actionForHItLike("LIKED", item[index]["userId"].toString());}
-                   else{
-                     showToastMsg("please Update to Slush Silver");
+                    actionForHItLike("LIKED", item[index]["userId"].toString());
+                    // LocaleHandler.eventParticipantData=item[index];
+                    // Get.to(()=> const CongratMatchScreen(likedscreen: true));
+                    // print("Daaaddaadd");
+                    // LoaderOverlay.show(context);
+                    // LocaleHandler.liked=false;
+                    // isLiked=false;
+                    // LoaderOverlay.hide();
+                    setState(() {getListData();});
+                   }
+
+                   else{shakeKey.currentState?.shake();
+                     // showToastMsg("Please Update to Slush Silver");
                    }
                   },
                   child: SvgPicture.asset(AssetsPics.heartblnkbg))

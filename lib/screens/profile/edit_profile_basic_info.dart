@@ -84,7 +84,7 @@ class _EditProfileBasicInfoScreenState extends State<EditProfileBasicInfoScreen>
   Widget build(BuildContext context) {
     final size=MediaQuery.of(context).size;
     return PopScope(
-      canPop: true,
+      canPop: false,
       onPopInvoked: callFunctio,
       child: Scaffold(
         extendBodyBehindAppBar: true,

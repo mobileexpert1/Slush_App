@@ -35,7 +35,7 @@ class _ReelViewScreenState extends State<ReelViewScreen> {
     await Future.delayed(const Duration(seconds: 2));
     Provider.of<reelController>(context,listen: false).getVidero(context,1,
         LocaleHandler.startage, LocaleHandler.endage,LocaleHandler.distancevalue,
-        LocaleHandler.latitude,LocaleHandler.longitude,LocaleHandler.filtergender==""?gender:LocaleHandler.filtergender);
+        LocaleHandler.latitude,LocaleHandler.longitude,LocaleHandler.filtergender);
   }
 
   @override
@@ -43,9 +43,7 @@ class _ReelViewScreenState extends State<ReelViewScreen> {
     final size=MediaQuery.of(context).size;
     return Stack(
       children: [
-        SizedBox(
-          height: size.height,
-          width: size.width,
+        SizedBox(height: size.height, width: size.width,
           child: Image.asset(AssetsPics.background, fit: BoxFit.cover),
         ),
         Consumer<reelController>(
@@ -75,9 +73,10 @@ class _ReelViewScreenState extends State<ReelViewScreen> {
         buildText("No Data Availabe", 20, FontWeight.w600, color.txtBlack),
         buildText2("There is no data to show you\n right now.", 20, FontWeight.w600, color.txtgrey2),
         GestureDetector(
-          onTap: (){setState(() {LocaleHandler.distancevalue=500;
+          onTap: (){setState(() {
+          LocaleHandler.distancevalue=500;
           LocaleHandler.startage=18;
-          LocaleHandler.endage=90;
+          LocaleHandler.endage=100;
           LocaleHandler.filtergender="";
           LocaleHandler.isChecked=false;
           LocaleHandler.distancee=500;

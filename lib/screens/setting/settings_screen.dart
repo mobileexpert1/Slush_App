@@ -23,6 +23,7 @@ import 'package:slush/widgets/bottom_sheet.dart';
 import 'package:slush/widgets/text_widget.dart';
 import 'package:slush/widgets/toaster.dart';
 import 'package:http/http.dart'as http;
+import 'package:slush/widgets/topSnackbar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
@@ -44,7 +45,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     Settings(6,AssetsPics.payment_history,  "Payment History", ""),
     Settings(7,AssetsPics.about,  "About Us", ""),
     Settings(8,AssetsPics.FAQ,  "FAQs", ""),
-    Settings(9,AssetsPics.terms, "Terms and Condition", ""),
+    Settings(9,AssetsPics.terms, "Terms and Conditions", ""),
+    Settings(10,AssetsPics.contactus, "Contact us", ""),
   ];
 
   @override
@@ -136,8 +138,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
     else if(i==5){Get.to(()=>MySavedEvent());}
     else if(i==6){Get.to(()=>const PaymentHistoryScreen());}
     else if(i==7){
-           // snackBaar(context, AssetsPics.verifyinprocesssvg,false);
-           // snackBaar(context, AssetsPics.verifyinprocess,true);
+      // showCustomSnackBar(context, AssetsPics.redbanner,false);
+      // snackBaar(context, AssetsPics.verifyinprocess,true);
       showToastMsg("Coming soon...");
     }
     else if(i==8){Get.to(()=>const AboutSlush());}
@@ -154,6 +156,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
            // snackBaarblue(context, AssetsPics.unMatchedbgsvg);
            // snackBaar(context, AssetsPics.unMatchedbgsvg,false);
          }
+    else if(i==10){
+      const url = 'https://www.slushdating.com/contact';
+      if (await canLaunch(url)) {
+        await launch(url, forceWebView: true, enableJavaScript: true);}
+      else {throw 'Could not launch $url';}
+
+    }
     else {}
   }
 

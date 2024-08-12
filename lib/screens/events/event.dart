@@ -17,15 +17,12 @@ import 'package:slush/constants/prefs.dart';
 import 'package:slush/controller/controller.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/controller/event_controller.dart';
-import 'package:slush/controller/login_controller.dart';
 import 'package:slush/controller/waitingroom_controller.dart';
 import 'package:slush/screens/events/event_list.dart';
 import 'package:slush/screens/events/eventhistory.dart';
 import 'package:slush/screens/events/free_event.dart';
 import 'package:slush/screens/events/you_ticket.dart';
 import 'package:slush/screens/notification/notification_screen.dart';
-import 'package:slush/screens/video_call/videoCall.dart';
-import 'package:slush/screens/waiting_room/readytocall.dart';
 import 'package:slush/screens/waiting_room/waiting_room_screen.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
 import 'package:slush/widgets/text_widget.dart';
@@ -33,6 +30,8 @@ import 'package:slush/widgets/toaster.dart';
 import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 import 'package:geocoding/geocoding.dart';
+
+import '../../main.dart';
 
 class EventScreen extends StatefulWidget {
   const EventScreen({Key? key}) : super(key: key);
@@ -74,9 +73,7 @@ class _EventScreenState extends State<EventScreen> {
     String request = "$baseURL?input=$input&key=$kPLACES_API_KEY&sessiontoken=$_sessionToken";
     var response = await http.get(Uri.parse(request));
     if (response.statusCode == 200) {
-      setState(() {
-        _placeList = jsonDecode(response.body)["predictions"];
-      });
+      setState(() {_placeList = jsonDecode(response.body)["predictions"];});
     } else {
       throw Exception("Failed to load predictions");
     }
@@ -148,17 +145,15 @@ class _EventScreenState extends State<EventScreen> {
   Future getEvents() async {
     selectedIndex = int.parse(cateId);
     final url = "${ApiList.getEvent}${LocaleHandler.miliseconds}&distance=${LocaleHandler.distancee}&events=popular&latitude=${LocaleHandler.latitude}&longitude=${LocaleHandler.longitude}&category_id=$cateId&page=1&limit=10";
-    print(url);
+    printLog(url);
     var uri = Uri.parse(url);
     var response = await http.get(uri, headers: {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer ${LocaleHandler.accessToken}'
     });
-    setState(() {
-      LoaderOverlay.hide();
-    });
+    setState(() {LoaderOverlay.hide();});
     if (response.statusCode == 200) {
-      print(response.statusCode);
+      printLog(response.body);
       setState(() {
         data = jsonDecode(response.body)["data"];
         totalpages = data["meta"]["totalPages"];
@@ -372,7 +367,10 @@ class _EventScreenState extends State<EventScreen> {
       strokeWidth: 3,
       triggerMode: RefreshIndicatorTriggerMode.onEdge,
       onRefresh: () async {
-        await Future.delayed(const Duration(seconds: 4));
+        await Future.delayed(const Duration(seconds: 3));
+        Provider.of<eventController>(context, listen: false).getmeEvent(context,"me");
+        // setState(() {LoaderOverlay.show(context);});
+        // post.clear();
         getEvents();
       },
       child: Scaffold(
@@ -718,8 +716,7 @@ class _EventScreenState extends State<EventScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(
-            width: 180,
+        SizedBox(width: 180,
             child: buildTextOverFlow(val.meEvent[index]["title"], 16, FontWeight.w600, color.txtBlack)),
         Row(
           children: [
@@ -782,8 +779,8 @@ class _EventScreenState extends State<EventScreen> {
               "Next event starts in", 18, FontWeight.w600, color.txtBlack),
           Container(
             margin: const EdgeInsets.only(top: 8),
-            decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(12), color: color.txtWhite),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12),
+                color: color.txtWhite),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -837,7 +834,7 @@ class _EventScreenState extends State<EventScreen> {
                              val.days != "00"?const SizedBox():  Column(
                                children: [
                                  buildText(int.parse(val.seconds) < 0 ? "00" :val.seconds, 24, FontWeight.w600, color.txtBlack),
-                                 buildText("seconds", 15, FontWeight.w400, color.txtgrey, fontFamily: FontFamily.hellix),
+                                 buildText("Seconds", 15, FontWeight.w400, color.txtgrey, fontFamily: FontFamily.hellix),
                                ],
                              ),],),
                            Container(height: 40, width: 2,

@@ -210,16 +210,23 @@ class _EventViewTicketScreenState extends State<EventViewTicketScreen> {
               DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(widget.data["startsAt"] * 1000);
               DateTime timeFormat=DateTime.now();
               // int endTime=widget.data["endsAt"];
-              int endTime=widget.data["startsAt"];
+              int startTime=widget.data["startsAt"];
+              int endTime=widget.data["endsAt"];
               int nowTimestamp = timeFormat.microsecondsSinceEpoch ~/ 1000000;
               var timee = DateTime.tryParse(dateTime.toString());
               int min = timee!.difference(timeFormat).inSeconds;
               if(min<900 ){
               // if(min>900){
-                if(nowTimestamp<endTime){
+                if(nowTimestamp<startTime){
+                  LocaleHandler.lateEntry=false;
                   Provider.of<waitingRoom>(context,listen: false).timerStart(min);
                   Get.to(()=> WaitingRoom(data: widget.data,min: min));}
-              else{showToastMsg("Event already started");}
+              else if(nowTimestamp>startTime && nowTimestamp<endTime){
+                LocaleHandler.lateEntry=true;
+                  Provider.of<waitingRoom>(context,listen: false).timerStart(min);
+                  Get.to(()=> WaitingRoom(data: widget.data,min: min));
+                }
+              else{showToastMsg("Event is over");}
               }
               else{ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Waiting room will open before 15 min of event Start')));}
                 // Get.to(()=>const EventYourTicketScreen());

@@ -70,62 +70,32 @@ Future showAlertMsg(context, String msg ){
 SnackbarController snackBaar(BuildContext context,String img,bool isPng){
   return Get.snackbar('', '',
     snackPosition: SnackPosition.TOP,
-    margin: EdgeInsets.zero,
-    padding: EdgeInsets.zero,
+    margin: const EdgeInsets.all(0),
+    padding: const EdgeInsets.all(0),
     backgroundColor: Colors.transparent,
     borderRadius: 0.0,
-    titleText: Stack(
-      alignment: Alignment.center,
+    titleText: Stack(alignment: Alignment.center,
       children: [
-        SizedBox(
-            width: MediaQuery.of(context).size.width,
+        SizedBox(width: MediaQuery.of(context).size.width,
             child:isPng?Image.asset(img,fit: BoxFit.cover): SvgPicture.asset(img,fit: BoxFit.cover)),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-           isPng?const SizedBox(): Container(
-              color: Colors.transparent,
+           isPng?const SizedBox(): Container(color: Colors.transparent,
               transform: Matrix4.translationValues(MediaQuery.of(context).size.width * -.11, 0, 0.0),
               child: SvgPicture.asset(AssetsPics.bannerheart),
             ),
-            isPng?const SizedBox():   Container(
-              color: Colors.transparent,
+            isPng?const SizedBox():   Container(color: Colors.transparent,
               transform: Matrix4.translationValues(MediaQuery.of(context).size.width * .01, 0, 10.0),
-              child: SvgPicture.asset(AssetsPics.bannerheart),
-            ),
-          ],)
-      ],
+              child: SvgPicture.asset(AssetsPics.bannerheart)),
+          ],)],
     ),
-
     shouldIconPulse: true,
     maxWidth: MediaQuery.of(context).size.width,
     borderWidth: 0.0,
     overlayBlur: 0.0,
     barBlur: 0.0,
-    isDismissible: true,
-
-
-    // progressIndicatorBackgroundColor: Colors.red,
-    // icon: Icon(Icons.add),
-    // overlayColor: Colors.yellow,
-    // duration: Duration(seconds: 2),
-    // borderColor: Colors.red,
-    // snackStyle: SnackStyle.FLOATING,
-    // icon: Icon(Icons.add),
-    // dismissDirection: DismissDirection.none,
-    // animationDuration: Duration(seconds: 2),
-    //
-    // // progressIndicatorController: AnimationController.unbounded(vsync: /),
-    // progressIndicatorBackgroundColor: Colors.red,
-    // leftBarIndicatorColor: Colors.red,
-    // // progressIndicatorValueColor: Colors.red
-    //   instantInit: false,
-    // snackbarStatus: (SnackbarStatus){},
-    // messageText: Text("sdkjh fjdfksdfjdfkj f"),
-    // colorText: Colors.yellow,
-    // showProgressIndicator: true,
-
-  );
+    isDismissible: true);
 }
 
 SnackbarController snackBaarblue(BuildContext context,String img,String txt){

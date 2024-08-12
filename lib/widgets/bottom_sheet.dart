@@ -1068,7 +1068,7 @@ customSparkBottomSheeet(BuildContext context, String img, String title,
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
-                      Image.asset(img, fit: BoxFit.cover),
+                      Image.asset(img, fit: BoxFit.cover,height: 70),
                       SizedBox(height:img==AssetsPics.sparkleft? 15:0),
                       img== AssetsPics.sparkleft? FittedBox(
                         child: Container(

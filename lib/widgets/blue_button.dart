@@ -97,3 +97,27 @@ Widget white_button_half(BuildContext context,String name,{VoidCallback? press})
     ),
   );
 }
+
+
+Widget blue_buttonwidehi(BuildContext context,String name,{bool validation=true,VoidCallback? press,Color clr=color.disableButton}) {
+  return GestureDetector(
+    onTap: press,
+    child: Container(
+      alignment: Alignment.center,
+      height: 75,
+      // height: MediaQuery.of(context).size.height*0.07,
+      width: MediaQuery.of(context).size.width*0.9,
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12),
+          gradient:  LinearGradient(
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+            colors:validation==false?[clr,clr]: [
+              color.gradientLightBlue,
+              color.txtBlue
+            ],
+          )
+      ),
+      child: buildText(name,18,FontWeight.w600,color.txtWhite),
+    ),
+  );
+}

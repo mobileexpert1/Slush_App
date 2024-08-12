@@ -340,7 +340,8 @@ class editProfileController extends ChangeNotifier{
   //   });
   // }
 
-  void tappedOPtion(BuildContext context,ImageSource src,String index,String picId){
+  void tappedOPtion(BuildContext context,ImageSource src,String index,String picId,int i){
+    _imgindex=i;
     PictureId=picId;
     selcetedIndex=index;
     if(src==ImageSource.camera && Platform.isAndroid){pickImageFromCamera(CameraLensDirection.front);}
@@ -462,11 +463,39 @@ class editProfileController extends ChangeNotifier{
       );
       if (croppedFilee != null) {
         croppedFile = croppedFilee;
+        setImgtoLocale();
         PictureId == "-1" ? uploadMultipleImage(context,croppedFile!) : updateAvatar(context, croppedFile!);
         // LocaleHandler.introImage=_croppedFile;
       }
     }
     notifyListeners();
+  }
+
+  setImgtoLocale(){
+    if(_imgindex==1){
+      _showNetImg1=true;
+      _croppedFile1=croppedFile;
+    }else if(_imgindex==2){
+      _showNetImg2=true;
+      _croppedFile2=croppedFile;
+    }
+    else if(_imgindex==3){
+      _showNetImg3=true;
+      _croppedFile3=croppedFile;
+    }
+  }
+  removeImgtoLocale(){
+    if(_imgindex==1){
+      _showNetImg1=false;
+      _croppedFile1=null;
+    }else if(_imgindex==2){
+      _showNetImg2=false;
+      _croppedFile2=null;
+    }
+    else if(_imgindex==3){
+      _showNetImg3=false;
+      _croppedFile3=null;
+    }
   }
 
   Future uploadMultipleImage(BuildContext context, CroppedFile image) async {
@@ -481,7 +510,7 @@ class editProfileController extends ChangeNotifier{
       var stream = http.ByteStream(imageFile.openRead());
       var length = await imageFile.length();
       var multipartFile = http.MultipartFile('files', stream, length,
-          filename: image.toString().split("/").last);
+          filename: image.toString().split("/").last,contentType: MediaType('image','jpeg'));
       request.files.add(multipartFile);
     }
     // request.fields['key'] = "files";
@@ -494,6 +523,7 @@ class editProfileController extends ChangeNotifier{
     } else if (response.statusCode == 401) {
       showToastMsgTokenExpired();
     } else {}
+    removeImgtoLocale();
     notifyListeners();
   }
 
@@ -509,7 +539,7 @@ class editProfileController extends ChangeNotifier{
       var stream = http.ByteStream(imageFile.openRead());
       var length = await imageFile.length();
       var multipartFile = http.MultipartFile('file', stream, length,
-          filename: image.toString().split("/").last);
+          filename: image.toString().split("/").last,contentType: MediaType('image','jpeg'));
       request.files.add(multipartFile);
     }
     // request.fields['type'] = "image/jpg";
@@ -519,9 +549,11 @@ class editProfileController extends ChangeNotifier{
     if (response.statusCode == 200) {
       disposecam();
       profileData(context);
+      _showNetImg3=false;
     } else if (response.statusCode == 401) {
       showToastMsgTokenExpired();
     } else {}
+    removeImgtoLocale();
     notifyListeners();
   }
 
@@ -645,11 +677,8 @@ class editProfileController extends ChangeNotifier{
   }
 
   void saveVlue(int i,val){
-    if(i==0){
-      _startValue=val;
-    }else{
-      _endValue=val;
-    }
+    if(i==0){_startValue=val;}
+    else{_endValue=val;}
     notifyListeners();
   }
 
@@ -717,5 +746,32 @@ class editProfileController extends ChangeNotifier{
     }
     notifyListeners();
   }
+
+
+  List _items=[];
+  List get items=>_items;
+
+  void addImages(var data){
+    for(var i=0;i<data.length;i++){
+      if(!_items.contains(data[i]["key"])){_items.add(data[i]["key"]);}}
+    notifyListeners();
+  }
+
+  int _imgindex=0;
+  bool _showNetImg1=false;
+  bool  get  showNetImg1=>_showNetImg1;
+  bool _showNetImg2=false;
+  bool  get  showNetImg2=>_showNetImg2;
+  bool _showNetImg3=false;
+  bool  get  showNetImg3=>_showNetImg3;
+
+  CroppedFile? _croppedFile1;
+  CroppedFile? get croppedFile1=> _croppedFile1;
+  CroppedFile? _croppedFile2;
+  CroppedFile? get croppedFile2=> _croppedFile2;
+  CroppedFile? _croppedFile3;
+  CroppedFile? get croppedFile3=> _croppedFile3;
+
+
 
 }

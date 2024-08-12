@@ -2,7 +2,9 @@ import 'dart:io';
 
 class LocaleHandler {
   static bool bioAuth=false;
+  static bool speeddatePermission=false;
   static bool liked=false;
+  static bool lateEntry=false;
   static String bioAuth2="false";
   static bool noInternet=false;
   static bool micOn=false;
@@ -20,6 +22,7 @@ class LocaleHandler {
 
   // login Token
   static String accessToken = "";
+  static String fcmToken = "";
   static String bearer = "Bearer ${accessToken}";
   static String refreshToken = "";
   static String resetPasswordtoken = "";
@@ -58,6 +61,7 @@ class LocaleHandler {
   static List entencity = [];
   static List entencityname = [];
   static List fixtureParticipantId = [];
+  static var imgItems ;
   static String location = "";
   static File? introImage;
   static File? introVideo;
@@ -126,7 +130,7 @@ class LocaleHandler {
   // feed Filter
   static int distancevalue=500;
   static int startage=18;
-  static int endage=90;
+  static int endage=100;
   static int selectedIndexGender=-1;
   static bool isChecked=false;
 

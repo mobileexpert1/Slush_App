@@ -203,6 +203,7 @@ class AssetsPics{
   static const superlike = "assets/icons/superlike.svg";
   static const superlikewhite = "assets/icons/superlikewhite.svg";
   static const terms = "assets/icons/terms.svg";
+  static const contactus = "assets/icons/contactus.svg";
   // static const ticketsheet = "assets/icons/ticketsheet.svg";
   static const timerCircle = "assets/icons/timerCircle.svg";
   static const transGenderBlack = "assets/icons/transgender_black.svg";

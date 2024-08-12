@@ -143,7 +143,7 @@ class reelController with ChangeNotifier{
   var dataa;
   get data=>dataa;
   List posts=[];
-  int total=0;
+  int total=-1;
   int get totallen=>total;
   int pages=1;
   bool isPlaying= false;
@@ -231,17 +231,18 @@ class reelController with ChangeNotifier{
       "Authorization": "Bearer ${LocaleHandler.accessToken}"});
     var ii=jsonDecode(response.body);
     LoaderOverlay.hide();
-    notifyListeners();
     if(response.statusCode==200){
-      getVideoCount(context);
+
         dataa=ii["data"]["items"];
       total=ii["data"]["meta"]["totalItems"];
+      print(";-;-;-;-${ii["data"]["meta"]["totalItems"]}");
         posts=dataa;
         for (var i = 0; i < posts.length; i++) {
           videoPlayerController.add(VideoPlayerController.networkUrl(Uri.parse(posts[i]["video"].toString())));
           // chewieController =ChewieController(videoPlayerController: videoPlayerController[i]);
           reelcntrol.addReel(posts[i]["video"].toString());}
         playNextReel(LocaleHandler.pageIndex);
+        getVideoCount(context);
     } else{total=0;
     dataa=ii;}notifyListeners();}
 

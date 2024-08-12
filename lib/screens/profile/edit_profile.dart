@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:slush/constants/LocalHandler.dart';
@@ -62,9 +63,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   PageController pageController = PageController();
   int currentIndex = 0;
   int value = 0;
+  int imgIndex = 0;
   String PictureId = "";
   List slidingImages = [AssetsPics.sample, AssetsPics.sample, AssetsPics.sample];
   bool itemDelted = false;
+  bool showNetworkImage1 = false;
+  bool showNetworkImage2 = false;
+  bool showNetworkImage3 = false;
 
   // VideoPlayerController? _controller;
   // VideoPlayerController? _controller2;
@@ -327,7 +332,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       setState(() {LoaderOverlay.hide();});
       showToastMsgTokenExpired();}else{
       setState(() {LoaderOverlay.hide();});
-      showToastMsg("failed to update!");
+      showToastMsg("Failed to update!");
     }
 
   }
@@ -384,7 +389,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       Consumer<editProfileController>(
                           builder: (context,val,child){
                         imgdata=val.fromprov?val.imagedata:LocaleHandler.dataa;
-                        return buildphotos(size);}),
+                        return buildphotos(size,val);}),
                       SizedBox(height: 2.h),
                       buildText("Edit Video", 20, FontWeight.w600, color.txtBlack),
                       SizedBox(height: 1.h),
@@ -778,11 +783,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     );
   }
 
-  Widget buildphotos(Size size) {
+  Widget buildphotos(Size size,editProfileController val) {
+    // Provider.of<editProfileController>(context,listen: false).addImages(imgdata["profilePictures"]);
     List items=[];
     var i;
-    for(i=0;i<=imgdata["profilePictures"].length-1;i++){
-      items.add(imgdata["profilePictures"][i]["key"]);}
+    for(i=0;i<imgdata["profilePictures"].length;i++){
+      items.add(imgdata["profilePictures"][i]["key"]);
+    }
     return SizedBox(
       // color: Colors.red,
       height: size.height*0.3,
@@ -823,18 +830,19 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                 child: GestureDetector(
                   onLongPress: () {
                     if (imgdata["profilePictures"].length != 0) {
+                      imgIndex=1;
                       buildCustomDialogBoxWithtwobuttonfordeletePicture(0,"image");
                     }
                   },
                   onTap: () {
                     setState(() {
                       if (imgdata["profilePictures"].length != 0) {
+                        imgIndex=1;
                         PictureId = imgdata["profilePictures"][0]["profilePictureId"].toString();
                         buildShowModalBottomSheet("image");
                       }});
                   },
-                  child: Container( alignment: Alignment.bottomRight,
-                      child: SvgPicture.asset(AssetsPics.profileEdit1, width: 35, height: 35)),
+                  child: Container(alignment: Alignment.bottomRight, child: SvgPicture.asset(AssetsPics.profileEdit1, width: 35, height: 35)),
                 ),
               )
             ],
@@ -848,7 +856,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       padding: const EdgeInsets.only(right: 5, bottom: 5),
                       height:size.height*0.3/ 2 - 2,
                       width: size.width / 2 - 75,
-                      child: imgdata["profilePictures"].length >= 2
+                      child:val.showNetImg2?
+                      ClipRRect(borderRadius: BorderRadius.circular(16),child: Image.file(File(val.croppedFile2!.path),fit: BoxFit.cover))
+                          : imgdata["profilePictures"].length >= 2
                           ? GestureDetector(
                           onTap: () {
                             pageController = PageController(initialPage: 1);
@@ -861,12 +871,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                                 btnTxt: "Ok",
                                 imges: imgdata["profilePictures"],
                                 img: imgdata["profilePictures"].length != 0 ? items[1] : null);*/
-                          },child:  buildPhotoContainer(items[1])
+                          },child: buildPhotoContainer(items[1])
                         // onLongPressedd(items[1])
                       )
                           : GestureDetector(
                           onTap: () {
                             setState(() {
+                              imgIndex=2;
                               PictureId = imgdata["profilePictures"].length >= 2 ? imgdata["profilePictures"][1]["profilePictureId"].toString() : "-1";
                               buildShowModalBottomSheet("image");
                             });
@@ -878,11 +889,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     child: GestureDetector(
                       onLongPress: () {
                         if (imgdata["profilePictures"].length >= 2) {
+                          imgIndex=2;
                           buildCustomDialogBoxWithtwobuttonfordeletePicture(1,"image");
                         }
                       },
                       onTap: () {
                         setState(() {
+                          imgIndex=2;
                           PictureId = imgdata["profilePictures"].length >= 2 ? imgdata["profilePictures"][1]["profilePictureId"].toString() : "-1";
                           buildShowModalBottomSheet("image");
                         });
@@ -901,7 +914,9 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       padding: const EdgeInsets.only(right: 5, bottom: 5),
                       height:size.height*0.3/ 2 - 2,
                       width: size.width / 2 - 75,
-                      child: imgdata["profilePictures"].length >= 3
+                      child:val.showNetImg3?
+                      ClipRRect(borderRadius: BorderRadius.circular(16),child: Image.file(File(val.croppedFile3!.path),fit: BoxFit.cover))
+                          :imgdata["profilePictures"].length >= 3
                           ? GestureDetector(
                           onTap: () {
                             pageController = PageController(initialPage: 2);
@@ -918,6 +933,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           : GestureDetector(
                           onTap: () {
                             setState(() {
+                              imgIndex=3;
                               PictureId = imgdata["profilePictures"].length >= 3 ? imgdata["profilePictures"][2]["profilePictureId"].toString() : "-1";
                               buildShowModalBottomSheet("image");
                             });
@@ -929,11 +945,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     child: GestureDetector(
                       onLongPress: () {
                         if (imgdata["profilePictures"].length >= 3) {
+                          imgIndex=3;
                           buildCustomDialogBoxWithtwobuttonfordeletePicture(2,"image");
                         }
                       },
                       onTap: () {
                         setState(() {
+                          imgIndex=3;
                           PictureId = imgdata["profilePictures"].length >= 3 ? imgdata["profilePictures"][2]["profilePictureId"].toString() : "-1";
                           buildShowModalBottomSheet("image");
                         });
@@ -986,10 +1004,29 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     onTap: () {
                       setState(() {
                         selcetedIndex = "0";
-                        Future.delayed(const Duration(seconds: 1), () {
+                        Future.delayed(const Duration(seconds: 1), () async {
                           // Get.back();
                           // video == "video" ? getVideo(ImageSource.camera) : imgFromGallery(ImageSource.camera);
-                          video == "video" ? editCntrler.getVideo(context,ImageSource.camera) : editCntrler.tappedOPtion(context, ImageSource.camera, "0", PictureId);
+                          if(video == "video"){
+                            final camStatus = await Permission.camera.status;
+                            final micStatus = await Permission.microphone.status;
+                            if (camStatus.isGranted && micStatus.isGranted) { editCntrler.getVideo(context,ImageSource.camera);}
+                            else if (camStatus.isDenied || micStatus.isDenied){
+                              var newcamStatus = await Permission.camera.request();
+                              var newmicStatus = await Permission.microphone.request();
+                              if (newcamStatus.isGranted && newmicStatus.isGranted){  editCntrler.getVideo(context,ImageSource.camera);}
+                              else if (newcamStatus.isPermanentlyDenied || newmicStatus.isPermanentlyDenied){openAppSettings();}}
+                            else if (camStatus.isPermanentlyDenied || micStatus.isPermanentlyDenied){openAppSettings();}
+                          }
+                          else{
+                            var status = await Permission.camera.status;
+                            if (status.isGranted) {editCntrler.tappedOPtion(context, ImageSource.camera, "0", PictureId,imgIndex);}
+                            else if (status.isDenied){
+                              var newStatus = await Permission.camera.request();
+                              if (newStatus.isGranted){editCntrler.tappedOPtion(context, ImageSource.camera, "0", PictureId,imgIndex);}
+                              else if (newStatus.isPermanentlyDenied){openAppSettings();}
+                            }
+                            else if (status.isPermanentlyDenied){openAppSettings();}}
                           selcetedIndex = "";
                         });
                       });
@@ -1028,7 +1065,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                         Future.delayed(const Duration(seconds: 1), () {
                           // Get.back();\
                           // video == "video" ? getVideo(ImageSource.gallery) : imgFromGallery(ImageSource.gallery);
-                          video == "video" ? editCntrler.getVideo(context,ImageSource.gallery) : editCntrler.tappedOPtion(context, ImageSource.gallery, "1", PictureId);
+                          video == "video" ? editCntrler.getVideo(context,ImageSource.gallery) : editCntrler.tappedOPtion(context, ImageSource.gallery, "1", PictureId,imgIndex);
                           selcetedIndex = "";
                         });
                       });

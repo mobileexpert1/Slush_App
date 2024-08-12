@@ -1,7 +1,10 @@
+import 'package:agora_uikit/agora_uikit.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:local_auth/local_auth.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/prefs.dart';
@@ -11,6 +14,8 @@ import 'package:slush/screens/events/bottomNavigation.dart';
 import 'package:slush/screens/getstarted/slider_scree.dart';
 import 'package:slush/screens/onboarding/introscreen.dart';
 import 'package:slush/screens/splash/splash_controller.dart';
+
+import '../../notification.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -26,6 +31,8 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   void initState() {
     callFunction();
+    _register();
+    firebaseNotificationHandling();
     auth.isDeviceSupported().then((bool isSupported) => setState(() => _supportState = isSupported ?
     _SupportState.supported : _SupportState.unsupported));
     super.initState();
@@ -33,7 +40,42 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void openBio() {
     if (_supportState == _SupportState.supported) { //_getAvailableBiometrics();
-    Provider.of<SplashController>(context,listen: false).getAvailableBiometrics();
+      Provider.of<SplashController>(context,listen: false).getAvailableBiometrics();
+    }
+  }
+
+  _register() {
+    if(LocaleHandler.fcmToken == ""){
+      FirebaseMessaging.instance.getToken().then((value) async {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        prefs.setString("fcmToken", value!);
+        if(mounted){
+          setState(() {
+            LocaleHandler.fcmToken = prefs.getString("fcmToken")!;
+          });
+        }
+        print("fcmToken===========>>>   ${LocaleHandler.fcmToken}");});
+    }
+  }
+
+  permission() async {
+    NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      print('User granted permission');
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+        print("onMessage: $message");
+      });
+      // TODO: handle the received notifications
+    } else {
+      print('User declined or has not accepted permission');
     }
   }
 
@@ -63,6 +105,46 @@ class _SplashScreenState extends State<SplashScreen> {
       else {Get.offAll(() => const IntroScreen());}
       if(LocaleHandler.bioAuth2=="true"){ openBio();}
     });
+  }
+
+
+
+  void firebaseNotificationHandling(){
+
+    Permission.notification.request();
+    permission();
+    _register();
+
+
+    LocalNotificationService.initialize(context);
+    FirebaseMessaging.instance.getInitialMessage().then((message) {if (message != null) {
+
+      // final routeFromMessage = message.data["route"];
+      // Navigator.of(context).pushNamed(routeFromMessage);
+    }});
+    //forground
+
+    FirebaseMessaging.onMessage.listen((message) {
+      LocalNotificationService.display(message);
+    });
+
+    FirebaseMessaging.onBackgroundMessage(backGroundHandler);
+
+    FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+    //Background
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
+
+
+
+
+    });
+  }
+  Future<void> backGroundHandler(RemoteMessage message) async {
+    LocalNotificationService.display(message);
   }
 
   @override

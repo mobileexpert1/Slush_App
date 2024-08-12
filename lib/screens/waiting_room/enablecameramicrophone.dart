@@ -21,8 +21,8 @@ class EnableCameraMicrophoneScreen extends StatefulWidget {
 }
 
 class _EnableCameraMicrophoneScreenState extends State<EnableCameraMicrophoneScreen> {
-  bool micOn=false;
-  bool camOn=false;
+  bool micOn=true;
+  bool camOn=true;
 
   @override
   void initState() {
@@ -71,9 +71,9 @@ class _EnableCameraMicrophoneScreenState extends State<EnableCameraMicrophoneScr
             width: size.width,
             child: Image.asset(AssetsPics.background,fit: BoxFit.fill),
           ),
-          _controller == null ? CircularProgressIndicator(color: color.txtBlue): Column(
+          _controller == null ? const CircularProgressIndicator(color: color.txtBlue): Column(
             children: [
-            SizedBox(height: 40),
+            const SizedBox(height: 40),
              /* CircularPercentIndicator(
                 radius: 37,
                 backgroundColor: Colors.transparent,
@@ -130,7 +130,7 @@ class _EnableCameraMicrophoneScreenState extends State<EnableCameraMicrophoneScr
               ),
             ),
             Padding(
-              padding: EdgeInsets.only(left: 55,right: 45,top: 10),
+              padding: const EdgeInsets.only(left: 55,right: 45,top: 10),
               child: buildText("Grant access to microphone and camera by taping the iconshown", 18, FontWeight.w600, color.txtBlack),
             )
           ],)

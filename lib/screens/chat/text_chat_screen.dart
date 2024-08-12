@@ -248,9 +248,8 @@ class _TextChatScreenState extends State<TextChatScreen> {
     socket!.emit('private message', {message});
   }
 
-
-
   Future reportUser(String reason) async {
+    setState(() {LoaderOverlay.show(context);});
     final url = '${ApiList.reportUser}${widget.id}/report';
     print(url);
     try {
@@ -265,6 +264,7 @@ class _TextChatScreenState extends State<TextChatScreen> {
       setState(() {LoaderOverlay.hide();});
       if(response.statusCode==201)
       {
+        chatDelete(widget.id);
         Get.back();
         print('User Reported Successfully:::::::::::::::::::::;');
         Fluttertoast.showToast(msg: 'User Reported');
@@ -285,6 +285,16 @@ class _TextChatScreenState extends State<TextChatScreen> {
       print('Error ::::::::::::::::::: ${error.toString()}');
       Fluttertoast.showToast(msg: 'Something Went Wrong::');
     }
+  }
+
+  void chatDelete(int id)async{
+    final url="${ApiList.getSingleChat}$id/deleteconversation";
+    print(url);
+    var uri =Uri.parse(url);
+    var response=await http.get(uri,
+        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${LocaleHandler.accessToken}'});
+    if(response.statusCode==200){}
+    else{}
   }
 
   void _scrollToEnd() {
@@ -358,7 +368,9 @@ class _TextChatScreenState extends State<TextChatScreen> {
         // appBar: commonBarWithTextleftforChat(context, Colors.white,data==null ?_data: data["items"][0]["sender"]["firstName"], press2: (){
         appBar: commonBarWithTextleftforChat(context, Colors.white,widget.name, press2: (){
           customBuilderSheet(context, 'Report User',"Submit",reportingMatter,onTap: (){
-            reportUser(reportingMatter[selectedIndex]);},);},
+            Get.back();
+            reportUser(reportingMatter[selectedIndex]);},);
+          },
         onnametap: (){
           Get.to(() => MatchedPersonProfileScreen(id: widget.id.toString()));
         }

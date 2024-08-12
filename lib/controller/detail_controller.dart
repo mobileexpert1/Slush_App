@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:agora_uikit/agora_uikit.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -319,8 +320,7 @@ class detailedController extends ChangeNotifier{
     galleryFile = file;
     LocaleHandler.introVideo=galleryFile;
    if(_controller.value.isInitialized){
-     if(Platform.isAndroid){
-     _controller.play();}
+     if(Platform.isAndroid){_controller.play();}
      // _controller.setPlaybackSpeed(0.8);
    }
     notifyListeners();

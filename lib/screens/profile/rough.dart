@@ -57,10 +57,10 @@ class _CustomCircularPercentIndicatorState
 
   _listentoPurchase(List<PurchaseDetails> purchaseetailList){
     purchaseetailList.forEach((PurchaseDetails purchaseDetails)async {
-      if(purchaseDetails.status == PurchaseStatus.pending){showToastMsg("pending");}
+      if(purchaseDetails.status == PurchaseStatus.pending){showToastMsg("Pending");}
       else {
-        if(purchaseDetails.status == PurchaseStatus.error){showToastMsg("error");}
-        else if(purchaseDetails.status == PurchaseStatus.purchased){showToastMsg("purchase");}
+        if(purchaseDetails.status == PurchaseStatus.error){showToastMsg("Error");}
+        else if(purchaseDetails.status == PurchaseStatus.purchased){showToastMsg("Purchase");}
       }
     });
   }

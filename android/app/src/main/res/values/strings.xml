@@ -2,7 +2,10 @@
 <resources>
 <!--    <string name="facebook_client_token">990a5de938d459a5349ddc7f929184bc</string>&ndash;&gt;-->
     <string name="app_name">com.slushdating.slush</string>
-    <string name="facebook_app_id">903413681635305</string>
-    <string name="fb_login_protocol_scheme">fb903413681635305</string>
-    <string name="facebook_client_token">990a5de938d459a5349ddc7f929184bc</string>
+<!--    <string name="facebook_app_id">903413681635305</string>-->
+    <string name="facebook_app_id">653216759403293</string>
+<!--    <string name="fb_login_protocol_scheme">fb903413681635305</string>-->
+    <string name="fb_login_protocol_scheme">fb653216759403293</string>
+<!--    <string name="facebook_client_token">990a5de938d459a5349ddc7f929184bc</string>-->
+    <string name="facebook_client_token">3344518df1ba661887f1d91fc516cdb3</string>
 </resources>

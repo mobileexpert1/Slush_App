@@ -18,6 +18,7 @@ import 'package:slush/screens/profile/basic_info/profile_video_view.dart';
 import 'package:slush/screens/profile/profile_img_view.dart';
 import 'package:slush/screens/profile/profile_video_screen.dart';
 import 'package:slush/screens/profile/spark_purchase.dart';
+import 'package:slush/screens/video_call/congo_match_screen.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
 import 'package:slush/widgets/distance_calculate.dart';
 import 'package:slush/widgets/text_widget.dart';
@@ -135,9 +136,13 @@ class _UnMatchedPersonProfileScreenState extends State<UnMatchedPersonProfileScr
         body: jsonEncode({"action":action})
     );
     print(response.statusCode);
+    var data=jsonDecode(response.body);
     if(response.statusCode==201){
       Get.back(result: true);
       Provider.of<profileController>(context,listen: false).getTotalSparks();
+      if(data["isMatch"]&&action!="DISLIKED"){
+        Get.to(()=> const CongratMatchScreen(likedscreen: true));
+      }
     }
     else if(response.statusCode==401){}
     else{}

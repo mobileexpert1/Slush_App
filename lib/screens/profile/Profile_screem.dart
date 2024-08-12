@@ -317,7 +317,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 children: [
                                   SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
                                   buildText("Slush", 20, FontWeight.w600, color.txtWhite ),
-                                  buildText("PLatinum", 20, FontWeight.w600,color.txtWhite ),
+                                  buildText("Platinum", 20, FontWeight.w600,color.txtWhite ),
                                   const SizedBox(height: 10,),
                                   buildText("£29.99", 20, FontWeight.w600, color.txtWhite ),
                                 ],

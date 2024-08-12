@@ -12,6 +12,7 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="com.android.vending.BILLING"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <application
         android:label="slush"
         android:requestLegacyExternalStorage="true"
@@ -70,6 +71,9 @@
         <meta-data
                 android:name="com.google.android.gms.ads.APPLICATION_ID"
                 android:value="ca-app-pub-6208492962560091~3529963424"/>
+        <meta-data
+                android:name="com.google.firebase.messaging.default_notification_channel_id"
+                android:value="high_importance_channel" />
     </application>
 <!--    <queries>-->
 <!--        <package android:name="com.facebook.katana" />-->

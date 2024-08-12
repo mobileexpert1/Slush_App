@@ -40,18 +40,12 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   void initState() {
     loginFocus.addListener(() {
-      if (loginFocus.hasFocus) {
-        enableField = "Enter email";
-      } else {
-        enableField = "";
-      }
+      if (loginFocus.hasFocus) {enableField = "Enter email";}
+      else {enableField = "";}
     });
     passwordFocus.addListener(() {
-      if (passwordFocus.hasFocus) {
-        enableField = "Enter password";
-      } else {
-        enableField = "";
-      }
+      if (passwordFocus.hasFocus) {enableField = "Enter password";}
+      else {enableField = "";}
     });
     super.initState();
   }
