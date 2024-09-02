@@ -12,6 +12,7 @@ import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
+import 'package:slush/constants/loader.dart';
 import 'package:slush/constants/prefs.dart';
 import 'package:slush/controller/event_controller.dart';
 import 'package:slush/screens/events/bottomNavigation.dart';
@@ -65,10 +66,9 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
       "Authorization": "Bearer ${LocaleHandler.accessToken}"
     });
     var i = jsonDecode(response.body);
+    setState(() {LoaderOverlay.hide();});
     if (response.statusCode == 200) {
-      setState(() {
-        data = i["data"];
-      });
+      setState(() {data = i["data"];});
       int timestamp = data["startsAt"];
       int timestamp2 = data["endsAt"];
       DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
@@ -110,11 +110,8 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return isParticipant
-        ? EventYourTicketScreen(eventId: widget.eventId)
-        : inwaitlist
-            ? EvenetSuscribeScreen(data: data)
-            : Scaffold(
+    return isParticipant ? EventYourTicketScreen(eventId: widget.eventId)
+        : inwaitlist ? EvenetSuscribeScreen(data: data) : Scaffold(
                 // backgroundColor: color.backGroundClr,
                 body: Stack(
                   children: [
@@ -311,7 +308,9 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
                         child: ImageFiltered(
                           imageFilter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
                           // child: Image.asset(AssetsPics.eventProfile, fit: BoxFit.cover),
-                          child: CachedNetworkImage(imageUrl: data["participants"][index]["user"]["profilePictures"][0]["key"], fit: BoxFit.cover),
+                          child:data["participants"][index]["user"]["profilePictures"].length==0?
+                          Image.asset(AssetsPics.demouser,height: 35):
+                          CachedNetworkImage(imageUrl: data["participants"][index]["user"]["profilePictures"][0]["key"], fit: BoxFit.cover),
                         )));
               }),
     );
@@ -427,6 +426,7 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
   }
 
   Future bookEvent() async {
+    setState(() {LoaderOverlay.show(context);});
     Map<String, dynamic> formdata = {
       "eventId": widget.eventId,
       "password": cntl.text.trim()
@@ -443,20 +443,18 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
     var dataa = jsonDecode(response.body);
     if (response.statusCode == 201) {
       getEventDetail();
-      customDialogBoxWithtwobutton(
-          context, "You’re in!", "Your event has been booked successfully.",
+      customDialogBoxWithtwobutton(context, "You’re in!", "Your event has been booked successfully.",
           img: AssetsPics.bookconfirmpng,
           btnTxt1: "Go to home",onTap1: (){Get.offAll(()=>BottomNavigationScreen());},
-          btnTxt2: "View ticket", onTap2: () {
-        Get.back();
-        Get.to(() => EventViewTicketScreen(data: data));
-      }, isPng: true);
+          btnTxt2: "View ticket", onTap2: () {Get.back();
+          Get.to(() => EventViewTicketScreen(data: data));}, isPng: true);
     } else if (dataa["message"] == "Unauthorized") {
+      setState(() {LoaderOverlay.hide();});
       showToastMsgTokenExpired();
     } else {
+      getEventDetail();
       // customWarningBox(context, dataa["error"], dataa["message"],
-      customWarningBox(context, "Event not booked!", dataa["message"],
-          img: AssetsPics.freeEventbookpng, isPng: true);
+      customWarningBox(context, "Event not booked!", dataa["message"], img: AssetsPics.freeEventbookpng, isPng: true);
     }
   }
 }

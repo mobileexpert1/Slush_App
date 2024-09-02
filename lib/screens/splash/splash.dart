@@ -33,28 +33,28 @@ class _SplashScreenState extends State<SplashScreen> {
     callFunction();
     _register();
     firebaseNotificationHandling();
-    auth.isDeviceSupported().then((bool isSupported) => setState(() => _supportState = isSupported ?
-    _SupportState.supported : _SupportState.unsupported));
+    // auth.isDeviceSupported().then((bool isSupported) => setState(() => _supportState = isSupported ? _SupportState.supported : _SupportState.unsupported));
+    auth.isDeviceSupported().then((bool isSupported) => _supportState = isSupported ? _SupportState.supported : _SupportState.unsupported);
     super.initState();
   }
 
+// calling biometrics
   void openBio() {
-    if (_supportState == _SupportState.supported) { //_getAvailableBiometrics();
-      Provider.of<SplashController>(context,listen: false).getAvailableBiometrics();
+    if (_supportState == _SupportState.supported) {
+      //_getAvailableBiometrics();
+      Provider.of<SplashController>(context, listen: false).getAvailableBiometrics();
     }
   }
 
+  // genearte FCM
   _register() {
-    if(LocaleHandler.fcmToken == ""){
+    if (LocaleHandler.fcmToken == "") {
       FirebaseMessaging.instance.getToken().then((value) async {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         prefs.setString("fcmToken", value!);
-        if(mounted){
-          setState(() {
-            LocaleHandler.fcmToken = prefs.getString("fcmToken")!;
-          });
-        }
-        print("fcmToken===========>>>   ${LocaleHandler.fcmToken}");});
+        if (mounted) {LocaleHandler.fcmToken = prefs.getString("fcmToken")!;}
+        print("fcmToken===========>>>   ${LocaleHandler.fcmToken}");
+      });
     }
   }
 
@@ -81,7 +81,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void callFunction() async {
     String alreadyIn = "";
-    LocaleHandler.bioAuth2=await Preferences.getValue("BioAuth")??"";
+    LocaleHandler.bioAuth2 = await Preferences.getValue("BioAuth") ?? "";
     alreadyIn = await Preferences.getValue("tutorialScreen") ?? "";
     LocaleHandler.accessToken = await Preferences.getValue("token") ?? "";
     LocaleHandler.refreshToken = await Preferences.getrefreshToken() ?? "";
@@ -95,33 +95,33 @@ class _SplashScreenState extends State<SplashScreen> {
           if (LocaleHandler.emailVerified == "true") {
             if (LocaleHandler.nextAction == "none") {
               Provider.of<SplashController>(context, listen: false).getProfileDetails(context, LocaleHandler.userId);
-              Provider.of<eventController>(context, listen: false).getmeEvent(context,"me");
-              Provider.of<profileController>(context,listen: false).getTotalSparks();
-              Get.offAll(() => BottomNavigationScreen());}
-            else {Get.offAll(() => const SliderScreen());}}
-          else {Get.offAll(() => const SliderScreen());}}
-        else {Get.offAll(() => const SliderScreen());}
-      }
-      else {Get.offAll(() => const IntroScreen());}
-      if(LocaleHandler.bioAuth2=="true"){ openBio();}
+              Provider.of<eventController>(context, listen: false).getmeEvent(context, "me");
+              Provider.of<profileController>(context, listen: false).getTotalSparks();
+              Get.offAll(() => BottomNavigationScreen());
+            } else {
+              Get.offAll(() => const SliderScreen());}
+          } else {
+            Get.offAll(() => const SliderScreen());}
+        } else {
+          Get.offAll(() => const SliderScreen());}
+      } else {
+        Get.offAll(() => const IntroScreen());}
+      if (LocaleHandler.bioAuth2 == "true") {openBio();}
     });
   }
 
-
-
-  void firebaseNotificationHandling(){
-
+  void firebaseNotificationHandling() {
     Permission.notification.request();
     permission();
     _register();
 
-
     LocalNotificationService.initialize(context);
-    FirebaseMessaging.instance.getInitialMessage().then((message) {if (message != null) {
-
-      // final routeFromMessage = message.data["route"];
-      // Navigator.of(context).pushNamed(routeFromMessage);
-    }});
+    FirebaseMessaging.instance.getInitialMessage().then((message) {
+      if (message != null) {
+        // final routeFromMessage = message.data["route"];
+        // Navigator.of(context).pushNamed(routeFromMessage);
+      }
+    });
     //forground
 
     FirebaseMessaging.onMessage.listen((message) {
@@ -136,13 +136,9 @@ class _SplashScreenState extends State<SplashScreen> {
       sound: true,
     );
     //Background
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {
-
-
-
-
-    });
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {});
   }
+
   Future<void> backGroundHandler(RemoteMessage message) async {
     LocalNotificationService.display(message);
   }
@@ -159,7 +155,8 @@ class _SplashScreenState extends State<SplashScreen> {
           alignment: Alignment.center,
           children: [
             Image.asset(AssetsPics.splash, fit: BoxFit.fill),
-            Center(child: Padding(
+            Center(
+                child: Padding(
               padding: const EdgeInsets.only(bottom: 50),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,

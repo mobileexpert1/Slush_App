@@ -90,6 +90,7 @@ class _DidnotFindAnyoneScreenState extends State<DidnotFindAnyoneScreen> {
                     });
                     if(LocaleHandler.dateno==LocaleHandler.totalDate){
                       LocaleHandler.dateno=0;
+                      LocaleHandler.totalDate = 1;
                       showToastMsg("Event is over");
                       Get.offAll(()=>BottomNavigationScreen());
                     Provider.of<TimerProvider>(context,listen: false).stopTimerr();}

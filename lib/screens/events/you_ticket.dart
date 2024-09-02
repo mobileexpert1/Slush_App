@@ -408,10 +408,11 @@ class _EventYourTicketScreenState extends State<EventYourTicketScreen> {
                           imageFilter:
                               ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
                           // child: Image.asset(AssetsPics.eventProfile, fit: BoxFit.cover),
-                          child: CachedNetworkImage(
-                              imageUrl: data["participants"][index]["user"]
-                                  ["profilePictures"][0]["key"],
-                              fit: BoxFit.cover),
+                          child:data["participants"][index]["user"]["profilePictures"].length==0?Image.asset(AssetsPics.demouser,height: 35): CachedNetworkImage(
+                              imageUrl: data["participants"][index]["user"]["profilePictures"][0]["key"],
+                              fit: BoxFit.cover,
+                            errorWidget: (context, url, error) => Image.asset(AssetsPics.demouser,height: 35),
+                          ),
                         )));
               }),
     );

@@ -46,7 +46,7 @@ class _VideoScreenState extends State<VideoScreen> {
        controller!.setVolume(0.0);
        controller!.setLooping(true);
        _isPlaying=true;
-       setState((){});
+      if(this.mounted){ setState((){});}
      });
    });
   }
@@ -96,8 +96,9 @@ class _VideoScreenState extends State<VideoScreen> {
   @override
   void dispose() {
     // clearCache();
+    if(controller!=null){
     controller!.pause();
-    controller!.dispose();
+    controller!.dispose();}
     // _cacheController.pause();
     // _cacheController.dispose();
     super.dispose();

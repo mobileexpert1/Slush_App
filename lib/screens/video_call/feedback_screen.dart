@@ -52,12 +52,14 @@ class _FeedbackVideoChatScreenState extends State<FeedbackVideoChatScreen> {
   }
   void startTimer() {
     FireStoreService().deleteCallStatusToPicked();
+    Provider.of<TimerProvider>(context, listen: false).vstopTimerr();
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_secondsLeft > 0) {
         setState(() {_secondsLeft--;});
       } else {
         if(LocaleHandler.dateno==LocaleHandler.totalDate){
           LocaleHandler.dateno=0;
+          LocaleHandler.totalDate = 1;
           showToastMsg("Event is over");
           Get.offAll(()=>BottomNavigationScreen());
           Provider.of<TimerProvider>(context,listen: false).stopTimerr();}
@@ -96,6 +98,7 @@ class _FeedbackVideoChatScreenState extends State<FeedbackVideoChatScreen> {
       showToastMsg("$action Successfully");
       if(LocaleHandler.dateno==LocaleHandler.totalDate){
         LocaleHandler.dateno=0;
+        LocaleHandler.totalDate = 1;
         showToastMsg("Event is over");
         Get.offAll(()=>BottomNavigationScreen());
       Provider.of<TimerProvider>(context,listen: false).stopTimerr();}
@@ -112,19 +115,15 @@ class _FeedbackVideoChatScreenState extends State<FeedbackVideoChatScreen> {
     var response = await http.post(uri,
         headers: {'Content-Type': 'application/json', "Authorization": "Bearer ${LocaleHandler.accessToken}"},
         body: jsonEncode({"status": action, "user": userId}));
-    if(LocaleHandler.dateno==LocaleHandler.totalDate){
-      LocaleHandler.dateno=0;
-      showToastMsg("Event is over");
-      Get.offAll(()=>BottomNavigationScreen());
-      Provider.of<TimerProvider>(context,listen: false).stopTimerr();}
-    else{Get.offAll(()=>WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));}
     if (response.statusCode == 201) {
       var data=jsonDecode(response.body);
-      if(data["isMatch"]&&action!="DISLIKED") {Get.off(()=> CongratMatchScreen(likedscreen: false));}
+      _timer.cancel();
+      if(data["isMatch"]&&action!="DISLIKED") {
+        Get.to(()=> const CongratMatchScreen(likedscreen: false));}
       else{
-        print(";-;-;-;-${LocaleHandler.dateno==LocaleHandler.totalDate}");
         if(LocaleHandler.dateno==LocaleHandler.totalDate){
           LocaleHandler.dateno=0;
+          LocaleHandler.totalDate = 1;
           showToastMsg("Event is over");
           Get.offAll(()=>BottomNavigationScreen());
         Provider.of<TimerProvider>(context,listen: false).stopTimerr();}
@@ -241,7 +240,7 @@ class _FeedbackVideoChatScreenState extends State<FeedbackVideoChatScreen> {
                           // Get.offAll(()=>WaitingCompleted(data: ,min: 0));
                           // Get.back();
                           // Get.back();
-                          actionForHItLike("DISLIKED",LocaleHandler.eventParticipantData["participantId"]);
+                          actionForHItLike("DISLIKED",LocaleHandler.eventParticipantData["user_id"]);
                           // _timer.cancel();
                           // customBuilderSheet(context, 'Is everything OK?',"Submit", heading: LocaleText.feedbackguide1,onTap: (){});
                         },
@@ -249,8 +248,7 @@ class _FeedbackVideoChatScreenState extends State<FeedbackVideoChatScreen> {
                     const SizedBox(width: 15),
                     GestureDetector(onTap: (){
                       setState(() {liked=true;});
-                      actionForHItLike("LIKED",LocaleHandler.eventParticipantData["participantId"]);
-                      _timer.cancel();
+                      actionForHItLike("LIKED",LocaleHandler.eventParticipantData["user_id"]);
                       }, child: buildColumn("Like",liked?AssetsPics.active:AssetsPics.inactive,11.h)),
                       //AssetsPics.heart:AssetsPics.blueheart
                       const SizedBox(width: 15),
@@ -271,7 +269,7 @@ class _FeedbackVideoChatScreenState extends State<FeedbackVideoChatScreen> {
                                 }else{
                                   setState(() {sparked=true;});
                                   // Provider.of<profileController>(context,listen: false).actionForHItLike("SPARK LIKE", LocaleHandler.eventParticipantData["participantId"].toString());
-                                  actionForHItLike("SPARK LIKE", LocaleHandler.eventParticipantData["participantId"]);
+                                  actionForHItLike("SPARK LIKE", LocaleHandler.eventParticipantData["user_id"]);
                                 }});},child: buildColumn("Spark",sparked?AssetsPics.superlikewhite:AssetsPics.superlike,8.h));
                         }
                       ),
@@ -319,9 +317,8 @@ class _FeedbackVideoChatScreenState extends State<FeedbackVideoChatScreen> {
                   buildText(txt, 15, FontWeight.w600, color.txtBlack),
                   Container(alignment: Alignment.center,
                     height: hi, width: hi,
-                    decoration:  const BoxDecoration(color:
-                      // txt=="Like"? color.txtBlue:
-                      Colors.white,
+                    decoration:   BoxDecoration(color:
+                    img==AssetsPics.superlikewhite?color.sparkPurple: Colors.white,
                       shape: BoxShape.circle,
                         boxShadow:[
                           BoxShadow(

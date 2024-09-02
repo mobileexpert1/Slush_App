@@ -258,7 +258,6 @@ class editProfileController extends ChangeNotifier{
   void saveValue(String gender,String hight,String job,String education,String sexualO,String ideal,String cook,String smoke,List enth){
     LocaleHandler.gender=gender;
     LocaleHandler.height=hight;
-    print("hight==========$hight");
     LocaleHandler.jobtitle=job;
     LocaleHandler.education=education;
     LocaleHandler.sexualOreintation=sexualO;

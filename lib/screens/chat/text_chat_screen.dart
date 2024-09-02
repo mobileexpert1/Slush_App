@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:camera/camera.dart';
 import 'package:emoji_picker_flutter/emoji_picker_flutter.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -10,12 +11,15 @@ import 'package:http/http.dart'as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/loader.dart';
+import 'package:slush/controller/camera_screen.dart';
+import 'package:slush/controller/spark_Liked_controler.dart';
 import 'package:slush/screens/chat/socket_service.dart';
 import 'package:slush/screens/matches/matched_person_profile.dart';
 import 'package:slush/widgets/app_bar.dart';
@@ -23,7 +27,6 @@ import 'package:slush/widgets/bottom_sheet.dart';
 import 'package:slush/widgets/text_widget.dart';
 import 'package:slush/widgets/toaster.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
-import 'package:web_socket_channel/web_socket_channel.dart';
 
 
 class TextChatScreen extends StatefulWidget {
@@ -88,7 +91,8 @@ class _TextChatScreenState extends State<TextChatScreen> {
         {var ii={
             "content":item["content"],
             "sender":item["sender"]["userId"].toString(),
-            'createdAt': item["createdAt"].toString()};messages.add(ii);
+            'createdAt': item["createdAt"].toString()};
+        messages.add(ii);
         }
       totalpages=i["meta"]["totalPages"];
       totalItems=i["meta"]["totalItems"];
@@ -96,7 +100,6 @@ class _TextChatScreenState extends State<TextChatScreen> {
     }
     else if(response.statusCode==401){showToastMsgTokenExpired();}
     else{}}
-
 
   Future loadmore()async{
     if (_page<totalpages&& _isLoadMoreRunning == false && currentpage<totalpages&& _scrollController.position.extentAfter < 300) {
@@ -123,7 +126,6 @@ class _TextChatScreenState extends State<TextChatScreen> {
         });
       }}
   }
-
 
   void connectToSocket() {
     socket = IO.io(
@@ -164,23 +166,17 @@ class _TextChatScreenState extends State<TextChatScreen> {
   void sendMessage() {
     String message = messageController.text.trim();
     if (message.isNotEmpty) {
-      socket!.emit('private message', {
-       'content': message, 'from': LocaleHandler.userId, 'to': widget.id.toString(),
-      });
+      socket!.emit('private message', {'content': message, 'from': LocaleHandler.userId, 'to': widget.id.toString()});
       messageController.clear();
       _scrollToEnd();
     }
   }
 
   void _updateData(dynamic data) {
-      var ii={
-        "content":data["content"],
+      var ii={"content":data["content"],
         "sender":data["sender"]["userId"].toString(),
-        "createdAt": data["createdAt"].toString()
-      };
-      setState(() {
-        messages.insert(0, ii);
-      });
+        "createdAt": data["createdAt"].toString()};
+      setState(() {messages.insert(0, ii);});
       print(messages);
   }
 
@@ -193,7 +189,9 @@ class _TextChatScreenState extends State<TextChatScreen> {
   }
 
   String? imageBase64;
+
   File? _image;
+
   Future imgFromGallery(ImageSource src) async {
     try{
       var image = await ImagePicker().pickImage(source: src);
@@ -203,16 +201,15 @@ class _TextChatScreenState extends State<TextChatScreen> {
           var ImageBytes = File(image.path).readAsBytesSync();
           String imageB64 = base64Encode(ImageBytes);
           imageBase64 = imageB64;
+          Provider.of<CamController>(context,listen: false).saveImge(_image!);
           // sendImage(imageBase64!);
-          sendImagee(image);
+          // sendImagee(image);
           // sendImage(ImageBytes, image.name);
           // PictureId == "-1" ? uploadMultipleImage(_image!) : updateAvatar(_image!);
           // Get.back();
           // selcetedIndex = "";
         });}}
-    catch(error) {
-      print("error: $error");
-    }
+    catch(error) {print("error: $error");}
   }
 
   Future sendImagee(XFile fileimage)async{
@@ -230,13 +227,14 @@ class _TextChatScreenState extends State<TextChatScreen> {
       request.files.add(multipartFile);
     }
     var response = await request.send();
+    final respStr = await response.stream.bytesToString();
+    print(respStr);
     if(response.statusCode==201){
       print("response.statusCode====${response.statusCode}");
     }
     print("response.statusCode=======${response.statusCode}");
 
   }
-
 
   void sendImage(String base64Image) async {
     var message = {
@@ -458,7 +456,6 @@ class _TextChatScreenState extends State<TextChatScreen> {
                   ),
                 ],
               ),
-
               Align(
                 alignment: Alignment.bottomLeft,
                 child: Container(
@@ -489,41 +486,54 @@ class _TextChatScreenState extends State<TextChatScreen> {
                               ),
                             ),
                             const SizedBox(width: 15),
-                            Expanded(
-                              child: Padding(
-                                padding: const EdgeInsets.only(right: 20),
+                            Consumer<CamController>(builder: (ctx,val,child){
+                              return  val.image!=null?Expanded(
                                 child: Container(
-                                  height: 56,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      border: Border.all(color: color.example7)
-                                  ),
-                                  child:  TextFormField(
-                                    controller: messageController,
-                                    cursorColor: color.curderGreen,
-                                    onTap: (){
-                                   setState(() {
-                                     canPop=true;
-                                     atachement=false;
-                                     isEmojiPickerVisible=false;
-                                     viewInsets = MediaQuery.of(context).viewInsets.bottom;
-                                   });
-                                    },
-                                    focusNode: chatTextField,
-                                    decoration: const InputDecoration(
-                                        contentPadding: EdgeInsets.only(left: 15,top: 3),
-                                        hintText: "Write a message",
-                                        hintStyle: TextStyle(color: color.example9,fontSize: 14,fontWeight: FontWeight.w400,),
-                                        border: InputBorder.none
+                                    alignment: Alignment.topLeft,
+                                    height: 70,width: 70,
+                                    child: Image.file(val.image!)),
+                              ): Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.only(right: 20),
+                                  child: Container(
+                                    height: 56,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        border: Border.all(color: color.example7)
+                                    ),
+                                    child:  TextFormField(
+                                      controller: messageController,
+                                      cursorColor: color.curderGreen,
+                                      onTap: (){
+                                        setState(() {
+                                          canPop=true;
+                                          atachement=false;
+                                          isEmojiPickerVisible=false;
+                                          viewInsets = MediaQuery.of(context).viewInsets.bottom;
+                                        });
+                                      },
+                                      focusNode: chatTextField,
+                                      decoration: const InputDecoration(
+                                          contentPadding: EdgeInsets.only(left: 15,top: 3),
+                                          hintText: "Write a message",
+                                          hintStyle: TextStyle(color: color.example9,fontSize: 14,fontWeight: FontWeight.w400,),
+                                          border: InputBorder.none
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            ),
+                              );
+                            }),
+
                             GestureDetector(
                               onTap: (){
-                                sendMessage();
-                                // messageController.clear();
+                                if(Provider.of<CamController>(context,listen: false).image==null){sendMessage();}
+                                else {
+                                  sendImage(Provider.of<CamController>(context,listen: false).imageBase64!);
+                                  Provider.of<CamController>(context,listen: false).clearimg();
+                                  // sendImagee(image);
+                                  // sendImage(ImageBytes, image.name);
+                                }
                               },
                               child: Container(
                                 height: 56,
@@ -544,7 +554,10 @@ class _TextChatScreenState extends State<TextChatScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           GestureDetector(onTap: (){imgFromGallery(ImageSource.gallery);}, child: buildColumn(AssetsPics.gallery,"Gallery")),
-                          GestureDetector(onTap: (){imgFromGallery(ImageSource.camera);}, child: buildColumn(AssetsPics.camera,"Camera")),
+                          GestureDetector(onTap: (){
+                            if(Platform.isIOS){imgFromGallery(ImageSource.camera);}
+                            else {Provider.of<CamController>(context,listen: false).pickImageFromCamera(CameraLensDirection.front);}
+                            }, child: buildColumn(AssetsPics.camera,"Camera")),
                           GestureDetector(onTap: _searchAndPickGif,child: buildColumn(AssetsPics.giftext,"GIFs")),
                           GestureDetector(
                               onTap: (){

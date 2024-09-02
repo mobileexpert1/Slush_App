@@ -74,8 +74,7 @@ class _InterestListScreenState extends State<InterestListScreen> {
     setState(() {LoaderOverlay.hide();});
     if(response.statusCode==200){
       Provider.of<profileController>(context,listen: false).profileData(context).then((value)  {
-        Get.back();
-        Get.back();
+        Get.back(result: true);
       });
       // Get.back();
     }

@@ -15,7 +15,6 @@ class FireStoreService {
         "callstatus": "wait"
       });
     } catch (e) {
-      // Handle any errors here
       print("Error adding collection: $e");
     }
   }
@@ -30,7 +29,6 @@ class FireStoreService {
         "callstatus": status
       });
     } catch (e) {
-      // Handle any errors here
       print("Error updating call status: $e");
     }
   }
@@ -55,4 +53,5 @@ class FireStoreService {
       print("Error updating call status: $e");
     }
   }
+
 }

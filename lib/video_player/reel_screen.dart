@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:provider/provider.dart';
@@ -21,20 +20,18 @@ class ReelViewScreen extends StatefulWidget {
 }
 
 class _ReelViewScreenState extends State<ReelViewScreen> {
-  var gender;
+
   @override
   void initState() {
-    if(LocaleHandler.gender=="male"){gender="female";}
-    else if(LocaleHandler.gender=="female"){gender="male";}
-    else{gender="";}
     callFunction();
     super.initState();
   }
 
   void callFunction()async{
-    await Future.delayed(const Duration(seconds: 2));
+    await Future.delayed(const Duration(milliseconds: 100));
     Provider.of<reelController>(context,listen: false).getVidero(context,1,
         LocaleHandler.startage, LocaleHandler.endage,LocaleHandler.distancevalue,
+        // LocaleHandler.latitude,LocaleHandler.longitude,LocaleHandler.filtergender==""?gender:LocaleHandler.filtergender);
         LocaleHandler.latitude,LocaleHandler.longitude,LocaleHandler.filtergender);
   }
 
@@ -44,21 +41,20 @@ class _ReelViewScreenState extends State<ReelViewScreen> {
     return Stack(
       children: [
         SizedBox(height: size.height, width: size.width,
-          child: Image.asset(AssetsPics.background, fit: BoxFit.cover),
-        ),
+          child: Image.asset(AssetsPics.background, fit: BoxFit.cover)),
         Consumer<reelController>(
-            builder: (context,value,child){
-              return
-              value.data==null?const Center(child: CircularProgressIndicator(color: color.txtBlue)):
-              value.totallen==0?buildBuildText():
+            builder: (context,value,child){ return
+              value.data == null ? const Center(child: CircularProgressIndicator(color: color.txtBlue)):
+              // value.totallen==-2?buildBuildText():
               FeedScreen(index: 0, reels: ReelService().getReels(value.reels), data: value.data);
             }),
         Consumer<reelTutorialController>(
-            builder: (context,value,child){
-              return Container(
-          child: LocaleHandler.feedTutorials || LocaleHandler.scrollLimitreached ?
-          feedTutorials(context):const SizedBox(),
-        );}),
+            builder: (context,value,child){return
+              mounted?
+              Container(
+              child: LocaleHandler.feedTutorials || Provider.of<reelController>(context).stopReelScroll ?
+              feedTutorials(context):const SizedBox(),
+        ):SizedBox();}),
       ],
     );
   }

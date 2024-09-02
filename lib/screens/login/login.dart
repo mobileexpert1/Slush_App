@@ -114,12 +114,11 @@ class _LoginScreenState extends State<LoginScreen> {
                       ),
                       buildContainer("Enter email", loginController,
                         AutovalidateMode.onUserInteraction, loginFocus,
-                        validation: (value) {
-                          if (value == null || value.isEmpty) {
-                            return '';
-                          } else if (!RegExp(LocaleKeysValidation.email).hasMatch(value)) {return '';}
-                          else {return null;}
-                        },
+                        // validation: (value) {
+                        //   if (value == null || value.isEmpty) {return '';}
+                        //   else if (!RegExp(LocaleKeysValidation.email).hasMatch(value)) {return '';}
+                        //   else {return null;}
+                        // },
                         press: () {
                           // controller.field("Enter email");
                           setState(() {
@@ -152,14 +151,10 @@ class _LoginScreenState extends State<LoginScreen> {
                         AutovalidateMode.onUserInteraction,
                         passwordFocus,
                         obs: password,
-                        validation: (value) {
-                          if (value == null || value.isEmpty) {
-                            return '';
-                          } else if (value.length < 8 || value.length > 12) {
-                            return '';
-                          }
-                          return null;
-                        },
+                        // validation: (value) {
+                        //   if (value == null || value.isEmpty) {return '';}
+                        //   else if (value.length < 8 || value.length > 12) {return '';}
+                        //   return null;},
                         press: () {
                           setState(() {
                             enableField = "Enter password";
@@ -294,7 +289,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Align(
       alignment: Alignment.center,
       child: Container(
-        padding: EdgeInsets.only(left: 20),
+        padding: const EdgeInsets.only(left: 20),
         height: 56,
         // height: MediaQuery.of(context).size.height*0.07+1,
         width: MediaQuery.of(context).size.width,
@@ -318,13 +313,14 @@ class _LoginScreenState extends State<LoginScreen> {
           onChanged: (val) {
             setState(() {
               if (_form.currentState!.validate()) {
-                button = true;
+                if (passwordController.text.length >0 && RegExp(LocaleKeysValidation.email).hasMatch(loginController.text)) {button = true;}
+                else{button = false;}
               } else {
                 button = false;
               }
             });
           },
-          style: TextStyle(fontFamily: FontFamily.hellix, fontSize: 17),
+          style: const TextStyle(fontFamily: FontFamily.hellix, fontSize: 17),
           decoration: InputDecoration(
             errorStyle: const TextStyle(height: 0, fontSize: 12),
             border: InputBorder.none,

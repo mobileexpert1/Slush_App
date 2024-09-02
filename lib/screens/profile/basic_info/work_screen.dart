@@ -14,8 +14,8 @@ class WorkScreen extends StatefulWidget {
 }
 
 class _WorkScreenState extends State<WorkScreen> {
-  TextEditingController jobTitleControler= TextEditingController();
-  TextEditingController companyNameControler= TextEditingController();
+  TextEditingController jobTitleControler= TextEditingController(text: LocaleHandler.jobtitle);
+  TextEditingController companyNameControler= TextEditingController(text: LocaleHandler.companyName);
   FocusNode jobTitleNode=FocusNode();
   FocusNode companyNameNode=FocusNode();
   String enableField="";
@@ -76,7 +76,7 @@ class _WorkScreenState extends State<WorkScreen> {
           child: buildText("Company name", 16, FontWeight.w500,enableField =="Enter company name"? color.txtBlue:color.txtgrey,fontFamily: FontFamily.hellix),
         ),
         buildContainer(
-          "Enter company name", companyNameControler, AutovalidateMode.onUserInteraction, companyNameNode,(val){},
+          "Enter company name", companyNameControler, AutovalidateMode.onUserInteraction, companyNameNode,(val){LocaleHandler.companyName=val;},
           gesture: GestureDetector(
               child: Container(
                   padding: const EdgeInsets.only(top: 5),

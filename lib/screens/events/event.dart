@@ -9,6 +9,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:slush/ad_manager.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
@@ -31,8 +32,6 @@ import 'package:intl/intl.dart';
 import 'package:uuid/uuid.dart';
 import 'package:geocoding/geocoding.dart';
 
-import '../../main.dart';
-
 class EventScreen extends StatefulWidget {
   const EventScreen({Key? key}) : super(key: key);
 
@@ -42,8 +41,6 @@ class EventScreen extends StatefulWidget {
 
 class _EventScreenState extends State<EventScreen> {
   TextEditingController searchController = TextEditingController();
-  // Duration myDuration = const Duration(days: 5);
-  // var secondsss = "00";
   int selectedIndex = 0;
   String selectedIndexItem = "seeall";
   String usergender = "";
@@ -53,8 +50,6 @@ class _EventScreenState extends State<EventScreen> {
 
   TextEditingController locationController = TextEditingController();
   FocusNode locationNode = FocusNode();
-  // String enableField = "";
-  // List state = [];
   List statesList = [];
   String _searchQuery = '';
   var uuid = const Uuid();
@@ -66,7 +61,6 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   void getLocationResults(String input) async {
-    // AIzaSyD2x5SDImQ-4Suz9pHXBEFkTskYnefKkv0
     String kPLACES_API_KEY = "AIzaSyAtb9qudpaPK2l0uoANyRE0zi4Nj4jNoT4";
     String type = '(regions)';
     String baseURL = "https://maps.googleapis.com/maps/api/place/autocomplete/json";
@@ -86,6 +80,7 @@ class _EventScreenState extends State<EventScreen> {
     CircleAvatarItems(4, "Food", AssetsPics.food, AssetsPics.selectfood),
     CircleAvatarItems(5, "Business", AssetsPics.business, AssetsPics.selectbusiness),
   ];
+
   String formattedmon="";
   late ScrollController _controller;
 
@@ -98,6 +93,13 @@ class _EventScreenState extends State<EventScreen> {
     getEvents();
     checkBannerStatus();
     _controller = ScrollController()..addListener(loadmore);
+
+    // Timer.periodic(Duration(seconds: 60), (timer) {
+    //   Provider.of<eventController>(context ,listen: false).setDateFormat(
+    //   Provider.of<eventController>(context, listen: false).timeRemain, context);
+    // });
+
+    // KeepScreenOn.turnOn();
     super.initState();
   }
 
@@ -145,7 +147,7 @@ class _EventScreenState extends State<EventScreen> {
   Future getEvents() async {
     selectedIndex = int.parse(cateId);
     final url = "${ApiList.getEvent}${LocaleHandler.miliseconds}&distance=${LocaleHandler.distancee}&events=popular&latitude=${LocaleHandler.latitude}&longitude=${LocaleHandler.longitude}&category_id=$cateId&page=1&limit=10";
-    printLog(url);
+    print(url);
     var uri = Uri.parse(url);
     var response = await http.get(uri, headers: {
       'Content-Type': 'application/json',
@@ -153,7 +155,7 @@ class _EventScreenState extends State<EventScreen> {
     });
     setState(() {LoaderOverlay.hide();});
     if (response.statusCode == 200) {
-      printLog(response.body);
+      print(response.body);
       setState(() {
         data = jsonDecode(response.body)["data"];
         totalpages = data["meta"]["totalPages"];
@@ -176,7 +178,7 @@ class _EventScreenState extends State<EventScreen> {
       //   }
       // }
       // Provider.of<eventController>(context,listen: false).setdateFormate(myEvent[0]["startsAt"]);
-      if(cateId!="0" && data["meta"]["totalItems"]==0){
+      if(cateId!="0" && data["meta"]["totalItems"]==0) {
         customDialogBox(
             context: context,
             title: "Coming soon",
@@ -186,17 +188,15 @@ class _EventScreenState extends State<EventScreen> {
             secontxt: "",
             isPng: true);
       }
+      Provider.of<eventController>(context, listen: false).getmeEvent(context,"me");
       LoaderOverlay.hide();
     } else if (response.statusCode == 401) {
       // showToastMsgTokenExpired();
     } else {
       Fluttertoast.showToast(msg: 'Something Went Wrong');
-      setState(() {
-        data = "no data";
-      });
+      setState(() {data = "no data";});
     }
   }
-
 
   Future loadmore() async {
     _searchQuery = "";
@@ -224,18 +224,6 @@ class _EventScreenState extends State<EventScreen> {
           currentpage = data["meta"]["currentPage"];
           final List fetchedPosts = data["items"];
           if (fetchedPosts.isNotEmpty) {post.addAll(fetchedPosts);}
-          // for(var i = 0; i < data["items"].length; i++){
-          //   if (!catId.contains(data["items"][i]["categoryId"])) {
-          //     catId.add(data["items"][i]["categoryId"]);
-          //   }
-          // }
-
-          // List<Map<String, dynamic>> j = myEvent;
-          // for (var i = 0; i < data["items"].length; i++) {
-          //   for (var ii = 0; ii < data["items"][i]["participants"].length; ii++) {
-          //     if (data["items"][i]["participants"][ii]["user"]["userId"].toString() == LocaleHandler.userId) {
-          //       j.add(data["items"][i]); }   } }
-          // myEvent = j;
         });
       }
     }
@@ -323,22 +311,19 @@ class _EventScreenState extends State<EventScreen> {
           userData = data["data"];
           LocaleHandler.userId = userData["userId"].toString();
           LocaleHandler.name = userData["firstName"]??userData["email"];
-          LocaleHandler.avatar = userData["avatar"];
+          LocaleHandler.avatar = userData["avatar"]??"";
           age = calculateAge(data["data"]["dateOfBirth"].toString());
-          usergender = userData["gender"];
+          usergender = userData["gender"]??"male";
           location = userData["state"] + ", " + userData["country"];
           LocaleHandler.gender = usergender;
           userSexuality = userData["sexuality"];
-          LocaleHandler.subscriptionPurchase = userData["isSubscriptionPurchased"];
-          // LocaleHandler.isVerified=userData["isVerified"];
-          if (userData["isVerified"] == null) {LocaleHandler.isVerified = false;}
-          else {LocaleHandler.isVerified = userData["isVerified"];}
+          LocaleHandler.subscriptionPurchase=data["data"]["isSubscriptionPurchased"]??"no";
+          LocaleHandler.isVerified=data["data"]["isVerified"]??false;
+          LocaleHandler.isLikedTabUpdate=data["data"]["isLikedTabUpdate"];
         });
       } else if (response.statusCode == 401) {
         showToastMsgTokenExpired();
-        print('Token Expire:::::::::::::');
       } else {
-        print('Failed to Load Data With Status Code ${response.statusCode}');
         throw Exception('Failed to load data');
       }
     } catch (e) {
@@ -357,6 +342,30 @@ class _EventScreenState extends State<EventScreen> {
     return age;
   }
 
+  Future cancelEventBooking()async{
+    Get.back();
+    final url="${ApiList.cancelEvent}${LocaleHandler.eventId.toString()}/cancel";
+    print(url);
+    var uri=Uri.parse(url);
+    var response= await http.post(uri,headers: {'Content-Type': 'application/json',
+      "Authorization": "Bearer ${LocaleHandler.accessToken}"
+    });
+    var i =jsonDecode(response.body);
+    if(response.statusCode==201){
+      print("testtest");
+      setState(() {
+        getEvents();
+        Provider.of<eventController>(context, listen: false).getmeEvent(context,"me");
+        Provider.of<eventController>(context, listen: false).timerCancel();
+        snackBaar(context,AssetsPics.redbanner,false);
+      });
+    }
+    else if(response.statusCode==401){showToastMsgTokenExpired();}
+    else{Fluttertoast.showToast(msg: i["message"]);
+    Get.back();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -367,23 +376,19 @@ class _EventScreenState extends State<EventScreen> {
       strokeWidth: 3,
       triggerMode: RefreshIndicatorTriggerMode.onEdge,
       onRefresh: () async {
-        await Future.delayed(const Duration(seconds: 3));
+        Provider.of<eventController>(context, listen: false).timerCancel();
+        await Future.delayed(const Duration(seconds: 2));
         Provider.of<eventController>(context, listen: false).getmeEvent(context,"me");
-        // setState(() {LoaderOverlay.show(context);});
-        // post.clear();
         getEvents();
       },
       child: Scaffold(
-          // backgroundColor: color.backGroundClr,
           body: Stack(
         children: [
           GestureDetector(
             onTap: () {_searchQuery = "";},
             child: Stack(
               children: [
-                SizedBox(
-                  height: size.height,
-                  width: size.width,
+                SizedBox(height: size.height, width: size.width,
                   child: Image.asset(AssetsPics.background, fit: BoxFit.cover),
                 ),
                 SafeArea(
@@ -418,11 +423,9 @@ class _EventScreenState extends State<EventScreen> {
                                 children: [
                                   Spacer(),
                                   Padding(
-                                    padding:
-                                        EdgeInsets.only(top: 10, bottom: 40),
+                                    padding: EdgeInsets.only(top: 10, bottom: 40),
                                     child: Center(
-                                      child: CircularProgressIndicator(
-                                          color: color.txtBlue),
+                                      child: CircularProgressIndicator(color: color.txtBlue),
                                     ),
                                   ),
                                 ],
@@ -464,18 +467,15 @@ class _EventScreenState extends State<EventScreen> {
                               child: Container(
                                   alignment: Alignment.topLeft,
                                   color: Colors.transparent,
-                                  margin: const EdgeInsets.only(
-                                      left: 10, right: 10, top: 10),
-                                  padding: const EdgeInsets.only(
-                                      left: 8, right: 8, top: 0),
+                                  margin: const EdgeInsets.only(left: 10, right: 10, top: 10),
+                                  padding: const EdgeInsets.only(left: 8, right: 8, top: 0),
                                   // decoration:  BoxDecoration(border: Border(bottom: BorderSide(width: 0.5,color:index==statesList.length-1?color.txtWhite: color.txtBlue))),
                                   child: Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
                                       Container(
-                                          padding:
-                                              const EdgeInsets.only(top: 5),
+                                          padding: const EdgeInsets.only(top: 5),
                                           child: SvgPicture.asset(
                                             AssetsPics.locationIcon,
                                             width: 14,
@@ -492,9 +492,7 @@ class _EventScreenState extends State<EventScreen> {
                             ),
                             index == _placeList.length - 1
                                 ? const SizedBox()
-                                : const Divider(
-                                    thickness: 0.2,
-                                  )
+                                : const Divider(thickness: 0.2)
                           ],
                         );
                       }),
@@ -556,13 +554,8 @@ class _EventScreenState extends State<EventScreen> {
         children: [
           SizedBox(
               width: MediaQuery.of(context).size.width,
-              child: LocaleHandler.unMatchedEvent ||
-                      LocaleHandler.isThereCancelEvent
-                  ? Image.asset(
-                      LocaleHandler.unMatchedEvent
-                          ? AssetsPics.unMatchedbg
-                          : AssetsPics.bookingCanceled,
-                      fit: BoxFit.cover)
+              child: LocaleHandler.unMatchedEvent || LocaleHandler.isThereCancelEvent
+                  ? Image.asset(LocaleHandler.unMatchedEvent ? AssetsPics.unMatchedbg : AssetsPics.bookingCanceled,fit: BoxFit.cover)
                   : Image.asset(AssetsPics.bannerpng, fit: BoxFit.cover)),
           LocaleHandler.subScribtioonOffer
               ? Padding(
@@ -575,17 +568,14 @@ class _EventScreenState extends State<EventScreen> {
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        buildText("Slush Silver Subscription", 18,
-                            FontWeight.w600, color.txtWhite),
+                        buildText("Slush Silver Subscription", 18, FontWeight.w600, color.txtWhite),
                         Row(
                           children: [
-                            buildText("Get 50% off", 15, FontWeight.w600,
-                                color.txtWhite),
+                            buildText("Get 50% off", 15, FontWeight.w600, color.txtWhite),
                             SizedBox(width: LocaleHandler.isBanner ? 1.h : 0),
                             SvgPicture.asset(AssetsPics.verticaldivider),
                             SizedBox(width: LocaleHandler.isBanner ? 1.h : 0),
-                            buildText("Ends : 00:11:33", 15, FontWeight.w600,
-                                color.txtWhite)
+                            buildText("Ends : 00:11:33", 15, FontWeight.w600, color.txtWhite)
                           ],
                         )
                       ],
@@ -596,14 +586,9 @@ class _EventScreenState extends State<EventScreen> {
                   padding: const EdgeInsets.only(
                       top: 30, left: 10, right: 10, bottom: 15),
                   child: buildText2(
-                      LocaleHandler.isThereCancelEvent
-                          ? ""
-                          : LocaleHandler.unMatchedEvent
-                              ? ""
-                              : "Event starting in 15 minutes, Click Hereto join the waiting room!",
-                      20,
-                      FontWeight.w600,
-                      color.txtWhite)),
+                      LocaleHandler.isThereCancelEvent ? ""
+                          : LocaleHandler.unMatchedEvent ? "" : "Event starting in 15 minutes, Click Hereto join the waiting room!",
+                      20, FontWeight.w600, color.txtWhite)),
         ],
       ),
     );
@@ -645,13 +630,6 @@ class _EventScreenState extends State<EventScreen> {
                   return GestureDetector(
                     onTap: () {
                       sendtoEventDetail(val.meEvent,index);
-
-                      // LocaleHandler.eventId=val.meEvent[index]["eventId"];
-                      // setState(() {
-                      //   LocaleHandler.isProtected = val.meEvent[index]["hasPassword"];
-                      //   LocaleHandler.freeEventImage = val.meEvent[index]["coverImage"];
-                      // });
-                      // Get.to(() => EventYourTicketScreen(eventId: val.meEvent[index]["eventId"]));
                     },
                     child: Container(
                       padding: const EdgeInsets.only(left: 8, top: 5, bottom: 5),
@@ -722,8 +700,7 @@ class _EventScreenState extends State<EventScreen> {
           children: [
             SvgPicture.asset(AssetsPics.blueMapPoint),
             const SizedBox(width: 4),
-            buildTextOverFlow(
-                val.meEvent[index]["country"], 13, FontWeight.w500, color.txtgrey2,
+            buildTextOverFlow(val.meEvent[index]["country"], 13, FontWeight.w500, color.txtgrey2,
                 fontFamily: FontFamily.hellix),
           ],
         ),
@@ -731,8 +708,7 @@ class _EventScreenState extends State<EventScreen> {
           children: [
             SvgPicture.asset(AssetsPics.blueClock),
             const SizedBox(width: 4),
-            buildTextOverFlow(time, 13, FontWeight.w500, color.txtgrey2,
-                fontFamily: FontFamily.hellix),
+            buildTextOverFlow(time, 13, FontWeight.w500, color.txtgrey2, fontFamily: FontFamily.hellix),
           ],
         ),
         const SizedBox(height: 4),
@@ -775,12 +751,10 @@ class _EventScreenState extends State<EventScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          buildText(
-              "Next event starts in", 18, FontWeight.w600, color.txtBlack),
+          buildText("Next event starts in", 18, FontWeight.w600, color.txtBlack),
           Container(
             margin: const EdgeInsets.only(top: 8),
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12),
-                color: color.txtWhite),
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: color.txtWhite),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -846,9 +820,7 @@ class _EventScreenState extends State<EventScreen> {
                                crossAxisAlignment: CrossAxisAlignment.center,
                                children: [
                                  buildText(formattedDate, 24, FontWeight.w600, color.txtBlack),
-                                 buildText(formattedmonth, 15, FontWeight.w400,
-                                     color.txtgrey,
-                                     fontFamily: FontFamily.hellix),
+                                 buildText(formattedmonth, 15, FontWeight.w400, color.txtgrey, fontFamily: FontFamily.hellix),
                                ],
                              ),
                            ),
@@ -859,14 +831,19 @@ class _EventScreenState extends State<EventScreen> {
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: [
-                          buildText(vall.before15?"":"Unable to attend", 16, FontWeight.w600, color.txtBlack),
+                          GestureDetector(
+                              onTap: (){
+                                customDialogBoxWithtwobutton(context, "Are you sure you would like to cancel event?", " ",
+                                    img: AssetsPics.cancelticketpng,btnTxt1: "No",btnTxt2: "Yes",
+                                    onTap2: (){
+                                      cancelEventBooking();
+                                    },isPng: true
+                                );
+                              }
+                              ,child: buildText(vall.before15?"":"Unable to attend", 16, FontWeight.w600, color.txtBlack)),
                           GestureDetector(
                             onTap: () {
-                              // LocaleHandler.eventId=vall.meEvent[0]["eventId"];
-                              // setState(() {// startTimer();
-                              // LocaleHandler.isBanner = false;});
-                              // customDialogBox(context: context, title: "Coming soon", heading: "Events specific to this category coming soon", btnTxt: "Ok", img: AssetsPics.comingsoonpng, secontxt: "", isPng: true);
-                                DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(vall.startEventTime * 1000);
+                               DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(vall.startEventTime * 1000);
                                 DateTime timeFormat = DateTime.now();
                                 var timee = DateTime.tryParse(dateTime.toString());
                                 int min = timee!.difference(timeFormat).inSeconds;
@@ -888,17 +865,11 @@ class _EventScreenState extends State<EventScreen> {
                                   gradient:vall.before15? const LinearGradient(
                                     begin: Alignment.bottomCenter,
                                     end: Alignment.topCenter,
-                                    colors: [
-                                      color.gradientLightBlue,
-                                      color.txtBlue
-                                    ],
+                                    colors: [color.gradientLightBlue, color.txtBlue],
                                   ):const LinearGradient(
                                     begin: Alignment.bottomCenter,
                                     end: Alignment.topCenter,
-                                    colors: [
-                                      color.txtgrey2,
-                                      color.txtgrey2
-                                    ],
+                                    colors: [color.txtgrey2, color.txtgrey2],
                                   )
                               ),
                               child: buildText("Join", 18, FontWeight.w600, color.txtWhite),
@@ -959,10 +930,7 @@ class _EventScreenState extends State<EventScreen> {
                 SizedBox(
                     width: MediaQuery.of(context).size.width / 2,
                     child: buildTextOverFlow(
-                        LocaleHandler.name,
-                        20,
-                        FontWeight.w600,
-                        color.txtBlack)),
+                        LocaleHandler.name, 20, FontWeight.w600, color.txtBlack)),
                 SizedBox(
                     width: MediaQuery.of(context).size.width / 2,
                     child: buildTextOverFlow(
@@ -1046,9 +1014,7 @@ class _EventScreenState extends State<EventScreen> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                          buildText(items[index].title, 15, FontWeight.w500,
-                              color.txtgrey2,
-                              fontFamily: FontFamily.hellix)
+                          buildText(items[index].title, 15, FontWeight.w500, color.txtgrey2, fontFamily: FontFamily.hellix)
                         ],
                       ),
                     );
@@ -1084,17 +1050,14 @@ class _EventScreenState extends State<EventScreen> {
                 onTap: () {
                   Get.to(() => MyEventListScreen(myEvent: false,pageNum: _page));
                 },
-                child: buildText(
-                    "See More", 14, FontWeight.w600, color.dropDowngreytxt,
+                child: buildText("See More", 14, FontWeight.w600, color.dropDowngreytxt,
                     fontFamily: FontFamily.hellix),
               ),
             ],
           ),
           const SizedBox(height: 15),
           data == null
-              ? const CircularProgressIndicator(
-                  color: color.txtBlue,
-                )
+              ? const CircularProgressIndicator(color: color.txtBlue)
               : data == "no data"
                   ? Center(child: buildText("no data!", 18, FontWeight.w500, color.txtgrey))
                   : ListView.builder(
@@ -1119,8 +1082,10 @@ class _EventScreenState extends State<EventScreen> {
                         String formattedDate = DateFormat('dd').format(dateTime);
                         formattedmon = DateFormat('MMM').format(dateTime);
                         String formattedTime = DateFormat.jm().format(dateTime);
-                        String maleseats = getTotalMale(index, item) == "0" ? "Full" : "Available";
-                        String femaleseats = getTotalFemale(index, item) == "0" ? "Full" : "Available";
+                        String maleseats = getTotalMale(index, item) == "0" ? "Full" :getTotalMale(index, item) == "-1"?"Not": "Available";
+                        // String maleseats = getTotalMale(index, item) == "0" ? "Full" : "Available";
+                        String femaleseats = getTotalFemale(index, item) == "0" ? "Full" :getTotalFemale(index, item) == "-1"?"Not": "Available";
+                        // String femaleseats = getTotalFemale(index, item) == "0" ? "Full" : "Available";
                         return selectedIndex == 0
                             ? buildContainereventDetails(item, index,
                             context, type, typename, formattedDate, formattedTime, maleseats, femaleseats)
@@ -1143,26 +1108,6 @@ class _EventScreenState extends State<EventScreen> {
       child: GestureDetector(
         onTap: () {
           sendtoEventDetail(item,index);
-
-          // LocaleHandler.eventId=item[index]["eventId"];
-          // setState(() {
-          //   LocaleHandler.isProtected = item[index]["hasPassword"];
-          //   LocaleHandler.freeEventImage = item[index]["coverImage"];
-          // });
-          // bool isParticipant = false;
-          // var dataa = item[index]["participants"];
-          // var i;
-          // for (i = 0; i < dataa.length; i++) {
-          //   if (dataa[i]["user"]["userId"].toString() == LocaleHandler.userId) {
-          //     setState(() {
-          //       isParticipant = true;
-          //     });
-          //     break;
-          //   }
-          // }
-          // if (isParticipant) {
-          //   Get.to(() => EventYourTicketScreen(eventId: item[index]["eventId"]))!.then((value) {setState(() {});});
-          // } else {callNavigation(item, index);}
         },
         child: searchController.text == ""
             ? eventList(context, item, index, type, typename, formattedDate, formattedTime, maleseats, femaleseats)
@@ -1203,8 +1148,7 @@ class _EventScreenState extends State<EventScreen> {
                 // height: 306,
                 child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: SvgPicture.asset(AssetsPics.eventbg,
-                        fit: BoxFit.cover)))),
+                    child: SvgPicture.asset(AssetsPics.eventbg, fit: BoxFit.cover)))),
         Padding(
           padding: const EdgeInsets.all(14),
           child: Column(
@@ -1216,8 +1160,7 @@ class _EventScreenState extends State<EventScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Container(
-                      decoration: BoxDecoration(
-                          color: color.txtWhite,
+                      decoration: BoxDecoration(color: color.txtWhite,
                           borderRadius: BorderRadius.circular(4)),
                       height: 24,
                       padding: const EdgeInsets.symmetric(horizontal: 8),
@@ -1225,8 +1168,7 @@ class _EventScreenState extends State<EventScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          buildText("Age group: ", 12, FontWeight.w500,
-                              color.txtBlack,
+                          buildText("Age group: ", 12, FontWeight.w500, color.txtBlack,
                               fontFamily: FontFamily.hellix),
                           buildText(
                               "${item[index]["minAge"]}-${item[index]["maxAge"]}",
@@ -1265,8 +1207,7 @@ class _EventScreenState extends State<EventScreen> {
                               radius: 15,
                               backgroundColor: color.txtWhite,
                               child: SvgPicture.asset(AssetsPics.lock),
-                            )
-                          : const SizedBox()
+                            ) : const SizedBox()
                     ],
                   )
                 ],
@@ -1275,8 +1216,7 @@ class _EventScreenState extends State<EventScreen> {
               Container(
                 height: 106,
                 width: MediaQuery.of(context).size.width,
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 6.5),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6.5),
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(8),
                     color: const Color.fromRGBO(255, 255, 255, 0.5)),
@@ -1293,8 +1233,7 @@ class _EventScreenState extends State<EventScreen> {
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              buildText2("$formattedDate\n$formattedmon", 14, FontWeight.w600,
-                                  color.txtBlack, fontFamily: FontFamily.hellix),
+                              buildText2("$formattedDate\n$formattedmon", 14, FontWeight.w600, color.txtBlack, fontFamily: FontFamily.hellix),
                               // buildText("Nov", 16, FontWeight.w600, color.txtBlack,fontFamily: FontFamily.hellix),
                             ],),),
                         const SizedBox(width: 9),
@@ -1305,9 +1244,7 @@ class _EventScreenState extends State<EventScreen> {
                               width: MediaQuery.of(context).size.width / 1.9,
                               child: buildTextOverFlow(
                                   item[index]["title"] + " - " + item[index]["type"],
-                                  16,
-                                  FontWeight.w700,
-                                  color.txtWhite),
+                                  16, FontWeight.w700, color.txtWhite),
                             ),
                             Row(
                               children: [
@@ -1316,9 +1253,7 @@ class _EventScreenState extends State<EventScreen> {
                                 SizedBox(
                                     // color: Colors.red,
                                     width: 100,
-                                    child: buildTextOverFlow(
-                                        item[index]["country"],
-                                        15.sp,
+                                    child: buildTextOverFlow(item[index]["country"], 15.sp,
                                         FontWeight.w500,
                                         color.txtWhite,
                                         fontFamily: FontFamily.hellix)),
@@ -1338,27 +1273,21 @@ class _EventScreenState extends State<EventScreen> {
                           onTap: () {
                             setState(() {
                               // savedEvent=!savedEvent;
-                              if (LocaleHandler.items
-                                  .contains(item[index]["eventId"])) {
-                                eventCntrller.saveEvent(ApiList.unsaveEvent,
-                                    item[index]["eventId"].toString());
-                                LocaleHandler.items
-                                    .remove(item[index]["eventId"]);
+                              if (LocaleHandler.items.contains(item[index]["eventId"])) {
+                                eventCntrller.saveEvent(ApiList.unsaveEvent, item[index]["eventId"].toString());
+                                LocaleHandler.items.remove(item[index]["eventId"]);
                               } else {
-                                eventCntrller.saveEvent(ApiList.saveEvent,
-                                    item[index]["eventId"].toString());
+                                eventCntrller.saveEvent(ApiList.saveEvent, item[index]["eventId"].toString());
                                 LocaleHandler.items.add(item[index]["eventId"]);
                               }
-                              Preferences.setValue(
-                                  "EventIds", jsonEncode(LocaleHandler.items));
+                              Preferences.setValue("EventIds", jsonEncode(LocaleHandler.items));
                             });
                           },
                           child: CircleAvatar(
                             radius: 16.3,
                             backgroundColor: color.txtWhite,
                             child: SvgPicture.asset(
-                                LocaleHandler.items
-                                        .contains(item[index]["eventId"])
+                                LocaleHandler.items.contains(item[index]["eventId"])
                                     ? AssetsPics.eventbluesaved
                                     : AssetsPics.greysaved,
                                 height: 16), //eventbluesaved
@@ -1369,7 +1298,7 @@ class _EventScreenState extends State<EventScreen> {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        Container(
+                        maleseats=="Not"?const SizedBox():  Container(
                           padding: const EdgeInsets.symmetric(
                               horizontal: 7, vertical: 3),
                           decoration: BoxDecoration(
@@ -1385,33 +1314,25 @@ class _EventScreenState extends State<EventScreen> {
                             ],
                           ),
                         ),
-                        const SizedBox(width: 8),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                              horizontal: 7, vertical: 3),
-                          decoration: BoxDecoration(
-                              color: color.txtWhite,
+                        SizedBox(width:maleseats=="Not"?0: 8),
+                        femaleseats=="Not"?const SizedBox(): Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+                          decoration: BoxDecoration(color: color.txtWhite,
                               borderRadius: BorderRadius.circular(18)),
                           child: Row(
                             children: [
                               SvgPicture.asset(AssetsPics.woman),
                               const SizedBox(width: 4),
-                              buildText(femaleseats, 13, FontWeight.w500,
-                                  color.txtBlack,
-                                  fontFamily: FontFamily.hellix)
+                              buildText(femaleseats, 13, FontWeight.w500, color.txtBlack, fontFamily: FontFamily.hellix),
                             ],
                           ),
                         ),
                         const Spacer(),
                         Row(
                           children: [
-                            buildText("Available : ", 14, FontWeight.w400,
-                                color.txtWhite,
-                                fontFamily: FontFamily.hellix),
+                            buildText("Available : ", 14, FontWeight.w400, color.txtWhite, fontFamily: FontFamily.hellix),
                             // buildText("2", 14, FontWeight.w600, color.txtWhite,fontFamily: FontFamily.hellix),
-                            buildText(getAvailable(index, item), 14,
-                                FontWeight.w600, color.txtWhite,
-                                fontFamily: FontFamily.hellix),
+                            buildText(getAvailable(index, item), 14, FontWeight.w600, color.txtWhite, fontFamily: FontFamily.hellix),
                           ],
                         ),
                       ],
@@ -1426,25 +1347,16 @@ class _EventScreenState extends State<EventScreen> {
     );
   }
 
-  // void callNavigation(dynamic item ,int i){if(age>=item[i]["minAge"]){
-  //     if(age<=item[i]["maxAge"]){Get.to(()=>EvenetFreeScreen(eventId: item[i]["eventId"]))!.then((value) {setState(() {});});}
-  //     else{Fluttertoast.showToast(msg: "You are too Old for this Event");}
-  //   }else{Fluttertoast.showToast(msg: "You are too Young for this Event");}}
-
   void sendtoEventDetail(var item,int index){
     LocaleHandler.eventId=item[index]["eventId"];
-    setState(() {
       LocaleHandler.isProtected = item[index]["hasPassword"];
       LocaleHandler.freeEventImage = item[index]["coverImage"];
-    });
     bool isParticipant = false;
     var dataa = item[index]["participants"];
     var i;
     for (i = 0; i < dataa.length; i++) {
       if (dataa[i]["user"]["userId"].toString() == LocaleHandler.userId) {
-        setState(() {
-          isParticipant = true;
-        });
+        isParticipant = true;
         break;
       }
     }
@@ -1455,44 +1367,35 @@ class _EventScreenState extends State<EventScreen> {
 
   void callNavigation(dynamic item, int i) {
     // age = 18;
-    if (age >= item[i]["minAge"] && age <= item[i]["maxAge"]) {
-      Get.to(() => EvenetFreeScreen(eventId: item[i]["eventId"]))!.then((value) {
-        setState(() {});
-      });
+    if (age >= item[i]["minAge"] && age <= item[i]["maxAge"] && userData["sexuality"]==item[i]["gender"] ) {
+      Get.to(() => EvenetFreeScreen(eventId: item[i]["eventId"]))!.then((value) {setState(() {});});
     } else {
-      Fluttertoast.showToast(msg: "You do not meet the age requirements for this event");
+      // Fluttertoast.showToast(msg: "You do not meet the requirements for this event");
+      showToastMsg("You do not meet the requirements for this event");
     }
   }
 
   String getAvailable(int i, item) {
-    var total = post[i]["totalParticipants"] - post[i]["participants"].length;
-    print(total);
+    int totalPaticipants = post[i]["type"]=="5 Dates"?10:20;
+    // var total =  post[i]["totalParticipants"] - post[i]["participants"].length;
+    int ii =post[i]["totalParticipants"]<=10?post[i]["totalParticipants"]:10;
+    var total = totalPaticipants - ii;
     return total.toString();
   }
 
   String getTotalMale(int i, item) {
-    var total = post[i]["maleParticipants"];
-    int malecount = 0;
-    for (var ii = 0; ii < post[i]["participants"].length; ii++) {
-      if (post[i]["participants"][ii]["user"]["gender"] == "male") {
-        malecount = malecount + 1;
-      }
-    }
-    total = total - malecount;
-    print(total);
+    var total = post[i]["maleParticipants"] < 5 ? post[i]["maleParticipants"] : 5;
+    String gen = post[i]["gender"];
+    int malecount = post[i]["type"] == "5 Dates" ? 5 : 10;
+    total =gen=="lesbian"?-1: malecount-total;
     return total.toString();
   }
 
   String getTotalFemale(int i, item) {
-    var total = post[i]["femaleParticipants"];
-    int malecount = 0;
-    for (var ii = 0; ii < post[i]["participants"].length; ii++) {
-      if (post[i]["participants"][ii]["user"]["gender"] == "female") {
-        malecount = malecount + 1;
-      }
-    }
-    total = total - malecount;
-    print(total);
+    var total = post[i]["femaleParticipants"]<5?post[i]["femaleParticipants"]:5;
+    String gen = post[i]["gender"];
+    int femalecount = post[i]["type"]=="5 Dates"?5:10;
+    total = gen=="gay"?-1: femalecount-total;
     return total.toString();
   }
 
@@ -1549,6 +1452,7 @@ class _EventScreenState extends State<EventScreen> {
       ),
     );
   }
+
 }
 
 class CircleAvatarItems {

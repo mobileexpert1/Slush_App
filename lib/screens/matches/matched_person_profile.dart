@@ -75,8 +75,9 @@ class _MatchedPersonProfileScreenState
   @override
   void dispose() {
     _controller!.dispose();
-    _controller2!.dispose();
-    _controller3!.dispose();
+    if(_controller2!=null){_controller2!.dispose();}
+    if(_controller3!=null){_controller3!.dispose();}
+    _controller = null;
     super.dispose();
   }
 

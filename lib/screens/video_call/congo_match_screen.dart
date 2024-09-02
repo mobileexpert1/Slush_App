@@ -73,16 +73,14 @@ class _CongratMatchScreenState extends State<CongratMatchScreen> {
                           if (widget.likedscreen) {
                             Get.back();
                           } else {
-                            if (LocaleHandler.dateno ==
-                                LocaleHandler.totalDate) {
+                            if (LocaleHandler.dateno == LocaleHandler.totalDate) {
                               LocaleHandler.dateno = 0;
+                              LocaleHandler.totalDate = 1;
                               showToastMsg("Event is over");
                               Get.offAll(() => BottomNavigationScreen());
-                              Provider.of<TimerProvider>(context, listen: false)
-                                  .stopTimerr();
+                              Provider.of<TimerProvider>(context, listen: false).stopTimerr();
                             } else {
-                              Get.offAll(() => WaitingCompletedFeedBack(
-                                  data: LocaleHandler.eventdataa));
+                              Get.offAll(() => WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));
                             }
                           }
                           // Get.offAll(()=> BottomNavigationScreen());
@@ -103,8 +101,7 @@ class _CongratMatchScreenState extends State<CongratMatchScreen> {
                                     blurRadius: 20.0,
                                     offset: Offset(0.0, 10.0))
                               ]),
-                          child: const Icon(Icons.clear,
-                              color: color.txtBlue, size: 20),
+                          child: const Icon(Icons.clear, color: color.txtBlue, size: 20),
                         ),
                       )
                     ],
@@ -147,8 +144,7 @@ class _CongratMatchScreenState extends State<CongratMatchScreen> {
                                     borderRadius: BorderRadius.circular(40),
                                     // child: Image.asset(AssetsPics.sample,fit: BoxFit.cover)
                                     child: CachedNetworkImage(
-                                        imageUrl: LocaleHandler
-                                            .eventParticipantData["avatar"],
+                                        imageUrl: LocaleHandler.eventParticipantData["avatar"],
                                         fit: BoxFit.cover)))),
                       ),
                       Positioned(
@@ -200,7 +196,8 @@ class _CongratMatchScreenState extends State<CongratMatchScreen> {
                   const Spacer(),
                   blue_button(context, "Chat", press: () {
                     if (widget.likedscreen) {
-                      Get.to(() => TextChatScreen(id: LocaleHandler.eventParticipantData["userId"], name: LocaleHandler.eventParticipantData["firstName"],));
+                      Get.to(() => TextChatScreen(id:
+                      LocaleHandler.eventParticipantData["user_id"], name: LocaleHandler.eventParticipantData["firstName"],));
                     } else {
                       customSparkBottomSheeet(
                           context,
@@ -209,7 +206,7 @@ class _CongratMatchScreenState extends State<CongratMatchScreen> {
                           "Cancel",
                           "Leave", onTap2: () {
                         Get.back();
-                        Get.to(() => TextChatScreen(id: LocaleHandler.eventParticipantData["userId"], name: LocaleHandler.eventParticipantData["firstName"],
+                        Get.to(() => TextChatScreen(id: LocaleHandler.eventParticipantData["user_id"], name: LocaleHandler.eventParticipantData["firstName"],
                             ));
                       });
                     }

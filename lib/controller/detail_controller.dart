@@ -50,16 +50,19 @@ class detailedController extends ChangeNotifier{
     if(LocaleHandler.nextAction=="fill_dateofbirth"){currentIndex=1;}
     if(LocaleHandler.nextAction=="fill_height"){currentIndex=2;}
     if(LocaleHandler.nextAction=="choose_gender"){currentIndex=3;}
-    if(LocaleHandler.nextAction=="fill_lookingfor"){currentIndex=4;}
-    if(LocaleHandler.nextAction=="fill_sexual_orientation"){currentIndex=5;}
+    if(LocaleHandler.nextAction=="fill_lookingfor"){currentIndex=4;setIndex(currentIndex);}
+    if(LocaleHandler.nextAction=="fill_sexual_orientation"){currentIndex=5;setIndex(currentIndex);}
     if(LocaleHandler.nextAction=="fill_ethnicity"){currentIndex=6;}
     if(LocaleHandler.nextAction=="upload_avatar"){currentIndex=8;}
     if(LocaleHandler.nextAction=="upload_video"){currentIndex=9;}
     notifyListeners();
   }
 
+  String _gender="";
+  String get gender=>_gender;
   void setIndex(val){
     currentIndex=val;
+    if(currentIndex>3){_gender=LocaleHandler.gender;}
     notifyListeners();
   }
 

@@ -22,8 +22,9 @@ class _ProfileVideoViewerState extends State<ProfileVideoViewer> {
 
   Future disposeVideo(bool val)async{
     controller.pause();
-    controller.dispose();
+    // controller.dispose();
   }
+
   late VideoPlayerController controller;
 
 
@@ -45,8 +46,15 @@ class _ProfileVideoViewerState extends State<ProfileVideoViewer> {
   }
 
   @override
+  void dispose() {
+    controller.pause();
+    // controller.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    final profilecntrl=Provider.of<profileController>(context,listen: false);
+    final profilecntrl = Provider.of<profileController>(context,listen: false);
     final size = MediaQuery.of(context).size;
     return PopScope(
       canPop: false,

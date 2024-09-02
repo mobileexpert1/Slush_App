@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -126,7 +127,6 @@ class _NotificationScreen1State extends State<NotificationScreen> {
             child: Padding(padding: const EdgeInsets.only(left: 15,right: 15,top: 20),
               child: Column(
                 children: [
-
                   Container(
                       margin: const EdgeInsets.only(bottom: 10),
                       height: 46,
@@ -231,14 +231,20 @@ class _NotificationScreen1State extends State<NotificationScreen> {
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    SvgPicture.asset(AssetsPics.mailImg,height: 40),
+                                    // SvgPicture.asset(AssetsPics.mailImg,height: 40),
+                                    (dataa[index]["fromUser"]??"")==""?SvgPicture.asset(AssetsPics.mailImg,height: 40): SizedBox(
+                                        height: 50,width: 50,
+                                        child: ClipRRect(
+                                        borderRadius: BorderRadius.circular(10),
+                                            child: CachedNetworkImage(imageUrl: dataa[index]["fromUser"]["profilePictures"],fit: BoxFit.cover,
+                                              placeholder: (ctx, url) => const Center(child: SizedBox()),
+                                              errorWidget: (context, url, error) => Image.asset(AssetsPics.demouser,height: 35),
+                                            ))),
                                     const SizedBox(width: 15),
-                                    Expanded(
-                                      child: Column(
+                                    Expanded(child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          SizedBox(
-                                              width: 189,
+                                          SizedBox(width: 189,
                                               child: buildText(dataa[index]["notification_title"], 16, FontWeight.w600, color.txtBlack,fontFamily: FontFamily.hellix)),
 
                                           dataa[index]["notification_type"] == "match" || dataa[index]["notification_type"] == "likes" ? const SizedBox(height: 10,) :

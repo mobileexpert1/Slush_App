@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -38,8 +39,7 @@ class _SparkPurchaseScreenState extends State<SparkPurchaseScreen> {
     var uri=Uri.parse(url);
     var response=await http.post(uri,
         headers: {'Content-Type': 'application/json', "Authorization": "Bearer ${LocaleHandler.accessToken}"},
-        body: jsonEncode({"spark_value":sparkCount})
-    );
+        body: jsonEncode({"spark_value":sparkCount}));
     setState(() {LoaderOverlay.hide();});
     if(response.statusCode==201){
       Provider.of<profileController>(context,listen: false).getTotalSparks();
@@ -149,14 +149,15 @@ class _SparkPurchaseScreenState extends State<SparkPurchaseScreen> {
               subScriptionOption(context),
               const Spacer(),
               white_button(context, sparktext,press: ()async{
-                // LoaderOverlay.show(context);
                 int count=selectedIndex==1?1:selectedIndex==2?3:5;
-                final PurchaseParam purchaseParam = PurchaseParam(productDetails: _products[selectedIndex-1]);
-                await _inAppPurchase.buyConsumable(purchaseParam: purchaseParam);
+                if(Platform.isAndroid){
+                  purchaseSpark(count);
+                // final PurchaseParam purchaseParam = PurchaseParam(productDetails: _products[selectedIndex-1]);
+                // await _inAppPurchase.buyConsumable(purchaseParam: purchaseParam);
+                }
+                else{purchaseSpark(count);}
                 // _buyProduct(_products[selectedIndex-1]);
                 // LocaleHandler.sparkAndVerification=true;
-                // purchaseSpark(count);
-
               })
             ],),
           ))
@@ -166,7 +167,7 @@ class _SparkPurchaseScreenState extends State<SparkPurchaseScreen> {
   }
 
   Widget subScriptionOption(BuildContext context) {
-    return Container(
+    return SizedBox(
       height: 25.h+2,
       width: MediaQuery.of(context).size.width,
       child: Stack(

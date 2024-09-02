@@ -203,7 +203,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     if(LocaleHandler.dataa["ethnicity"]!=null){
       var i=0;
       for(i=0;i<LocaleHandler.dataa["ethnicity"].length;i++){
-        LocaleHandler.entencity.add(LocaleHandler.dataa["ethnicity"][i]["id"]);
+        if(!LocaleHandler.entencity.contains(LocaleHandler.dataa["ethnicity"][i]["id"])){
+        LocaleHandler.entencity.add(LocaleHandler.dataa["ethnicity"][i]["id"]);}
       }
     }
   }
@@ -255,7 +256,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     const url=ApiList.updateProfileDetail;
     print(url);
     var uri=Uri.parse(url);
-    var request = http.MultipartRequest('PATCH', uri,);
+    var request = http.MultipartRequest('PATCH', uri);
     request.headers['Authorization'] = "Bearer ${LocaleHandler.accessToken}";
 
     // if(dateOfBirth)
@@ -284,33 +285,26 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       // request.fields['display_orientation'] = LocaleHandler.showsexualOreintations;
     }
 
-    if(LocaleHandler.dataa["jobTitle"]!=LocaleHandler.jobtitle&&LocaleHandler.dataa["jobTitle"]!=null){
+    if((LocaleHandler.dataa["jobTitle"]??"")!=LocaleHandler.jobtitle){
       request.fields['jobTitle'] = LocaleHandler.jobtitle;
     }
-    // if(firstName)
-    // if(lastName)
-    // if(country)
-    // if(address)
-    // if(latitude)
-    // if(longitude)
-    // if(lookingFor)
 
     if(bioController.text.trim()!=""){
       request.fields['bio'] = bioController.text.trim();
     }
 
     // if(LocaleHandler.dataa["ideal_vacation"]!= LocaleHandler.ideal &&LocaleHandler.dataa["ideal_vacation"]!=null){
-    if(LocaleHandler.dataa["ideal_vacation"]!= LocaleHandler.ideal || LocaleHandler.dataa["ideal_vacation"]==null){
+    if((LocaleHandler.dataa["ideal_vacation"]??"") != LocaleHandler.ideal){
       request.fields['ideal_vacation'] = LocaleHandler.ideal.toString();
     }
 
     // if(LocaleHandler.dataa["cooking_skill"]!= LocaleHandler.cookingSkill &&LocaleHandler.dataa["cooking_skill"]!=null){
-    if(LocaleHandler.dataa["cooking_skill"]!= LocaleHandler.cookingSkill || LocaleHandler.dataa["cooking_skill"]==null){
+    if((LocaleHandler.dataa["cooking_skill"]??"")!= LocaleHandler.cookingSkill ){
       request.fields['cooking_skill'] = LocaleHandler.cookingSkill.toString();
     }
 
     // if(LocaleHandler.dataa["smoking_opinion"]!= LocaleHandler.smokingopinion &&LocaleHandler.dataa["smoking_opinion"]!=null){
-    if(LocaleHandler.dataa["smoking_opinion"]!= LocaleHandler.smokingopinion || LocaleHandler.dataa["smoking_opinion"]==null){
+    if((LocaleHandler.dataa["smoking_opinion"]??"") != LocaleHandler.smokingopinion){
       request.fields['smoking_opinion'] = LocaleHandler.smokingopinion.toString();
     }
 
@@ -356,7 +350,6 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     }
     else{
       Provider.of<profileController>(context,listen: false).profileData(context);
-
       setState(() {LoaderOverlay.hide();});
     Future.delayed(const Duration(seconds: 2),(){Get.back();});}
   }
@@ -368,216 +361,225 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: itemDelted ? null : commonBar(context, Colors.transparent),
-      body: Stack(
-        children: [
-          SizedBox(height: size.height, width: size.width,
-            child: Image.asset(AssetsPics.background, fit: BoxFit.cover),
-          ),
-          SingleChildScrollView(
-            physics: const ClampingScrollPhysics(),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Padding(
-                  padding: const EdgeInsets.only(left: 16, right: 16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      SizedBox(height: 2.h),
-                      buildText("Edit Photo", 20, FontWeight.w600, color.txtBlack),
-                      SizedBox(height: 1.h),
-                      Consumer<editProfileController>(
-                          builder: (context,val,child){
-                        imgdata=val.fromprov?val.imagedata:LocaleHandler.dataa;
-                        return buildphotos(size,val);}),
-                      SizedBox(height: 2.h),
-                      buildText("Edit Video", 20, FontWeight.w600, color.txtBlack),
-                      SizedBox(height: 1.h),
-                      Consumer<editProfileController>(
-                          builder: (context,val,child){
-                            imgdata=val.fromprov?val.imagedata:LocaleHandler.dataa;
-                            return buildVideo(size);}),
-                      // buildVideo(size),
-                      SizedBox(height: 1.h + 5),
-                      // Center(child: buildText("Hold and drag media to reorder", 16, FontWeight.w500, color.txtgrey, fontFamily: FontFamily.hellix))
-                    ],
+      body: Consumer<profileController>(builder: (ctx,val,child){
+        return val.dataa.length==0?Center(child: CircularProgressIndicator(color: color.txtBlue)): Stack(
+          children: [
+            SizedBox(height: size.height, width: size.width,
+              child: Image.asset(AssetsPics.background, fit: BoxFit.cover),
+            ),
+            SingleChildScrollView(
+              physics: const ClampingScrollPhysics(),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16, right: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(height: 2.h),
+                        buildText("Edit Photo", 20, FontWeight.w600, color.txtBlack),
+                        SizedBox(height: 1.h),
+                        Consumer<editProfileController>(
+                            builder: (context,val,child){
+                              imgdata=val.fromprov?val.imagedata:LocaleHandler.dataa;
+                              return buildphotos(size,val);}),
+                        SizedBox(height: 2.h),
+                        buildText("Edit Video", 20, FontWeight.w600, color.txtBlack),
+                        SizedBox(height: 1.h),
+                        Consumer<editProfileController>(
+                            builder: (context,val,child){
+                              imgdata=val.fromprov?val.imagedata:LocaleHandler.dataa;
+                              return buildVideo(size);}),
+                        // buildVideo(size),
+                        SizedBox(height: 1.h + 5),
+                        // Center(child: buildText("Hold and drag media to reorder", 16, FontWeight.w500, color.txtgrey, fontFamily: FontFamily.hellix))
+                      ],
+                    ),
                   ),
-                ),
-                buildDivider(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 15,
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildText("My bio", 20, FontWeight.w600, color.txtBlack),
-                      SizedBox(height: 1.h - 3),
-                      buildText("Write a fun intro", 16, FontWeight.w500, color.txtBlack),
-                      SizedBox(height: 1.h - 3),
-                      Container(
-                        decoration: BoxDecoration(
-                            color: Colors.white,
-                            border: Border.all(width: 1, color: color.lightestBlue),
-                            borderRadius: BorderRadius.circular(14)),
-                        child: TextFormField(
-                          maxLines: 3,
-                          controller:bioController ,
-                          textCapitalization: TextCapitalization.words,
-                          style: const TextStyle(
-                              color: color.txtBlack,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
-                              fontFamily: FontFamily.hellix),
-                          keyboardType: TextInputType.multiline,
-                          decoration: InputDecoration(
-                              enabledBorder: OutlineInputBorder(
-                                  borderSide: const BorderSide(color: color.textFieldColor),
-                                  borderRadius: BorderRadius.circular(8)),
-                              focusedBorder: OutlineInputBorder(
-                                  borderSide: const BorderSide(color: color.textFieldColor),
-                                  borderRadius: BorderRadius.circular(8)),
-                              border: const OutlineInputBorder(),
-                              hintText: 'A little bit about you...',
-                              hintStyle: const TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w500,
-                                  fontFamily: FontFamily.hellix,
-                                  color: color.txtgrey2)),
+                  buildDivider(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildText("My bio", 20, FontWeight.w600, color.txtBlack),
+                        SizedBox(height: 1.h - 3),
+                        buildText("Write a fun intro", 16, FontWeight.w500, color.txtBlack),
+                        SizedBox(height: 1.h - 3),
+                        Container(
+                          decoration: BoxDecoration(
+                              color: Colors.white,
+                              border: Border.all(width: 1, color: color.lightestBlue),
+                              borderRadius: BorderRadius.circular(14)),
+                          child: TextFormField(
+                            maxLines: 3,
+                            controller:bioController ,
+                            textCapitalization: TextCapitalization.sentences,
+                            style: const TextStyle(
+                                color: color.txtBlack,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                                fontFamily: FontFamily.hellix),
+                            keyboardType: TextInputType.multiline,
+                            decoration: InputDecoration( enabledBorder: OutlineInputBorder(
+                                borderSide: const BorderSide(color: color.textFieldColor),
+                                borderRadius: BorderRadius.circular(8)),
+                                focusedBorder: OutlineInputBorder(
+                                    borderSide: const BorderSide(color: color.textFieldColor),
+                                    borderRadius: BorderRadius.circular(8)),
+                                border: const OutlineInputBorder(),
+                                hintText: 'A little bit about you...',
+                                hintStyle: const TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                    fontFamily: FontFamily.hellix,
+                                    color: color.txtgrey2)),
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                buildDivider(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildText("Basic info", 20, FontWeight.w600, color.txtBlack),
-                      SizedBox(height: 1.h - 5),
-                      Consumer<editProfileController>(builder: (ctx,val,child){
-                        return ListView.builder(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: val.basicInfo.length,
-                            itemBuilder: (context, index) {
-                              return Padding(
-                                padding: const EdgeInsets.only(top: 4, bottom: 4),
-                                child: GestureDetector(
+                  buildDivider(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildText("Basic info", 20, FontWeight.w600, color.txtBlack),
+                        SizedBox(height: 1.h - 5),
+                        Consumer<editProfileController>(builder: (ctx,val,child){
+                          return ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: val.basicInfo.length,
+                              itemBuilder: (context, index) {
+                                return Padding(
+                                  padding: const EdgeInsets.only(top: 4, bottom: 4),
+                                  child: GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        LocaleHandler.basicInfo = true;
+                                        LocaleHandler.EditProfile = true;
+                                      });
+                                      Get.to(() => EditProfileBasicInfoScreen(index: index))!.then((value){setState(() {});});
+                                    },
+                                    child: Container(color: Colors.transparent,
+                                      child: Row(
+                                        children: [
+                                          buildText(val.basicInfo[index].name, 18, FontWeight.w500, color.txtgrey, fontFamily: FontFamily.hellix),
+                                          const Spacer(),
+                                          Consumer<editProfileController>(builder: (ctx,val,child){
+                                            return
+                                              (val.basicInfo[index].name=="Work" || val.basicInfo[index].name=="Education") && val.basicInfo[index].handler!=""?
+                                              SizedBox(width: size.width*0.5+4,
+                                                child: buildTextOverFlow2(val.basicInfo[index].handler==""?"Add":val.basicInfo[index].handler, 18, FontWeight.w500,
+                                                    color.txtgrey, fontFamily: FontFamily.hellix),
+                                              )
+                                                  :
+                                              buildText(val.basicInfo[index].handler==""?"Add":val.basicInfo[index].handler, 18, FontWeight.w500,
+                                                  color.txtgrey, fontFamily: FontFamily.hellix);
+                                          }),
+                                          // buildText(basicInfo[index].handler==""?"Add":basicInfo[index].handler, 18, FontWeight.w500,
+                                          //     color.txtgrey, fontFamily: FontFamily.hellix),
+                                          const SizedBox(width: 12),
+                                          SvgPicture.asset(AssetsPics.rightArrow),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              });})
+                      ],
+                    ),
+                  ),
+                  buildDivider(),
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        buildText("More about me", 20, FontWeight.w600, color.txtBlack),
+                        SizedBox(height: 1.h - 5),
+                        Consumer<editProfileController>(builder: (context,val,child){
+                          return  ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: val.moreaboutme.length,
+                              itemBuilder: (context, index) {
+                                return GestureDetector(
                                   onTap: () {
                                     setState(() {
-                                      LocaleHandler.basicInfo = true;
+                                      LocaleHandler.basicInfo = false;
                                       LocaleHandler.EditProfile = true;
+
                                     });
-                                    Get.to(() => EditProfileBasicInfoScreen(index: index))!.then((value){setState(() {});});
+                                    Get.to(() => EditProfileBasicInfoScreen(index: index));
                                   },
                                   child: Container(color: Colors.transparent,
+                                    padding: const EdgeInsets.only(top: 4, bottom: 4),
                                     child: Row(
                                       children: [
-                                        buildText(val.basicInfo[index].name, 18,
+                                        buildText(val.moreaboutme[index].name, 18,
                                             FontWeight.w500, color.txtgrey,
                                             fontFamily: FontFamily.hellix),
                                         const Spacer(),
-                                        Consumer<editProfileController>(builder: (ctx,val,child){
-                                          return buildText(val.basicInfo[index].handler==""?"Add":val.basicInfo[index].handler, 18, FontWeight.w500,
-                                              color.txtgrey, fontFamily: FontFamily.hellix);
-                                        }),
-                                        // buildText(basicInfo[index].handler==""?"Add":basicInfo[index].handler, 18, FontWeight.w500,
-                                        //     color.txtgrey, fontFamily: FontFamily.hellix),
+                                        buildText(val.moreaboutme[index].handler==""?"Add":val.moreaboutme[index].handler, 16, FontWeight.w500,
+                                            color.txtgrey,
+                                            fontFamily: FontFamily.hellix),
                                         const SizedBox(width: 12),
                                         SvgPicture.asset(AssetsPics.rightArrow),
                                       ],
                                     ),
                                   ),
-                                ),
-                              );
-                            });})
-                    ],
+                                );
+                              });}),
+                      ],
+                    ),
                   ),
-                ),
-                buildDivider(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      buildText("More about me", 20, FontWeight.w600, color.txtBlack),
-                      SizedBox(height: 1.h - 5),
-                     Consumer<editProfileController>(builder: (context,val,child){
-                       return  ListView.builder(
-                         shrinkWrap: true,
-                         physics: const NeverScrollableScrollPhysics(),
-                         itemCount: val.moreaboutme.length,
-                         itemBuilder: (context, index) {
-                           return GestureDetector(
-                             onTap: () {
-                               setState(() {
-                                 LocaleHandler.basicInfo = false;
-                                 LocaleHandler.EditProfile = true;
-
-                               });
-                               Get.to(() => EditProfileBasicInfoScreen(index: index));
-                             },
-                             child: Container(color: Colors.transparent,
-                               padding: const EdgeInsets.only(top: 4, bottom: 4),
-                               child: Row(
-                                 children: [
-                                   buildText(val.moreaboutme[index].name, 18,
-                                       FontWeight.w500, color.txtgrey,
-                                       fontFamily: FontFamily.hellix),
-                                   const Spacer(),
-                                   buildText(val.moreaboutme[index].handler==""?"Add":val.moreaboutme[index].handler, 16, FontWeight.w500,
-                                       color.txtgrey,
-                                       fontFamily: FontFamily.hellix),
-                                   const SizedBox(width: 12),
-                                   SvgPicture.asset(AssetsPics.rightArrow),
-                                 ],
-                               ),
-                             ),
-                           );
-                         });}),
-                    ],
-                  ),
-                ),
-                buildDivider(),
-                Padding(
-                  padding: const EdgeInsets.only(left: 15, right: 15, bottom: 5),
-                  child: GestureDetector(
-                    onTap: (){
-                      Get.to(()=>const InterestListScreen())!.then((value)  {setState(() {});});},
-                    child: Container(color: Colors.transparent,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              buildText("My interest", 20, FontWeight.w600, color.txtBlack),
-                              const Spacer(),
-                              buildText(LocaleHandler.dataa["interests"].length==0?"Add":"${LocaleHandler.dataa["interests"].length} items", 18, FontWeight.w500, color.txtgrey,
+                  buildDivider(),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 15, right: 15, bottom: 5),
+                    child: GestureDetector(
+                      onTap: (){
+                        Get.to(()=>const InterestListScreen())!.then((value)  {setState(() {
+                          if(value??false){UpdateProfileDetail();}
+                        });
+                        });
+                        },
+                      child: Container(color: Colors.transparent,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              children: [
+                                buildText("My interest", 20, FontWeight.w600, color.txtBlack),
+                                const Spacer(),
+                                buildText(LocaleHandler.dataa["interests"].length==0 || LocaleHandler.dataa==null?"Add":"${LocaleHandler.dataa["interests"].length} items", 18, FontWeight.w500, color.txtgrey,
+                                    fontFamily: FontFamily.hellix),
+                                const SizedBox(width: 12),
+                                SvgPicture.asset(AssetsPics.rightArrow),
+                              ],
+                            ),
+                            SizedBox(height: 1.h - 5),
+                            Padding(
+                              padding: const EdgeInsets.only(top: 2, bottom: 2),
+                              child: buildText(
+                                  "Get specific about the things you love",
+                                  18,
+                                  FontWeight.w500,
+                                  color.txtgrey,
                                   fontFamily: FontFamily.hellix),
-                              const SizedBox(width: 12),
-                              SvgPicture.asset(AssetsPics.rightArrow),
-                            ],
-                          ),
-                          SizedBox(height: 1.h - 5),
-                          Padding(
-                            padding: const EdgeInsets.only(top: 2, bottom: 2),
-                            child: buildText(
-                                "Get specific about the things you love",
-                                18,
-                                FontWeight.w500,
-                                color.txtgrey,
-                                fontFamily: FontFamily.hellix),
-                          )
-                        ],
+                            )
+                          ],
+                        ),
                       ),
                     ),
                   ),
-                ),
-                buildDivider(),
-               /* Padding(
+                  buildDivider(),
+                  /* Padding(
                   padding:
                   const EdgeInsets.only(left: 15, right: 15, bottom: 5),
                   child: GestureDetector(
@@ -611,55 +613,56 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                     ),
                   ),
                 ),*/
-                // buildDivider(),
-                Padding(
-                  padding:
-                  const EdgeInsets.only(left: 15, right: 15, bottom: 100),
-                  child: GestureDetector(
-                    onTap: (){
-                      // Get.to(()=>const ChangeEmailScreen());
-                    },
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            buildText("Your email", 20, FontWeight.w600,
-                                color.txtBlack),
-                            const Spacer(),
-                            // buildText(LocaleHandler.dataa["email"]==""?"Add":"Change", 18, FontWeight.w500, color.txtgrey, fontFamily: FontFamily.hellix),
-                            const SizedBox(width: 12),
-                            // SvgPicture.asset(AssetsPics.rightArrow),
-                          ],
-                        ),
-                        SizedBox(height: 1.h - 5),
-                        Padding(
-                          padding: const EdgeInsets.only(top: 2, bottom: 2),
-                          child: buildText(
-                              LocaleHandler.dataa["email"]??'Provide your mobile number',
-                              18,
-                              FontWeight.w500,
-                              color.txtgrey,
-                              fontFamily: FontFamily.hellix),
-                        )
-                      ],
+                  // buildDivider(),
+                  Padding(
+                    padding:
+                    const EdgeInsets.only(left: 15, right: 15, bottom: 100),
+                    child: GestureDetector(
+                      onTap: (){
+                        // Get.to(()=>const ChangeEmailScreen());
+                      },
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              buildText("Your email", 20, FontWeight.w600,
+                                  color.txtBlack),
+                              const Spacer(),
+                              // buildText(LocaleHandler.dataa["email"]==""?"Add":"Change", 18, FontWeight.w500, color.txtgrey, fontFamily: FontFamily.hellix),
+                              const SizedBox(width: 12),
+                              // SvgPicture.asset(AssetsPics.rightArrow),
+                            ],
+                          ),
+                          SizedBox(height: 1.h - 5),
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2, bottom: 2),
+                            child: buildText(
+                                LocaleHandler.dataa["email"]??'Provide your mobile number',
+                                18,
+                                FontWeight.w500,
+                                color.txtgrey,
+                                fontFamily: FontFamily.hellix),
+                          )
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          AnimatedContainer(
-            height: itemDelted ? 15.h : 0,
-            duration: const Duration(milliseconds: 600),
-            width: size.width,
-            child: Image.asset(
-              AssetsPics.editBanner,
-              fit: BoxFit.fill,
+            AnimatedContainer(
+              height: itemDelted ? 15.h : 0,
+              duration: const Duration(milliseconds: 600),
+              width: size.width,
+              child: Image.asset(
+                AssetsPics.editBanner,
+                fit: BoxFit.fill,
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        );
+      }),
       bottomSheet: Padding(
         padding:Platform.isIOS? const EdgeInsets.only(bottom: 23, left: 16, right: 16, top: 2)
             : const EdgeInsets.only(bottom: 10, left: 15, right: 15, top: 2),
@@ -1036,7 +1039,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       child: Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          buildText( video == "video"?"Take a Video":"Take a Selfie", 18,
+                          buildText(video == "video"?"Take a Video":"Take a Selfie", 18,
                               selcetedIndex == "0" ? FontWeight.w600 : FontWeight.w500,
                               color.txtBlack),
                           CircleAvatar(
@@ -1126,7 +1129,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         imageUrl: img,
         fit: BoxFit.cover,
         errorWidget: (context, url, error) => buildContainer(),
-        placeholder: (ctx,url)=>const Center(child: CircularProgressIndicator(color: color.txtBlue,)),
+        placeholder: (ctx,url)=>const Center(child: CircularProgressIndicator(color: color.txtBlue)),
       ),
     );
   }

@@ -1,5 +1,5 @@
+import 'dart:io';
 import 'package:firebase_messaging/firebase_messaging.dart';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
@@ -15,6 +15,7 @@ import 'package:slush/controller/event_controller.dart';
 import 'package:slush/controller/login_controller.dart';
 import 'package:slush/controller/profile_controller.dart';
 import 'package:slush/controller/setting_controller.dart';
+import 'package:slush/controller/spark_Liked_controler.dart';
 import 'package:slush/controller/video_call_controller.dart';
 import 'package:slush/controller/waitingroom_controller.dart';
 import 'package:slush/firebase_option.dart';
@@ -23,36 +24,32 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:slush/screens/splash/splash.dart';
 import 'package:slush/screens/splash/splash_controller.dart';
 import 'package:slush/screens/video_call/notification_serivce.dart';
-
+import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 import 'notification.dart';
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
   // Handle background messages
   print("Handling a background message: ${message.messageId}");
-  // LocalNotificationService.display(message);
-}
-void printLog(dynamic msg) {
-  _printLog('\x1B[32m() => ${msg.toString()}\x1B[0m');
+  // LocalNotificationService.display(message);a
 }
 
-void functionLog({required dynamic msg, required dynamic fun}) {
-  _printLog("\x1B[31m${fun.toString()} ::==> ${msg.toString()}\x1B[0m");
-}
-
-void _printLog(dynamic msg) {
-  if (kDebugMode) {
-    debugPrint(msg.toString());
-  }
-}
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-      name: 'virtual-speed-date-325915',
-      options: DefaultFirebaseOptions.currentPlatform);
+  await Firebase.initializeApp(name: 'virtual-speed-date-325915', options: DefaultFirebaseOptions.currentPlatform);
+
+
+  OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+  if(Platform.isAndroid){OneSignal.initialize("482a292e-4c3a-48f0-ad0b-8b0f4b653fd8");}else{OneSignal.initialize("4cee1d81-6350-4319-970d-3421754c0fa7");}
+  // OneSignal.initialize("7ce97f5b-ded6-4313-adda-abd0d7c10fdf");
+  OneSignal.Notifications.requestPermission(true);
+
+
   InAppPurchase.instance.restorePurchases();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   MobileAds.instance.initialize();
+  WakelockPlus.enable();
   FirebaseLocalNotification.initMessaging();
   runApp(const MyApp());
 }
@@ -88,6 +85,8 @@ class MyApp extends StatelessWidget {
               ChangeNotifierProvider<waitingRoom>(create: (_)=>waitingRoom()),
               ChangeNotifierProvider<TimerProvider>(create: (_)=>TimerProvider()),
               ChangeNotifierProvider<SettingController>(create: (_)=>SettingController()),
+              ChangeNotifierProvider<SparkLikedController>(create: (_)=>SparkLikedController()),
+              ChangeNotifierProvider<CamController>(create: (_)=>CamController()),
 
 
             ],

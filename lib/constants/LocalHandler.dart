@@ -67,6 +67,7 @@ class LocaleHandler {
   static File? introVideo;
   static String password = "";
   static String jobtitle = "";
+  static String companyName = "";
   static bool displayOnScreen = false;
 
   // VAcation details
@@ -85,7 +86,7 @@ class LocaleHandler {
   // static List<Map<String, dynamic>> messages = [];
   static Map<String, dynamic> eventParticipantData = {};
   static List items = [];
-  static List sparkLiked = [];
+  // static List sparkLiked = [];
 
   // Bool
   static bool isThereAnyEvent = false;
@@ -105,7 +106,7 @@ class LocaleHandler {
 
   static bool matchedd = false;
   static bool feedTutorials = true;
-  static bool scrollLimitreached = false;
+  // static bool scrollLimitreached = false;
   static bool isLikedTabUpdate = false;
 
   //Int

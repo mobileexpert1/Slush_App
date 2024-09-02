@@ -5,13 +5,14 @@ import 'package:get/get.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
 import 'package:http/http.dart'as http;
+import 'package:slush/screens/events/bottomNavigation.dart';
+import 'package:slush/screens/video_call/feedback_screen.dart';
 import 'package:slush/screens/waiting_room/readytocall.dart';
 import 'package:slush/screens/waiting_room/waiting_completed_screen.dart';
 import 'package:slush/widgets/toaster.dart';
 
 class TimerProvider with ChangeNotifier {
   Duration _duration = const Duration(minutes: 3);
-  // Duration _duration = const Duration(seconds: 10);
   Timer? _timer;
 
   Duration get duration => _duration;
@@ -38,8 +39,33 @@ class TimerProvider with ChangeNotifier {
     print('Timer stopped');
   }
 
+  // video call timer
+  Timer? _vtimerr;
+  int _vmin=100;
+  int get vdurationn => _vmin;
+
+  void vstartTimerr() {
+    vstopTimerr();
+    _vtimerr = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_vmin > 0) {
+        _vmin--;
+        print(";-;-;-;-${_vmin}_vmin");
+        notifyListeners();
+      } else {_vtimerr?.cancel();
+      vstopTimerr();
+      showToastMsg("${LocaleHandler.eventParticipantData["firstName"]} is didn't Pick you call");
+      Get.offAll(() => const FeedbackVideoChatScreen());}
+    });
+    notifyListeners();
+  }
+
+  void vstopTimerr() {
+    _vtimerr?.cancel();
+    _vmin=100;
+  }
+
   void resetTimer() {
-    // _timer?.cancel();
+    _timer?.cancel();
     _duration = const Duration(minutes: 3);
     notifyListeners();
     print('Timer reset to 03:00');

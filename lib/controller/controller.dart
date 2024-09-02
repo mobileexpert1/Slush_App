@@ -156,31 +156,44 @@ class reelController with ChangeNotifier{
   int _count=-1;
   int get count=>_count;
 
-  Future getVideoCount(BuildContext context)async{
-    final url=ApiList.swipecount;
+  Future getVideoCount(BuildContext context) async {
+    const url=ApiList.swipecount;
     print(url);
     var uri=Uri.parse(url);
-    var resposne=await http.post(uri, headers: {'Content-Type': 'application/json', "Authorization": "Bearer ${LocaleHandler.accessToken}"},);
+    var resposne = await http.post(uri, headers: {'Content-Type': 'application/json',
+      "Authorization": "Bearer ${LocaleHandler.accessToken}"},);
     var i=jsonDecode(resposne.body);
     if(resposne.statusCode==201){
       if(LocaleHandler.subscriptionPurchase=="no"){
         _count=i["left_Swipes"];
-        if(_count==0){Provider.of<reelTutorialController>(context,listen: false).setScrollLimit(true);}
+        if(_count==0){//Provider.of<reelTutorialController>(context,listen: false).setScrollLimit(true);
+          _stopReelScroll=true; }
         }
-      else{Provider.of<reelTutorialController>(context,listen: false).setScrollLimit(false);}
+      else{//Provider.of<reelTutorialController>(context,listen: false).setScrollLimit(false);
+        _stopReelScroll=false; }
     }
     notifyListeners();
   }
 
+  bool _adstart=false;
+  bool get adstart=>_adstart;
+
   void _countM(BuildContext context){
     if(LocaleHandler.subscriptionPurchase=="no"){
       _count--;
-      if(_count % 10 == 0){
-        AdManager.loadInterstitialAd(() {});
+      if(_count % 2 == 0){
+        adstarted(true);
+        AdManager.loadInterstitialAd(context,() {});
       }
-      print("_count===$_count");
-      if(_count==0){Provider.of<reelTutorialController>(context,listen: false).setScrollLimit(true);}
-    } else{Provider.of<reelTutorialController>(context,listen: false).setScrollLimit(false);}
+      if(_count==0){//Provider.of<reelTutorialController>(context,listen: false).setScrollLimit(true);
+        _stopReelScroll=true;}
+    } else{//Provider.of<reelTutorialController>(context,listen: false).setScrollLimit(false);
+    _stopReelScroll=false;}
+    notifyListeners();
+  }
+  void adstarted(bool val){
+    videoPlayerController[_indexid].pause();
+    _adstart=val;
     notifyListeners();
   }
 
@@ -196,7 +209,11 @@ class reelController with ChangeNotifier{
     notifyListeners();
   }
 
+  int _indexid=-1;
   Future swippedVideo(BuildContext context,int id)async{
+    _indexid=id;
+    _countM(context);
+    print(";-;-;-${LocaleHandler.subscriptionPurchase}");
     final url=ApiList.swippedVideo;
     print(url);
     var uri=Uri.parse(url);
@@ -206,13 +223,15 @@ class reelController with ChangeNotifier{
     );
     if(response.statusCode==201){print("response.statusCode===201=ApiList.swippedVideo");
     // getVideoCount(context);
-    _countM(context);
+
     }
     else if(response.statusCode==401){showToastMsgTokenExpired();}
     else{}
   }
 
-  Future getVidero(BuildContext context,int pageI,int minage,int maxage,int distance,String lat,String lon,String gender)async{
+  Future getVidero(BuildContext context,int pageI,int minage,int maxage,int distance,String lat,String lon,String gender,{bool filter=false})async{
+    LocaleHandler.matchedd=true;
+    removeVideoLimit(context);
     pages=1;
     genderparam=gender==""?"": "&gender=$gender";
     videoPlayerController.clear();
@@ -231,25 +250,29 @@ class reelController with ChangeNotifier{
       "Authorization": "Bearer ${LocaleHandler.accessToken}"});
     var ii=jsonDecode(response.body);
     LoaderOverlay.hide();
+    notifyListeners();
     if(response.statusCode==200){
-
-        dataa=ii["data"]["items"];
-      total=ii["data"]["meta"]["totalItems"];
-      print(";-;-;-;-${ii["data"]["meta"]["totalItems"]}");
-        posts=dataa;
+      // if(context.mounted) {
+        dataa = ii["data"]["items"];
+        posts = dataa;
         for (var i = 0; i < posts.length; i++) {
           videoPlayerController.add(VideoPlayerController.networkUrl(Uri.parse(posts[i]["video"].toString())));
           // chewieController =ChewieController(videoPlayerController: videoPlayerController[i]);
           reelcntrol.addReel(posts[i]["video"].toString());}
         playNextReel(LocaleHandler.pageIndex);
-        getVideoCount(context);
-    } else{total=0;
+      total=ii["data"]["meta"]["totalItems"];
+        if(total==0) { stopReels(context);
+          // if(!filter) {stopReels(context);} else { total=-2;}
+        }else{
+          removeVideoLimit(context);
+          getVideoCount(context);}
+    } else{total=-1;
     dataa=ii;}notifyListeners();}
 
-  Future loadmore(BuildContext context,int i,int age,int distance,String lat,String lon,String gender)async{
+  Future loadmore(BuildContext context,int i,int minage,int maxage,int distance,String lat,String lon,String gender)async{
     pages=pages+1;
     final reelcntrol=Provider.of<reelController>(context,listen: false);
-    final url="${ApiList.getVideo}&maxAge=$age&distance=$distance&latitude=$lat&longitude=$lon$genderparam&isVerified=${LocaleHandler.isChecked}&page=$pages&limit=4";
+    final url="${ApiList.getVideo}$minage&maxAge=$maxage&distance=$distance&latitude=$lat&longitude=$lon$genderparam&isVerified=${LocaleHandler.isChecked}&page=$pages&limit=4";
     print(url);
     var uri=Uri.parse(url);
     var response=await http.get(uri,headers: {'Content-Type': 'application/json',
@@ -266,9 +289,9 @@ class reelController with ChangeNotifier{
         if(LocaleHandler.isChecked && posts[i]["user"]["isVerified"]==true){
           videoPlayerController.add(VideoPlayerController.networkUrl(Uri.parse(posts[i]["video"].toString())));
           reelcntrol.addReel(posts[i]["video"].toString());
-        }else{
+        } else {
         videoPlayerController.add(VideoPlayerController.networkUrl(Uri.parse(ii["data"]["items"][i]["video"].toString())));
-        reelcntrol.addReel(ii["data"]["items"][i]["video"].toString());}
+        reelcntrol.addReel(ii["data"]["items"][i]["video"].toString()); }
       }
     } else{total=0;
     dataa=ii;
@@ -362,6 +385,7 @@ class reelController with ChangeNotifier{
       }
       // log('playing $index');
     }
+    LocaleHandler.matchedd=false;
     notifyListeners();
   }
 
@@ -396,8 +420,20 @@ class reelController with ChangeNotifier{
     notifyListeners();
   }
 
-  void alreadySparkLiked(int i){
-    LocaleHandler.sparkLiked.add(i);
+
+  void removeVideoLimit(BuildContext context){
+    _count=-1;
+    // Provider.of<reelTutorialController>(context,listen: false).setScrollLimit(false);
+    _stopReelScroll=false;
+    notifyListeners();
+  }
+
+  bool _stopReelScroll=false;
+  bool get stopReelScroll=>_stopReelScroll;
+  void stopReels(BuildContext context){
+    _count=0;
+    _stopReelScroll=true;
+    // Provider.of<reelTutorialController>(context,listen: false).setScrollLimit(true);
     notifyListeners();
   }
 }

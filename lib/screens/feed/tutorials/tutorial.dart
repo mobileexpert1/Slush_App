@@ -5,14 +5,18 @@ import 'package:expandable_text/expandable_text.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/controller/controller.dart';
+import 'package:slush/controller/login_controller.dart';
 import 'package:slush/screens/feed/tutorials/controller_class.dart';
+import 'package:slush/widgets/bottom_sheet.dart';
 import 'package:slush/widgets/text_widget.dart';
+import 'package:slush/widgets/thumb_class.dart';
 
 int indexx=0;
 
@@ -29,11 +33,11 @@ Widget feedTutorials(BuildContext context){
         width: size.width,
         color: Colors.black.withOpacity(0.6),
       ),
-
       // seventh(context),
       Consumer<reelTutorialController>(
         builder: (context,value,child){
-          return LocaleHandler.scrollLimitreached?const SizedBox(): Container(
+          // return LocaleHandler.scrollLimitreached ?const SizedBox(): Container(
+          return Provider.of<reelController>(context).stopReelScroll ?const SizedBox(): Container(
           child:  value.cou==0? first(context):
           value.cou==1? second(context):
           value.cou==2? third(context):
@@ -152,7 +156,8 @@ Widget second(BuildContext context){
             child: CircleAvatar(radius: 32,
             backgroundColor: Colors.transparent,
             child: Consumer<reelController>(builder: (context,val,child){
-           return val.data==null?const CircleAvatar(radius: 32): SizedBox(width: 75, height: 75,child: ClipOval(child: CachedNetworkImage(imageUrl: val.data[0]["user"]["avatar"],fit: BoxFit.cover,
+           return val.data==null ||val.data.isEmpty?const CircleAvatar(radius: 32): SizedBox(width: 75, height: 75,child: ClipOval(child: CachedNetworkImage(imageUrl: val.data[0]["user"]["avatar"],fit: BoxFit.cover,
+             placeholder: (ctx, url) => const Center(child: SizedBox()),
            )));
             })
             // AssetImage(AssetsPics.demouser),
@@ -255,7 +260,7 @@ Widget fourth(BuildContext context){
             bottom: 28.0,
             left: 0.0,
             child: Consumer<reelController>(builder: (ctx,val,child)
-              {return val.data==null?SizedBox(): Column(
+              {return val.data==null||val.data.isEmpty?SizedBox(): Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                 SizedBox(height: 1.h),
@@ -366,6 +371,15 @@ Widget sixth(BuildContext context){
   );
 }
 
+
+bool isChecked = false;
+int selectedIndex = -1;
+int distancevalue = 250;
+double _startValue = 18.0;
+double _endValue = 90.0;
+String selectedGender = "";
+List gender = ["Male", "Female", "Everyone"];
+
 Widget seventh(BuildContext context){
   final size=MediaQuery.of(context).size;
   return SafeArea(
@@ -378,7 +392,16 @@ Widget seventh(BuildContext context){
             crossAxisAlignment: CrossAxisAlignment.center,
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
-              Container(alignment: Alignment.topRight, child: SvgPicture.asset(AssetsPics.reelFilterIcon,fit: BoxFit.cover,height: 48)),
+              GestureDetector(
+          onTap: () {
+               selectedIndex = LocaleHandler.selectedIndexGender;
+               _startValue = LocaleHandler.startage.toDouble();
+               _endValue = LocaleHandler.endage.toDouble();
+               distancevalue = LocaleHandler.distancevalue;
+               isChecked = LocaleHandler.isChecked;
+               customReelBoxFilte(context);
+               },
+              child: Container(alignment: Alignment.topRight, child: SvgPicture.asset(AssetsPics.reelFilterIcon,fit: BoxFit.cover,height: 48))),
               Container(
                 alignment: Alignment.centerRight,
                   // padding: const EdgeInsets.only(left: 140,top: 5),
@@ -407,4 +430,349 @@ Widget seventh(BuildContext context){
         ],
       ),),
   );
+}
+
+customReelBoxFilte(BuildContext context) {
+  final size = MediaQuery.of(context).size;
+  return showGeneralDialog(
+      barrierLabel: "Label",
+      transitionDuration: const Duration(milliseconds: 500),
+      context: context,
+      pageBuilder: (context, anim1, anim2) {
+        return StatefulBuilder(builder: (context, setState) {
+          return GestureDetector(
+            // onTap: onTap,
+            child: Scaffold(
+              backgroundColor: Colors.transparent,
+              body: Align(
+                alignment: Alignment.bottomCenter,
+                child: Stack(
+                  children: [
+                    Container(
+                      // height: MediaQuery.of(context).size.height/2.5,
+                        width: MediaQuery.of(context).size.width / 1.1,
+                        margin: EdgeInsets.only(
+                            bottom: defaultTargetPlatform == TargetPlatform.iOS ? 24 : 12,
+                            top: 8, right: 7),
+                        // padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: color.txtWhite,
+                          borderRadius: BorderRadius.circular(15),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          mainAxisSize: MainAxisSize.min,
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.only(left: 15, right: 15, bottom: 10, top: 15),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Container(alignment: Alignment.center,
+                                    height: 10,
+                                    width: 80,
+                                  ),
+                                  // SizedBox(height: 10,),
+                                  buildText("Filter", 28, FontWeight.w600, color.txtBlack),
+                                  const SizedBox(height: 10),
+                                  buildText("Distance", 18, FontWeight.w600, color.txtBlack),
+                                  const SizedBox(height: 50),
+                                  Container(
+                                    height: 30,
+                                    width: MediaQuery.of(context).size.width,
+                                    decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(12),
+                                        color: color.txtWhite),
+                                    child: Stack(
+                                      alignment: Alignment.center,
+                                      children: [
+                                        SliderTheme(
+                                          data: SliderTheme.of(context).copyWith(
+                                            trackHeight: 5.0,
+                                            inactiveTickMarkColor: Colors.transparent,
+                                            trackShape: const RoundedRectSliderTrackShape(),
+                                            activeTrackColor: color.txtBlue,
+                                            inactiveTrackColor: color.lightestBlueIndicator,
+                                            activeTickMarkColor: Colors.transparent,
+                                            thumbShape: CustomSliderThumb(
+                                              displayValue: distancevalue,
+                                            ),
+                                            thumbColor: color.txtBlue,
+                                            overlayColor: const Color(0xff2280EF).withOpacity(0.2),
+                                            overlayShape: const RoundSliderOverlayShape(overlayRadius: 20.0),
+                                            valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
+                                            valueIndicatorColor: Colors.blue,
+                                            showValueIndicator: ShowValueIndicator.never,
+                                            valueIndicatorTextStyle:
+                                            const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 20.0,
+                                            ),
+                                          ),
+                                          child: Slider(
+                                            min: 5.0,
+                                            max: 500.0,
+                                            value: distancevalue.toDouble(),
+                                            divisions: 99,
+                                            label: '${distancevalue.round()} km',
+                                            onChanged: (value) {
+                                              setState(() {
+                                                distancevalue = value.toInt();
+                                              });
+                                            },
+                                          ),
+                                        ),
+                                        Positioned(
+                                          left: 13.0,
+                                          child: IgnorePointer(
+                                            child: CircleAvatar(
+                                              radius: 7,
+                                              child: SvgPicture.asset(AssetsPics.sliderleft),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            Container(
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(12),
+                                  color: color.txtWhite),
+                              child: Padding(
+                                padding: const EdgeInsets.only(left: 15, right: 15, bottom: 10, top: 10),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    buildText("Age Range", 18,
+                                        FontWeight.w600, color.txtBlack),
+                                    Container(
+                                      height: 13.h,
+                                      width: size.width,
+                                      padding: const EdgeInsets.only(top: 20),
+                                      child: Stack(
+                                        alignment: Alignment.center,
+                                        children: [
+                                          Consumer<loginControllerr>(builder:
+                                              (context, valuee, index) {
+                                            return Stack(
+                                              children: [
+                                                RangeSlider(
+                                                  activeColor: color.txtBlue,
+                                                  inactiveColor: color.lightestBlueIndicator,
+                                                  // divisions: 9,
+                                                  labels: RangeLabels(
+                                                    _startValue.round().toString(),
+                                                    _endValue.round().toString(),
+                                                  ),
+                                                  min: 18.0,
+                                                  max: 100.0,
+                                                  values: RangeValues(_startValue, _endValue),
+                                                  onChanged: (values) {
+                                                    setState(() {
+                                                      _startValue = values.start;
+                                                      _endValue = values.end;
+                                                    });
+                                                  },
+                                                ),
+                                                Positioned(
+                                                  left: (size.width - 50) * (_startValue - 18) / (100 - 8), // Calculate left position dynamically
+                                                  top: 1,
+                                                  child: Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.blue,
+                                                      borderRadius: BorderRadius.circular(8),
+                                                    ),
+                                                    child: Text(
+                                                      '${_startValue.round()}',
+                                                      style: const TextStyle(color: Colors.white),
+                                                    ),
+                                                  ),
+                                                ),
+                                                Positioned(
+                                                  right: (size.width - 50) * (100 - _endValue) / (100 - 8), // Calculate right position dynamically
+                                                  top: 1,
+                                                  child: Container(
+                                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                                    decoration: BoxDecoration(
+                                                      color: Colors.blue,
+                                                      borderRadius: BorderRadius.circular(8),
+                                                    ),
+                                                    child: Text(
+                                                      '${_endValue.round()}',
+                                                      style: const TextStyle(color: Colors.white),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          }),
+                                        ],
+                                      ),
+                                    )
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 15, right: 15, bottom: 0, top: 10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  buildText("Show me", 18, FontWeight.w600, color.txtBlack),
+                                  Container(
+                                      padding: const EdgeInsets.only(left: 5),
+                                      //   alignment: Alignment.center,
+                                      height: 46,
+                                      width: MediaQuery.of(context).size.width,
+                                      // color: Colors.red,
+                                      child: Row(
+                                        // mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+                                          ListView.builder(
+                                              shrinkWrap: true,
+                                              physics: const NeverScrollableScrollPhysics(),
+                                              scrollDirection: Axis.horizontal,
+                                              itemCount: gender.length,
+                                              itemBuilder: (context, index) {
+                                                return Row(
+                                                  children: [
+                                                    GestureDetector(
+                                                        onTap: () {
+                                                          setState(() {
+                                                            selectedIndex = index;
+                                                            selectedGender = gender[index];
+                                                          });
+                                                        },
+                                                        child: selectedIndex == index
+                                                            ? selectedButton(gender[index], size)
+                                                            : unselectedButton(gender[index], size)),
+                                                    SizedBox(width: size.width * 0.02)
+                                                  ],
+                                                );
+                                              })
+                                        ],
+                                      )),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            const Divider(thickness: 0.5, color: color.lightestBlue),
+                            const SizedBox(height: 4),
+                            Padding(padding: const EdgeInsets.only(left: 15, right: 15, bottom: 0, top: 10),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                //crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  buildText("Verified users only", 18, FontWeight.w600, color.txtBlack),
+                                  GestureDetector(
+                                      onTap: () {setState(() {isChecked = !isChecked;});},
+                                      child: SvgPicture.asset(isChecked == true ? AssetsPics.checkbox : AssetsPics.blankCheckbox)),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            const Divider(thickness: 0.5, color: color.lightestBlue),
+                            const SizedBox(height: 11),
+                            Padding(
+                              padding: const EdgeInsets.only(left: 15, right: 15, bottom: 15),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  GestureDetector(
+                                    onTap: () {
+                                      LocaleHandler.selectedIndexGender = -1;
+                                      LocaleHandler.startage = 18;
+                                      LocaleHandler.endage = 90;
+                                      LocaleHandler.distancevalue = 250;
+                                      LocaleHandler.isChecked = false;
+                                      Get.back();
+                                    },
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      height: 56,
+                                      width: MediaQuery.of(context).size.width / 2 - 40,
+                                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(12),
+                                          color: color.txtWhite,
+                                          border: Border.all(
+                                              width: 1.5,
+                                              color: color.txtBlue)),
+                                      child: buildText("Clear all", 18, FontWeight.w600, color.txtBlue),
+                                    ),
+                                  ),
+                                  GestureDetector(
+                                    onTap: () {
+                                      int min = _startValue.toInt();
+                                      int max = _endValue.toInt();
+                                      setState(() {
+                                        LocaleHandler.selectedIndexGender = selectedIndex;
+                                        LocaleHandler.startage = min;
+                                        LocaleHandler.endage = max;
+                                        LocaleHandler.distancevalue = distancevalue;
+                                        LocaleHandler.isChecked = isChecked;
+                                        LocaleHandler.pageIndex = 0;
+                                      });
+                                      Provider.of<reelController>(context, listen: false).videoPause(true, LocaleHandler.pageIndex);
+                                      Provider.of<reelController>(context, listen: false).getVidero(context, 1, min, max, distancevalue, LocaleHandler.latitude,
+                                          LocaleHandler.longitude, selectedGender == "Everyone" ? "" : selectedGender.toLowerCase());
+                                      Get.back();
+                                    },
+                                    // onTap: onTap2,
+                                    child: Container(
+                                      alignment: Alignment.center,
+                                      height: 56,
+                                      width: MediaQuery.of(context).size.width / 2 - 40,
+                                      padding: const EdgeInsets.symmetric(horizontal: 10),
+                                      decoration: BoxDecoration(
+                                          borderRadius: BorderRadius.circular(12),
+                                          gradient: const LinearGradient(
+                                            begin: Alignment.bottomCenter,
+                                            end: Alignment.topCenter,
+                                            colors: [
+                                              color.gradientLightBlue,
+                                              color.txtBlue
+                                            ],
+                                          )),
+                                      child: buildText("Apply", 18, FontWeight.w600, color.txtWhite),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                          ],
+                        )),
+                    Positioned(
+                      right: 0.15,
+                      top: 0.15,
+                      child: GestureDetector(
+                        onTap: () {
+                          Get.back();
+                        },
+                        child: CircleAvatar(
+                          radius: 12,
+                          backgroundColor: color.txtWhite,
+                          child: SvgPicture.asset(AssetsPics.cancel),
+                        ),
+                      ),
+                    )
+                  ],
+                ),
+              ),
+            ),
+          );
+        });
+      },
+      transitionBuilder: (context, anim1, anim2, child) {
+        return SlideTransition(
+          position: Tween(begin: const Offset(0, 1), end: const Offset(0, 0)).animate(anim1),
+          child: child,
+        );
+      });
 }

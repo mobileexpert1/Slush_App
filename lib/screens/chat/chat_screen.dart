@@ -98,7 +98,7 @@ class _ChatScreenState extends State<ChatScreen> {
   Timer? _timer;
   void _startTimer() {
     getChat();
-    _timer = Timer.periodic(const Duration(seconds: 8), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 15), (timer) {
       getChat();
     });
   }
@@ -117,6 +117,7 @@ class _ChatScreenState extends State<ChatScreen> {
     if(response.statusCode==200){
       snackBaar(context,AssetsPics.removed,false);
       setState(() {data.removeAt(i);});
+      getChat();
     }
     else{}
   }

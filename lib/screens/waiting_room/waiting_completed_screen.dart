@@ -71,15 +71,15 @@ class _WaitingCompletedState extends State<WaitingCompleted> with SingleTickerPr
     var dataa = jsonDecode(response.body);
     if (response.statusCode == 200) {
       setState(() {
-        if(dataa["data"].length!=0&&fixtureEmpty){
-          fixtureEmpty=false;
+        if(dataa["data"].length != 0 && fixtureEmpty){
+        fixtureEmpty=false;
         data = dataa["data"];
         print(data);
         LocaleHandler.totalDate = data.length;
 
-        for (var i = 0; i < dataa["data"].length; i++){if(dataa["data"][i]["participantId"]!=null){
-          Provider.of<TimerProvider>(context,listen: false).updateFixtureStatus(dataa["data"][i]["participantId"], "NOT_JOINED");
-        }}
+        for (var i = 0; i < dataa["data"].length; i++)
+        {if(dataa["data"][i]["participantId"]!=null){
+          Provider.of<TimerProvider>(context,listen: false).updateFixtureStatus(dataa["data"][i]["participantId"], "NOT_JOINED");}}
 
         for (var i = 0; i < dataa["data"].length; i++) {
           LocaleHandler.dateno = i + 1;
@@ -102,6 +102,7 @@ class _WaitingCompletedState extends State<WaitingCompleted> with SingleTickerPr
             }
             else if(LocaleHandler.dateno==dataa["data"].length){
               LocaleHandler.dateno=0;
+              LocaleHandler.totalDate = 1;
               showToastMsg("Event is over");
               Get.offAll(()=>BottomNavigationScreen());
               Provider.of<TimerProvider>(context,listen: false).stopTimerr();
@@ -132,11 +133,9 @@ class _WaitingCompletedState extends State<WaitingCompleted> with SingleTickerPr
         if( widget.min<10&&widget.min>7&&fixtureEmpty){
           print("fixtureEmpty===${fixtureEmpty}");
           getFixtures();
-        }
-      } else {
+        }} else {
         if (num == -1) {Get.to(() => const DidnotFindAnyoneScreen());}
-        else {
-          print("data[num];-;-;-;-${data[num]}");
+        else {print("data[num];-;-;-;-${data[num]}");
           Get.to(() => ReadyToCallScreen(data: data[num]));}
         _timer.cancel();
       }
@@ -144,10 +143,7 @@ class _WaitingCompletedState extends State<WaitingCompleted> with SingleTickerPr
   }
 
   void settimer() {
-    setState(() {
-      //_secondsLeft=widget.data["startsAt"];
-      startTimer();
-    });
+    setState(() {startTimer();});
   }
 
   @override
@@ -274,7 +270,8 @@ class _WaitingCompletedState extends State<WaitingCompleted> with SingleTickerPr
                                                 borderRadius: BorderRadius.circular(12),
                                                 child: ImageFiltered(
                                                   imageFilter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
-                                                  child: CachedNetworkImage(
+                                                  child:widget.data["participants"][index]["user"]["profilePictures"].length==0?
+                                                  Image.asset(AssetsPics.demouser,height: 35): CachedNetworkImage(
                                                       imageUrl: widget.data["participants"][index]["user"]["profilePictures"][0]["key"],
                                                       fit: BoxFit.cover),
                                                 )),
@@ -410,13 +407,12 @@ class _WaitingCompletedFeedBackState extends State<WaitingCompletedFeedBack>
     var dataa = jsonDecode(response.body);
     if (response.statusCode == 200) {
       setState(() {
-        if(dataa["data"].length!=0&&fixtureEmpty){
+        if(dataa["data"].length != 0 && fixtureEmpty){
           fixtureEmpty=false;
         data = dataa["data"];
         LocaleHandler.totalDate = data.length;
         for (var i = 0; i < dataa["data"].length; i++) {
           LocaleHandler.dateno=i+1;
-          print("i;-;-;-;-$i");
           print('dataa["data"][i]["status"];-;-;-;-${dataa["data"][i]["status"]}');
           print("dateno;-;-;-;-${LocaleHandler.dateno}");
           print("totalDAte;-;-;-;-${LocaleHandler.totalDate}");
@@ -435,6 +431,7 @@ class _WaitingCompletedFeedBackState extends State<WaitingCompletedFeedBack>
             }
             else if(LocaleHandler.dateno==dataa["data"].length){
               LocaleHandler.dateno=0;
+              LocaleHandler.totalDate = 1;
               showToastMsg("Event is over");
               Get.offAll(()=>BottomNavigationScreen());
               Provider.of<TimerProvider>(context,listen: false).stopTimerr();
@@ -638,7 +635,10 @@ class _WaitingCompletedFeedBackState extends State<WaitingCompletedFeedBack>
                                   Provider.of<TimerProvider>(context,listen: false).stopTimerr();
                                   _timer.cancel();
                                   LocaleHandler.bottomSheetIndex = 0;
-                                  Get.offAll(BottomNavigationScreen());_timer.cancel();
+                                  LocaleHandler.totalDate = 1;
+                                  LocaleHandler.dateno = 0;
+                                  Get.offAll(BottomNavigationScreen());
+                                  _timer.cancel();
                                 });
                               }),
                             ),

@@ -92,37 +92,26 @@ class _MatchesScreenState extends State<MatchesScreen> {
   }
 
   Future loadmore() async {
-    if (_page < totalpages &&
-        _hasNextPage == true &&
-        _isLoadMoreRunning == false &&
-        currentpage < totalpages &&
-        _controller!.position.extentAfter < 300) {
-      setState(() {
-        _isLoadMoreRunning = true;
-      });
+    if (_page < totalpages && _hasNextPage == true && _isLoadMoreRunning == false && currentpage < totalpages && _controller!.position.extentAfter < 300) {
+      setState(() {_isLoadMoreRunning = true;});
       _page = _page + 1;
       final url = isLiked
           ? "${ApiList.result}page=$_page&limit=10&type=liked"
           : "${ApiList.result}page=$_page&limit=10";
-      ;
       print(url);
       var uri = Uri.parse(url);
       var response = await http.get(uri, headers: {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ${LocaleHandler.accessToken}'
       });
-      setState(() {
-        _isLoadMoreRunning = false;
-      });
+      setState(() {_isLoadMoreRunning = false;});
       if (response.statusCode == 200) {
         setState(() {
           var data = jsonDecode(response.body)['data'];
           currentpage = data["meta"]["currentPage"];
           final List fetchedPosts = data["items"];
           if (fetchedPosts.isNotEmpty) {
-            setState(() {
-              post.addAll(fetchedPosts);
-            });
+            setState(() {post.addAll(fetchedPosts);});
           }
         });
       }
@@ -143,9 +132,9 @@ class _MatchesScreenState extends State<MatchesScreen> {
     var data=jsonDecode(response.body);
     if (response.statusCode == 201) {
       getListData();
-      if(data["isMatch"]&&action!="DISLIKED"){
-        Get.to(()=> const CongratMatchScreen(likedscreen: true));
-      }
+      // if(data["isMatch"]&&action!="DISLIKED"){
+      //   Get.to(()=> const CongratMatchScreen(likedscreen: true));
+      // }
     } else if (response.statusCode == 401) {
       showToastMsgTokenExpired();
     } else {}
@@ -426,13 +415,15 @@ class _MatchesScreenState extends State<MatchesScreen> {
         GestureDetector(
           onTap: () {
             if(LocaleHandler.subscriptionPurchase == "yes"){
+              LocaleHandler.eventParticipantData=item[index];
             Get.to(() => UnMatchedPersonProfileScreen(id: item[index]["userId"].toString()))!.then((value) async {
-              if (value == true) {setState(() {liked.add(item[index]["userId"]);});}});}
+              if (value == true) {setState(() {liked.add(item[index]["userId"]);});
+              getListData();
+              }});}
             else{
               shakeKey.currentState?.shake();
-              LocaleHandler.eventParticipantData=item[index];
-              Get.to(()=> const CongratMatchScreen(likedscreen: true));
-              // showToastMsg("Please Update to Slush Silver");
+              // LocaleHandler.eventParticipantData=item[index];
+              // Get.to(()=> const CongratMatchScreen(likedscreen: true));
             }
           },
           child: Container(
@@ -538,11 +529,10 @@ class _MatchesScreenState extends State<MatchesScreen> {
               GestureDetector(
                   onTap: () {
                    if(LocaleHandler.subscriptionPurchase == "yes"){
-                    setState(() {liked.add(item[index]["userId"]);});
+                    setState((){liked.add(item[index]["userId"]);});
+                    LocaleHandler.eventParticipantData=item[index];
+                    Get.to(()=> const CongratMatchScreen(likedscreen: true));
                     actionForHItLike("LIKED", item[index]["userId"].toString());
-                    // LocaleHandler.eventParticipantData=item[index];
-                    // Get.to(()=> const CongratMatchScreen(likedscreen: true));
-                    // print("Daaaddaadd");
                     // LoaderOverlay.show(context);
                     // LocaleHandler.liked=false;
                     // isLiked=false;

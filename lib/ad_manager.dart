@@ -1,11 +1,15 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
+import 'package:provider/provider.dart';
+import 'package:slush/controller/controller.dart';
 const String bannerAdUnitIdAndroid = "ca-app-pub-3940256099942544/9214589741";
 const String bannerAdUnitIos = "ca-app-pub-8921975243322271/9125625793";
 const String interstitialAdUnitIdAndroid = "ca-app-pub-3940256099942544/1033173712";
 const String interstitialAdUnitIdIos = "ca-app-pub-3940256099942544/1033173712";
 const String appOpenAdUnitIdAndroid = "ca-app-pub-8921975243322271/3268979675";
 const String appOpenAdUnitIdIos = "ca-app-pub-3940256099942544/5662855259";
+
 class AdManager {
   static Future<BannerAd> loadBannerAd(BannerAdListener listener) async {
     final bannerAd = BannerAd(
@@ -17,7 +21,8 @@ class AdManager {
     bannerAd.load();
     return bannerAd;
   }
-  static void loadInterstitialAd(Function() onAdClosed) async {
+
+  static void loadInterstitialAd(BuildContext context,Function() onAdClosed) async {
     InterstitialAd.load(
       adUnitId: Platform.isAndroid ? interstitialAdUnitIdAndroid : interstitialAdUnitIdIos,
       request: const AdRequest(),
@@ -27,6 +32,7 @@ class AdManager {
             onAdDismissedFullScreenContent: (InterstitialAd ad) {
               ad.dispose();
               onAdClosed();
+             Provider.of<reelController>(context,listen: false).adstarted(false);
             },
           );
           ad.show();

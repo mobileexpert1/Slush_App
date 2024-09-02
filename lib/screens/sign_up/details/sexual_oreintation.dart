@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
+import 'package:slush/controller/detail_controller.dart';
 import 'package:slush/widgets/text_widget.dart';
 
 class DetailSexualOreintScreen extends StatefulWidget {
@@ -70,9 +72,9 @@ class _DetailSexualOreintScreenState extends State<DetailSexualOreintScreen> {
   void initState() {
     check();
     selectedValue();
-
     super.initState();
   }
+
   void check(){
     if(LocaleHandler.EditProfile){
       if(itemss.contains(LocaleHandler.dataa["sexuality"].toString().capitalize())){
@@ -81,6 +83,7 @@ class _DetailSexualOreintScreenState extends State<DetailSexualOreintScreen> {
       }
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -90,50 +93,56 @@ class _DetailSexualOreintScreenState extends State<DetailSexualOreintScreen> {
         LocaleHandler.EditProfile? buildText("Choose one option that best represents you.", 28, FontWeight.w600, color.txtBlack):
         buildText2("Your sexual orientation?", 28, FontWeight.w600, color.txtBlack),
         const SizedBox(height: 8),
-        LocaleHandler.EditProfile?SizedBox(): buildText("Choose one option that best represents you.", 15, FontWeight.w500, color.txtBlack,fontFamily: FontFamily.hellix),
+        LocaleHandler.EditProfile?const SizedBox(): buildText("Choose one option that best represents you.", 15, FontWeight.w500, color.txtBlack,fontFamily: FontFamily.hellix),
         // const SizedBox(height: 29),
         Expanded(
-          child: ListView.builder(
-              padding: EdgeInsets.only(top: 20,bottom: 100),
-              itemCount: items.length,
-              itemBuilder: (context,index){
-                return GestureDetector(
-                  onTap: (){
-                    setState(() {
-                      selcetedIndex=index;
-                      LocaleHandler.sexualOreintation=items[index].title.toString().toLowerCase();
-                    });
-                  },
-                  child: Container(
-                    margin: const EdgeInsets.only(bottom: 15),
-                    height: 8.h-2,
-                    width: MediaQuery.of(context).size.width,
-                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(12),
-                        color: color.txtWhite,
-                        border: Border.all(width: 1,color: selcetedIndex==index?color.txtBlue:color.txtWhite)
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.only(left: 20,right: 16,top: 0),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        children: [
-                          buildText(items[index].title, 18, FontWeight.w600, color.txtBlack),
-                          CircleAvatar(
-                            backgroundColor: selcetedIndex==index?color.txtBlue:color.txtBlack,
-                            radius: 9,
-                            child: CircleAvatar(
-                              radius: 8,
-                              backgroundColor: selcetedIndex==index?color.txtWhite:color.txtWhite,
-                              // backgroundImage: SvgPicture.asset(AssetsPics.arrowLeft),
-                              child: selcetedIndex==index?SvgPicture.asset(AssetsPics.blueTickCheck,fit: BoxFit.cover,):SizedBox(),
-                            ),
-                          )
-                        ],),
-                    ),
-                  ),
-                );
-              }),
+          child: Consumer<detailedController>(
+            builder: (context,value,child) {
+              return ListView.builder(
+                  padding: const EdgeInsets.only(top: 20,bottom: 100),
+                  itemCount: items.length,
+                  itemBuilder: (context,index){
+                    return value.gender!="female" && items[index].title=="Lesbian" ? const SizedBox():
+                    value.gender!="male" && items[index].title=="gay" ? const SizedBox():
+                    GestureDetector(
+                      onTap: (){
+                        setState(() {
+                          selcetedIndex=index;
+                          LocaleHandler.sexualOreintation=items[index].title.toString().toLowerCase();
+                        });
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(bottom: 15),
+                        height: 8.h-2,
+                        width: MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12),
+                            color: color.txtWhite,
+                            border: Border.all(width: 1,color: selcetedIndex==index?color.txtBlue:color.txtWhite)
+                        ),
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 20,right: 16,top: 0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              buildText(items[index].title, 18, FontWeight.w600, color.txtBlack),
+                              CircleAvatar(
+                                backgroundColor: selcetedIndex==index?color.txtBlue:color.txtBlack,
+                                radius: 9,
+                                child: CircleAvatar(
+                                  radius: 8,
+                                  backgroundColor: selcetedIndex==index?color.txtWhite:color.txtWhite,
+                                  // backgroundImage: SvgPicture.asset(AssetsPics.arrowLeft),
+                                  child: selcetedIndex==index?SvgPicture.asset(AssetsPics.blueTickCheck,fit: BoxFit.cover,):const SizedBox(),
+                                ),
+                              )
+                            ],),
+                        ),
+                      ),
+                    );
+                  });
+            }
+          ),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,

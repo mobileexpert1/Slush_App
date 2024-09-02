@@ -85,7 +85,6 @@ class _Subscription1State extends State<Subscription1> {
   void _handlePurchaseUpdates(List<PurchaseDetails> purchases) async {
     for (var purchase in purchases) {
       if (purchase.status == PurchaseStatus.purchased) {
-        // Verify purchase here and deliver the product
         bool valid = await _verifyPurchase(purchase);
         if (valid) {
          selectedIndex == 1 ? subscribeApi(selectedIndex = 1) : showToastMsg("Coming soon...");
@@ -337,14 +336,14 @@ class _Subscription1State extends State<Subscription1> {
                       controller: _pageController,
                       children: [
                         customScroller(text1: 'See who has Liked you', text2: 'See everyone that likes you', iconName: AssetsPics.like),
-                        customScroller(text1: 'Sparks', text2: '3 sparks a day', iconName: AssetsPics.shock),
+                        customScroller(text1: 'Sparks', text2: '3 sparks', iconName: AssetsPics.shock),
                         customScroller(text1: 'Unlimited Swipes', text2: 'Endless swiping', iconName: AssetsPics.watch),
                       ],
                     ) : selectedIndex ==2 ?  PageView(
                       controller: _pageController,
                       children: [
                         customScroller(text1: 'See who has Liked you', text2: 'See everyone that likes you', iconName: AssetsPics.like),
-                        customScroller(text1: 'Sparks', text2: '5 sparks a day', iconName: AssetsPics.shock),
+                        customScroller(text1: 'Sparks', text2: '5 sparks', iconName: AssetsPics.shock),
                         customScroller(text1: 'Unlimited Swipes', text2:  'Endless swiping', iconName: AssetsPics.watch),
                         customScroller(text1: 'AI Dating Coach', text2: 'Your dating coach', iconName: AssetsPics.dating),
                         customScroller(text1: 'No ads', text2: 'Your dating coach', iconName: AssetsPics.noAds),
@@ -353,7 +352,7 @@ class _Subscription1State extends State<Subscription1> {
                       controller: _pageController,
                       children: [
                         customScroller(text1: 'See who has Liked you', text2: 'See everyone that likes you', iconName: AssetsPics.like),
-                        customScroller(text1: 'Sparks', text2: '10 sparks a day', iconName: AssetsPics.shock),
+                        customScroller(text1: 'Sparks', text2: '10 sparks', iconName: AssetsPics.shock),
                         customScroller(text1: 'Unlimited Swipes', text2:  'Endless swiping', iconName: AssetsPics.watch),
                         customScroller(text1: 'AI Dating Coach', text2: 'Your dating coach', iconName: AssetsPics.dating),
                         customScroller(text1: 'No ads', text2: 'Your dating coach', iconName: AssetsPics.noAds),
@@ -537,17 +536,13 @@ class _Subscription1State extends State<Subscription1> {
                   ),
                   const SizedBox(height: 18),
                   blue_button(context, "Continue",press: (){
-                    selectedIndex == 1 ? subscribeApi(selectedIndex = 1) : showToastMsg("Coming soon...");
-
-                    // subscribeApi(selectedIndex);
                     int num=selectedIndex==1?2:selectedIndex==2?0:1;
-                    if(LocaleHandler.subscriptionPurchase!="yes"){
+                    if(LocaleHandler.subscriptionPurchase=="no" && selectedIndex == 1){
 
-                      // if(Platform.isAndroid){_buySubscription(_products[num]);}
-                      // else{subscribeApi(selectedIndex);}
-                    }
-                    else{Fluttertoast.showToast(msg: "Already purchased a subscription");}
-                    // callFunction();
+                      // if(Platform.isAndroid){_buySubscription(_products[num]);}else{subscribeApi(selectedIndex);}
+                      selectedIndex==1?subscribeApi(selectedIndex):showToastMsg("Coming soon...");
+                    }else if(selectedIndex != 1){showToastMsg("Coming soon...");}
+                    else{}
                   }),
                   SizedBox(height:defaultTargetPlatform==TargetPlatform.iOS?25: 10)
                 ],),

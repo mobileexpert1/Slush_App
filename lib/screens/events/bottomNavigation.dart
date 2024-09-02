@@ -51,37 +51,6 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
     UserProfileScreen(),
   ];
 
-  Future getListData() async {
-    // setState(() {LoaderOverlay.show(context);});
-    final url = isLiked
-        ? "${ApiList.result}page=1&limit=10&type=liked"
-        : "${ApiList.result}page=1&limit=10";
-    print(url);
-    var uri = Uri.parse(url);
-    var response = await http.get(uri, headers: {
-      'Content-Type': 'application/json',
-      'Authorization': 'Bearer ${LocaleHandler.accessToken}'
-    });
-    var dataa = jsonDecode(response.body)["data"]["items"];
-    if (response.statusCode == 200) {
-      int i = 0;
-      for(i = 0; i <= dataa.length; i++){
-        if(dataa[i]["isLikedTabUpdate"] == true) {
-          print("object++++++++++++");
-          setState(() {
-            LocaleHandler.isLikedTabUpdate = true;
-          });
-        }
-        // break;
-      }
-    } else if (response.statusCode == 401) {
-      showToastMsgTokenExpired();
-    } else {
-      if (LocaleHandler.subscriptionPurchase == "yes") {
-        Fluttertoast.showToast(msg: 'Something Went Wrong');
-      }
-    }
-  }
 
   void _onItemTapped(int index) {
     LocaleHandler.liked=false;
@@ -92,7 +61,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
         Provider.of<reelController>(context, listen: false).videoPause(true, LocaleHandler.pageIndex);
         Provider.of<reelController>(context, listen: false).remove();}
       else if(_selectedIndex.value!=0){
-        // Provider.of<eventController>(context, listen: false).timerCancel();
+        Provider.of<eventController>(context, listen: false).timerCancel();
       }}
     Provider.of<SplashController>(context, listen: false).checkInterenetConnection();
   }
@@ -104,7 +73,6 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
     // _notificationService.initialize();
     Provider.of<SplashController>(context, listen: false).checkInterenetConnection();
     // removeFeedList();
-    getListData();
     callFunction();
     super.initState();
   }

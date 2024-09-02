@@ -62,9 +62,7 @@ class _WaitingRoomState extends State<WaitingRoom> with SingleTickerProviderStat
 
   void settimer() {
     Provider.of<waitingRoom>(context,listen: false).changeValue();
-    setState(() {
-      startTimer();
-    });
+    setState(() {startTimer();});
   }
 
   void startTimer() {

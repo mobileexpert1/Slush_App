@@ -104,7 +104,7 @@ Widget blue_buttonwidehi(BuildContext context,String name,{bool validation=true,
     onTap: press,
     child: Container(
       alignment: Alignment.center,
-      height: 75,
+      height: MediaQuery.of(context).size.height*0.1,
       // height: MediaQuery.of(context).size.height*0.07,
       width: MediaQuery.of(context).size.width*0.9,
       decoration: BoxDecoration(borderRadius: BorderRadius.circular(12),

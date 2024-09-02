@@ -19,7 +19,6 @@ import 'package:slush/screens/events/bottomNavigation.dart';
 import 'package:slush/screens/video_call/feedback_screen.dart';
 import 'package:slush/screens/video_call/videoCall.dart';
 import 'package:slush/screens/waiting_room/firebase_firestore_service.dart';
-import 'package:slush/screens/waiting_room/waiting_completed_screen.dart';
 import 'package:slush/widgets/blue_button.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
 import 'package:slush/widgets/text_widget.dart';
@@ -38,6 +37,7 @@ class _ReadyToCallScreenState extends State<ReadyToCallScreen> {
   bool onlyonce = true;
   bool onlyaceptonce = true;
   bool onlyrejectonce = true;
+  late Timer _timer;
 
   @override
   void initState() {
@@ -48,32 +48,31 @@ class _ReadyToCallScreenState extends State<ReadyToCallScreen> {
 
   callFunction() async {
     LocaleHandler.eventParticipantData = widget.data;
-    Provider.of<TimerProvider>(context, listen: false).startTimerr();
-    startTimer();
     Future.delayed(const Duration(seconds: 3));
     Provider.of<TimerProvider>(context,listen: false).updateFixtureStatus(LocaleHandler.eventParticipantData["participantId"], "JOINED");
     final cameraStatus = await Permission.camera.status;
     final microphoneStatus = await Permission.microphone.status;
     if (!cameraStatus.isGranted || !microphoneStatus.isGranted) {await [Permission.camera, Permission.microphone].request();}
+    await Future.delayed(const Duration(seconds: 1));
+    Provider.of<TimerProvider>(context, listen: false).startTimerr();
+    startTimer();
   }
-
-  late Timer _timer;
 
   void startTimer() {
     int mins = Provider.of<TimerProvider>(context, listen: false).durationn - 300;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mins > 0) {
         setState(() {mins--;});
-        print(";-;-;-;-$mins");
+        print(";-;-;-;-${mins}mins");
         if (mins - 5 == 5) {
-          print(";-;-;-;-");
           FireStoreService().updateCallStatusToPicked("reject");
           // customDialogBoxwithtitle(context, LocaleText.guidetext3, "Ok", AssetsPics.guide3,isPng: true,onTap: (){
           //   Get.back();   Get.offAll(()=>WaitingCompletedFeedBack(data: LocaleHandler.eventdataa)); });
         }
       } else {
         Get.back();
-        Get.offAll(() => WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));
+        // Get.offAll(() => WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));
+        Get.offAll(() => const FeedbackVideoChatScreen());
         _timer.cancel();
       }
     });
@@ -217,7 +216,8 @@ class _ReadyToCallScreenState extends State<ReadyToCallScreen> {
                             // WidgetsBinding.instance.addPostFrameCallback((_) {if(onlyaceptonce){onlyaceptonce=false;Get.offAll(() => const VideoCallScreen());_timer.cancel();}});
                           }
                           else if (data['callstatus'] == "reject" ) {
-                            WidgetsBinding.instance.addPostFrameCallback((_) {if(onlyrejectonce){onlyrejectonce=false;
+                            WidgetsBinding.instance.addPostFrameCallback((_) {
+                              if(onlyrejectonce){onlyrejectonce=false;
                                 customDialogBoxwithtitle(context, LocaleText.guidetext3, "Ok", AssetsPics.guide3,isPng: true,onTap: (){Get.back();
                                 // Get.offAll(()=>WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));
                                 Get.offAll(() => const FeedbackVideoChatScreen());
@@ -238,8 +238,9 @@ class _ReadyToCallScreenState extends State<ReadyToCallScreen> {
                         Get.back();
                         Get.to(()=> const VideoCallScreen());
                         _timer.cancel();
+                        Provider.of<TimerProvider>(context, listen: false).vstartTimerr();
                         // customDialogBoxwithtitle(context, LocaleText.guidetext2, "Join Now", AssetsPics.guide2,isPng: true,onTap: (){
-                        //   FireStoreService().addCollection();Get.back();Get.to(()=> const VideoCallScreen());_timer.cancel();});
+                        // FireStoreService().addCollection();Get.back();Get.to(()=> const VideoCallScreen());_timer.cancel();});
                       }),
                       // const SizedBox(height: 15),
                       SizedBox(height: size.height * 0.02),
@@ -250,17 +251,21 @@ class _ReadyToCallScreenState extends State<ReadyToCallScreen> {
                             "Are you sure you want to leave the event", "Cancel", "Leave", onTap2: () {
                               Get.back();
                               LocaleHandler.bottomSheetIndex = 0;
+                              LocaleHandler.totalDate = 1;
+                              LocaleHandler.dateno = 0;
                               Get.offAll(BottomNavigationScreen());
                               _timer.cancel();
                             });
                       }),
                     ],),
-                    Container(
-                      padding: EdgeInsets.only(left: size.width*0.5+5),
-                      child: Lottie.asset('assets/animation/ClickAnimation.json',
-                        repeat: true,
-                        width: size.width*0.3-20,
-                        height:  size.width*0.3-20,
+                    IgnorePointer(
+                      child: Container(
+                        padding: EdgeInsets.only(left: size.width*0.5+5),
+                        child: Lottie.asset('assets/animation/ClickAnimation.json',
+                          repeat: true,
+                          width: size.width*0.3-20,
+                          height:  size.width*0.3-20,
+                        ),
                       ),
                     ),
                   ],),
@@ -288,10 +293,8 @@ class _ReadyToCallScreenState extends State<ReadyToCallScreen> {
   }
 
   customDialogBoxx(BuildContext context, String title, String heading,
-      String btnTxt, String img,
-      {VoidCallback? onTapp = pressed,
-      VoidCallback? onTap = pressed,
-      bool isPng = false}) {
+      String btnTxt, String img, {VoidCallback? onTapp = pressed,
+      VoidCallback? onTap = pressed, bool isPng = false}) {
     return showGeneralDialog(
         barrierLabel: "Label",
         barrierDismissible: true,
@@ -349,55 +352,8 @@ class _ReadyToCallScreenState extends State<ReadyToCallScreen> {
           );
         });
   }
+
 }
 
-class TimerProgressIndicator extends StatefulWidget {
-  @override
-  _TimerProgressIndicatorState createState() => _TimerProgressIndicatorState();
-}
-
-class _TimerProgressIndicatorState extends State<TimerProgressIndicator> {
-  double _progress = 0.0;
-  Timer? _timer;
-
-  @override
-  void initState() {
-    super.initState();
-    _startTimer();
-  }
-
-  void _startTimer() {
-    _timer = Timer.periodic(const Duration(milliseconds: 1000), (timer) {
-      if (_progress < 1.0) {
-        setState(() {
-          _progress += 1.0 / 60.0; // Update progress for each second
-        });
-        print(";-;-;-;-$_progress");
-      } else {
-        _timer?.cancel(); // Stop the timer once it reaches 100%
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel(); // Cancel the timer when the widget is disposed
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 300, // Set the width of the progress bar
-      height: 5, // Set the height of the progress bar
-      child: LinearProgressIndicator(
-        value: _progress, // Percentage complete
-        backgroundColor: Colors.grey[300], // Background color
-        valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue), // Progress color
-        minHeight: 6, // Line width
-      ),
-    );
-  }
-}
 
 

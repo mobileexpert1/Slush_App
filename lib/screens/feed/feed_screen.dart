@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:slush/constants/api.dart';
 import 'package:slush/controller/controller.dart';
 import 'package:slush/controller/profile_controller.dart';
+import 'package:slush/controller/spark_Liked_controler.dart';
 import 'package:slush/screens/feed/tutorials/controller_class.dart';
 import 'package:slush/screens/profile/spark_purchase.dart';
 import 'package:slush/video_player/reel_screen.dart';
@@ -48,7 +49,10 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
   int distancevalue = 250;
   double _startValue = 18.0;
   double _endValue = 90.0;
-  var _value = 250;
+  final debounce = Debounce(milliseconds: 300);
+  bool isPLaying = false;
+  double videoContainerRatio = 0.5;
+  List user=[];
 
   @override
   void initState() {
@@ -76,7 +80,6 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
         futuredelayed(3, false);
       });
     }
-    // swippedVideo(widget.data[0]["id"]);
   }
 
   void futuredelayed(int i, bool val) {
@@ -87,7 +90,7 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
     });
   }
 
-  Future interactAPi(String action, int userId,int index,String name) async {
+  Future interactAPi(String action, int userId, int index, String name) async {
     final url = ApiList.interact;
     print(url);
     var uri = Uri.parse(url);
@@ -108,8 +111,8 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
     } else {}
   }
 
-  Future actionForHItLike(String action,String id)async{
-    final url= "${ApiList.action}${id}/action";
+  Future actionForHItLike(String action, int userId, int index, String name)async{
+    final url= "${ApiList.action}${userId}/action";
     print(url);
     var uri=Uri.parse(url);
     var response=await http.post(uri,
@@ -117,15 +120,17 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
         body: jsonEncode({"action":action})
     );
     if(response.statusCode==201){
-    Provider.of<profileController>(context,listen: false).getTotalSparks();}
+      var data=jsonDecode(response.body);
+      if(data["isMatch"]&&action!="DISLIKED") {
+        Provider.of<reelController>(context, listen: false).videoPause(true, index);
+        Provider.of<reelController>(context, listen: false).congoScreen(true, widget.data[index]["user"]["avatar"],name,userId);
+        // Get.to(() => TransparentCongoWithBottomScreen(userId: widget.data[index]["user"]["id"], name: name));
+      }
+      Provider.of<profileController>(context,listen: false).getTotalSparks();
+    }
     else if(response.statusCode==401){}
     else{}
   }
-
-  final debounce = Debounce(milliseconds: 300);
-  bool isPLaying = false;
-
-  double videoContainerRatio = 0.5;
 
   double getScale(double val) {
     // double videoRatio = _videoPlayerController.value.aspectRatio;
@@ -133,58 +138,58 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
     if (videoRatio < videoContainerRatio) {return videoContainerRatio / videoRatio;}
     else {return videoRatio / videoContainerRatio;}
   }
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  List user=[];
+  @override
+  void didChangeDependencies() {
+    Navigator.of(context);
+    setState(() {});
+    super.didChangeDependencies();
+  }
 
   @override
   Widget build(BuildContext context) {
     final reelcntrol = Provider.of<reelController>(context, listen: false);
     final size = MediaQuery.of(context).size;
     return Scaffold(
+      key: _scaffoldKey,
       backgroundColor: Colors.black,
       body: Stack(
         children: [
           Consumer<reelController>(builder: (build, val, child) {
             return mounted ? PageView.builder(
-                    // physics: NeverScrollableScrollPhysics(),
-                    physics: LocaleHandler.subscriptionPurchase == "no" && val.count == 0 ? const NeverScrollableScrollPhysics() : const ClampingScrollPhysics(),
+                    physics: LocaleHandler.subscriptionPurchase != "no" && val.count != 0 ?
+                    const ClampingScrollPhysics() :val.adstart? const NeverScrollableScrollPhysics():const ClampingScrollPhysics(),
                     scrollDirection: Axis.vertical,
                     controller: _pageController,
                     // itemCount: widget.reels.length,
-                    itemCount: val.videocntroller.length,
+                    itemCount: val.videocntroller.length+1,
                     onPageChanged: (index) {
-                      print("=======================");
                       if (index == widget.reels.length - 2) {
-                        reelcntrol.loadmore(context, 1, 50, 5000, LocaleHandler.latitude, LocaleHandler.longitude, selectedGender == "Everyone" ? "" : selectedGender.toLowerCase());
+                        reelcntrol.loadmore(context, 1, LocaleHandler.startage, LocaleHandler.endage,LocaleHandler.distancevalue, LocaleHandler.latitude, LocaleHandler.longitude, selectedGender == "Everyone" ? "" : selectedGender.toLowerCase());
                       }
                       if (index > LocaleHandler.pageIndex) {
                         debounce.run(() async {
                           reelcntrol.videoPause(true, index - 1);
-                          // reelcntrol.setVolumne(false,index-1);
                           reelcntrol.playNextReel(index);
                           isPLaying = !isPLaying;
                           reelcntrol.swippedVideo(context, widget.data[index]["id"]);
-                          // reelcntrol.videoPause(isPLaying,index-1);
                         });
                       } else {
                         debounce.run(() async {
                           reelcntrol.videoPause(true, index + 1);
-                          // reelcntrol.setVolumne(false,index+1);
                           reelcntrol.playPreviousReel(index);
-                          isPLaying = !isPLaying;
-                          // reelcntrol.videoPause(isPLaying,index+1);
-                        });
-                      }
+                          isPLaying = !isPLaying;});}
                       Provider.of<reelController>(context,listen: false).changeBioHieght(false);
+                      if(Provider.of<reelController>(context,listen: false).totallen==index){
+                        Provider.of<reelController>(context,listen: false).stopReels(context);
+                      }
                     },
                     itemBuilder: (context, index) {
-                      String name = widget.data[index]["user"]["fullName"] ?? widget.data[index]["user"]["nickName"] ?? "";
-                      print(":_------------${widget.data[index]["hasLiked"]}");
-                      return GestureDetector(
-                        onTap: () {
-                          if (val.pause) {reelcntrol.videoPause(false, index);}
-                          else {reelcntrol.videoPause(true, index);}
-                        },
+                      String name =val.videocntroller.length==index?"": widget.data[index]["user"]["fullName"] ?? widget.data[index]["user"]["nickName"] ?? "";
+                      return val.videocntroller.length==index?const SizedBox(): GestureDetector(
+                        onTap: () {if (val.pause) {reelcntrol.videoPause(false, index);}
+                        else {reelcntrol.videoPause(true, index);}},
                         child: Stack(
                           alignment: Alignment.center,
                           children: [
@@ -230,7 +235,7 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                         },
                                         child: Consumer<reelTutorialController>(
                                             builder: (context, val, child) {
-                                          return val.cou == 5 || LocaleHandler.scrollLimitreached
+                                          return val.cou == 5 || Provider.of<reelController>(context).stopReelScroll
                                               ? const SizedBox()
                                               : SvgPicture.asset(AssetsPics.reelFilterIcon, height: 50);
                                         }),
@@ -256,8 +261,7 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                               });
                                             },
                                             child: Consumer<reelTutorialController>(builder: (context, val, child) {
-                                              return val.cou == 1
-                                                  ? const SizedBox()
+                                              return val.cou == 1 ? const SizedBox()
                                                   : CircleAvatar(
                                                       radius: 30,
                                                       child: SizedBox(
@@ -265,8 +269,7 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                                           height: 65,
                                                           child: ClipOval(
                                                             child:widget.data[index]["user"]["avatar"]==null?
-                                                                Image.asset(AssetsPics.demouser)
-                                                                : CachedNetworkImage(
+                                                            Image.asset(AssetsPics.demouser) : CachedNetworkImage(
                                                               imageUrl: widget.data[index]["user"]["avatar"],fit: BoxFit.cover,
                                                               errorWidget: (context, url, error) => const SizedBox(),
                                                               // placeholder: (ctx,url)=>const Center(child: CircularProgressIndicator(color: color.txtBlue)),
@@ -339,38 +342,31 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                       builder: (context,val,child){
                                         return GestureDetector(
                                             onTap: (){
-                                              customSparkBottomSheet(context,AssetsPics.sparkleft, "Are you sure you would like to use 1 x Spark?", "Cancel", "Yes",true,
-                                                  sparks: val.sparks,
-                                                  onTap2: (){Get.back();
-                                                  if(val.sparks<=0) {
-                                                    customSparkBottomSheet(context, AssetsPics.sparkempty,
-                                                        " You have run out of Sparks, please purchase  more.",
-                                                        "Cancel", "Purchase", false,onTap2: (){
-                                                          Get.back();
-                                                          Get.to(()=>const SparkPurchaseScreen());
-                                                        });
-                                                  }else{
-                                                    if(LocaleHandler.sparkLiked.contains(widget.data[index]["user"]["id"])){
-                                                      showToastMsg("Already Spark liked");
-                                                    }
-                                                    else{
-                                                      // Provider.of<reelController>(context, listen: false).videoPause(true, index);
-                                                      // Provider.of<reelController>(context, listen: false).congoScreen(true, widget.data[index]["user"]["avatar"],name,widget.data[index]["user"]["id"]);
-                                                    interactAPi("SPARK LIKE", widget.data[index]["user"]["id"],index,name);
-                                                    Provider.of<reelController>(context, listen: false).alreadySparkLiked(widget.data[index]["user"]["id"]);
-                                                    showToastMsg("Spark Liked");
-                                                    }
-                                                  }});},
-
+                                              if(widget.data[index]["hasLiked"]){showToastMsg("Already Liked");}
+                                              else if(Provider.of<SparkLikedController>(context, listen: false).sparkLike.contains(widget.data[index]["user"]["id"])){showToastMsg("Already Spark Liked");}
+                                              else if(Provider.of<SparkLikedController>(context, listen: false).liked.contains(widget.data[index]["user"]["id"])){showToastMsg("Already Liked");}
+                                              else{
+                                                customSparkBottomSheet(context,AssetsPics.sparkleft, "Are you sure you would like to use 1 x Spark?", "Cancel", "Yes",true,
+                                                    sparks: val.sparks,
+                                                    onTap2: (){
+                                                      Get.back();
+                                                      if(val.sparks<=0) {customSparkBottomSheet(context, AssetsPics.sparkempty,
+                                                          " You have run out of Sparks, please purchase  more.",
+                                                          "Cancel", "Purchase", false,onTap2: (){Get.back();
+                                                          Get.to(()=>const SparkPurchaseScreen());});
+                                                      }else{
+                                                        interactAPi("SPARK LIKE", widget.data[index]["user"]["id"],index,name);
+                                                        Provider.of<SparkLikedController>(context, listen: false).addSparkLike(widget.data[index]["user"]["id"]);
+                                                        _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                                                        showToastMsg("Spark Liked");}
+                                                    });}},
                                             child: AnimatedSwitcher(
                                               duration: const Duration(milliseconds: 500),
                                               transitionBuilder: (Widget child, Animation<double> animation) {
-                                                return FadeTransition(opacity: animation, child: child);
-                                              },
-                                              child:LocaleHandler.sparkLiked.contains(widget.data[index]["user"]["id"])?
+                                                return FadeTransition(opacity: animation, child: child);},
+                                              child:Provider.of<SparkLikedController>(context, listen: false).sparkLike.contains(widget.data[index]["user"]["id"])?
                                               CircleAvatar(backgroundColor: color.sparkPurple, radius: 30, child: SvgPicture.asset(AssetsPics.superlikewhite, height: 25),
-                                                  key: const ValueKey('sparked')
-                                              )
+                                                  key: const ValueKey('sparked'))
                                               :CircleAvatar(backgroundColor: Colors.white, radius: 30, child: SvgPicture.asset(AssetsPics.superlike, height: 25,
                                                   key: const ValueKey('unsparked')
                                               )),
@@ -380,10 +376,14 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                   // child: SvgPicture.asset(AssetsPics.superlike,height: 57))),
                                   SizedBox(height: 2.h),
                                   GestureDetector(onTap: () {
-                                    setState(() {widget.data[index]["hasLiked"]=!widget.data[index]["hasLiked"];});
-                                    if(widget.data[index]["hasLiked"])
-                                    {interactAPi("LIKED", widget.data[index]["user"]["id"],index,name);}
-                                  else {interactAPi("DISLIKED", widget.data[index]["user"]["id"],index,name);}
+                                    if(widget.data[index]["hasLiked"]){showToastMsg("Already Liked");}
+                                    else if(Provider.of<SparkLikedController>(context, listen: false).sparkLike.contains(widget.data[index]["user"]["id"])){showToastMsg("Already Spark Liked");}
+                                    else if(Provider.of<SparkLikedController>(context, listen: false).liked.contains(widget.data[index]["user"]["id"])){showToastMsg("Already Liked");}
+                                    else{ setState(() {widget.data[index]["hasLiked"]=true;});
+                                    interactAPi("LIKED", widget.data[index]["user"]["id"],index,name);
+                                    Provider.of<SparkLikedController>(context, listen: false).addLikeD(widget.data[index]["user"]["id"]);
+                                    _pageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOut);
+                                    }
                                   }, // child: SvgPicture.asset(isLiked? AssetsPics.active:AssetsPics.inactive,height: 70)
                                       child: Consumer<reelTutorialController>(builder: (context, val, child) {
                                     return val.cou == 2
@@ -393,7 +393,7 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                         transitionBuilder: (Widget child, Animation<double> animation) {
                                           return FadeTransition(opacity: animation, child: child);
                                         },
-                                        child:widget.data[index]["hasLiked"]? SvgPicture.asset(AssetsPics.active,height: 70,key: const ValueKey('like'))
+                                        child:Provider.of<SparkLikedController>(context,listen: false).liked.contains(widget.data[index]["user"]["id"])? SvgPicture.asset(AssetsPics.active,height: 70,key: const ValueKey('like'))
                                             :SvgPicture.asset(AssetsPics.inactive,height: 70,key: const ValueKey('dislike')));
                                   })),
                                   SizedBox(height: 10.h),
@@ -528,112 +528,12 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                               ),
                                             ),
                                           ),
-                                          /*      IgnorePointer(
-                child: CircleAvatar(
-                  radius: 16,
-                  child: SvgPicture.asset("assets/icons/sliderright.svg"),
-                ),
-              ),*/
-                                          // Container(height: 20,width: 100,color: Colors.red,)
                                         ],
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
-                              // Padding(
-                              //   padding: const EdgeInsets.only(left: 15,right: 15,bottom: 0,top: 10),
-                              //   child: Column(
-                              //     crossAxisAlignment: CrossAxisAlignment.start,
-                              //     children: [
-                              //       buildText("Age", 18, FontWeight.w600, color.txtBlack),
-                              //       const SizedBox(height: 50),
-                              //       Container(
-                              //         height: 30,
-                              //         width: MediaQuery.of(context).size.width,
-                              //         decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: color.txtWhite),
-                              //         child: Stack(
-                              //           alignment: Alignment.center,
-                              //           children: [
-                              //             /*SfSliderTheme(
-                              //               data: SfSliderThemeData(tooltipBackgroundColor: Colors.blue, thumbRadius: 8,
-                              //                 tooltipTextStyle: const TextStyle(fontSize: 16),
-                              //               ),
-                              //               child: SfSlider(
-                              //                 // numberFormat: ,
-                              //                   shouldAlwaysShowTooltip: false,
-                              //                   // thumbIcon: CircleAvatar(radius: 50, child: Image.asset("assets/images/eventProfile.png")),
-                              //                   thumbIcon: const Stack(
-                              //                     alignment: Alignment.center,
-                              //                     children: [
-                              //                       CircleAvatar(backgroundColor: color.txtBlue),
-                              //                       CircleAvatar(radius: 5, backgroundColor: color.txtWhite),
-                              //                     ],
-                              //                   ),
-                              //                   min: 18,
-                              //                   max: 70.0,
-                              //                   value: agevalue.toDouble(),
-                              //                   interval: 1,
-                              //                   showTicks: false,
-                              //                   showLabels: false,
-                              //                   enableTooltip: true,
-                              //                   minorTicksPerInterval: 1,
-                              //                   onChanged: (dynamic value) {setState(() {agevalue = value.toInt();});},
-                              //                   activeColor: color.txtBlue,
-                              //                   dividerShape: const SfDividerShape(),
-                              //                   tooltipShape: const SfPaddleTooltipShape(),
-                              //                   edgeLabelPlacement: EdgeLabelPlacement.inside,
-                              //                   inactiveColor: color.lightestBlueIndicator,
-                              //                   labelPlacement: LabelPlacement.betweenTicks,
-                              //                   tooltipTextFormatterCallback: (dynamic actualValue, String formattedText) {
-                              //                     return formatValue(actualValue.toDouble());}
-                              //               ),
-                              //             ),*/
-                              //             SliderTheme(
-                              //               data: SliderTheme.of(context).copyWith(
-                              //                 trackHeight: 5.0,
-                              //                 inactiveTickMarkColor: Colors.transparent,
-                              //                 trackShape: const RoundedRectSliderTrackShape(),
-                              //                 activeTrackColor: color.txtBlue,
-                              //                 inactiveTrackColor: color.lightestBlueIndicator,
-                              //                 activeTickMarkColor: Colors.transparent,
-                              //                 thumbShape: const RoundSliderThumbShape(
-                              //                   enabledThumbRadius: 14.0,
-                              //                   pressedElevation: 8.0,
-                              //                 ),
-                              //                 thumbColor: Colors.white,
-                              //                 overlayColor: const Color(0xff2280EF).withOpacity(0.2),
-                              //                 overlayShape: const RoundSliderOverlayShape(overlayRadius: 20.0),
-                              //                 valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
-                              //                 valueIndicatorColor: Colors.blue,
-                              //                 valueIndicatorTextStyle: const TextStyle(
-                              //                   color: Colors.white,
-                              //                   fontSize: 20.0,
-                              //                 ),
-                              //               ),
-                              //               child: Slider(
-                              //                 min: 18.0,
-                              //                 max: 70.0,
-                              //                 value: agevalue.toDouble(),
-                              //                 divisions: 100,
-                              //                 label: '${agevalue.round()}',
-                              //                 onChanged: (value) {setState((){agevalue = value.toInt();});},
-                              //               ),
-                              //             ),
-                              //             Positioned(left: 13.0,
-                              //               child: IgnorePointer(
-                              //                 child: CircleAvatar(
-                              //                   radius: 7,
-                              //                   child: SvgPicture.asset(AssetsPics.sliderleft),
-                              //                 ),
-                              //               ),
-                              //             ),
-                              //           ],
-                              //         ),
-                              //       ),
-                              //       const SizedBox(height: 20),
-                              //     ],),
-                              // ),
                               Container(
                                 decoration: BoxDecoration(
                                     borderRadius: BorderRadius.circular(12),
@@ -706,43 +606,6 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                                   ),
                                                 ],
                                               );
-                                              // return SliderTheme(
-                                              //     data: SliderTheme.of(context).copyWith(
-                                              //       trackHeight: 5.0,
-                                              //       inactiveTickMarkColor: Colors.transparent,
-                                              //       trackShape: const RoundedRectSliderTrackShape(),
-                                              //       activeTrackColor: color.txtBlue,
-                                              //       inactiveTrackColor: color.lightestBlueIndicator,
-                                              //       activeTickMarkColor: Colors.transparent,
-                                              //       thumbShape:
-                                              //           const RoundSliderThumbShape(
-                                              //               enabledThumbRadius: 14.0,
-                                              //               pressedElevation: 8.0),
-                                              //       thumbColor: Colors.white,
-                                              //       overlayColor: const Color(0xff2280EF).withOpacity(0.2),
-                                              //       overlayShape: const RoundSliderOverlayShape(overlayRadius: 20.0),
-                                              //       valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
-                                              //       // valueIndicatorShape: ,
-                                              //
-                                              //       valueIndicatorColor: Colors.blue,
-                                              //       valueIndicatorTextStyle: const TextStyle(color: Colors.white, fontSize: 16.0),
-                                              //     ),
-                                              //     child: RangeSlider(
-                                              //       divisions: 9,
-                                              //       labels: RangeLabels(
-                                              //         _startValue.round().toString(),
-                                              //         _endValue.round().toString(),
-                                              //       ),
-                                              //       min: 18.0,
-                                              //       max: 100.0,
-                                              //       values: RangeValues(_startValue, _endValue),
-                                              //       onChanged: (values) {
-                                              //         setState(() {
-                                              //           _startValue = values.start;
-                                              //           _endValue = values.end;
-                                              //         });
-                                              //       },
-                                              //     ));
                                             }),
                                           ],
                                         ),
@@ -752,8 +615,7 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                 ),
                               ),
                               Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 15, right: 15, bottom: 0, top: 10),
+                                padding: const EdgeInsets.only(left: 15, right: 15, bottom: 0, top: 10),
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
@@ -813,8 +675,7 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                               const Divider(thickness: 0.5, color: color.lightestBlue),
                               const SizedBox(height: 11),
                               Padding(
-                                padding: const EdgeInsets.only(
-                                    left: 15, right: 15, bottom: 15),
+                                padding: const EdgeInsets.only(left: 15, right: 15, bottom: 15),
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
@@ -854,8 +715,9 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                           LocaleHandler.pageIndex = 0;
                                         });
                                         Provider.of<reelController>(context, listen: false).videoPause(true, LocaleHandler.pageIndex);
+                                        Provider.of<reelController>(context,listen: false).stopReels(context);
                                         Provider.of<reelController>(context, listen: false).getVidero(context, 1, min, max, distancevalue, LocaleHandler.latitude,
-                                                LocaleHandler.longitude, selectedGender == "Everyone" ? "" : selectedGender.toLowerCase());
+                                                LocaleHandler.longitude, selectedGender == "Everyone" ? "" : selectedGender.toLowerCase(),filter: true);
                                         Get.back();
                                       },
                                       // onTap: onTap2,
@@ -1004,8 +866,7 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
         },
         transitionBuilder: (context, anim1, anim2, child) {
           return SlideTransition(
-            position: Tween(begin: const Offset(0, 1), end: const Offset(0, 0))
-                .animate(anim1),
+            position: Tween(begin: const Offset(0, 1), end: const Offset(0, 0)).animate(anim1),
             child: child,
           );
         });

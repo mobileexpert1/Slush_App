@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/controller/detail_controller.dart';
 import 'package:slush/controller/edit_profile_controller.dart';
+import 'package:slush/controller/spark_Liked_controler.dart';
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({Key? key}) : super(key: key);
@@ -80,12 +81,13 @@ bool front=true;
 }
 
 
-//---------------------
+//--------------------- Edit profile
 class CameraEditScreen extends StatefulWidget {
   const CameraEditScreen({Key? key}) : super(key: key);
   @override
   State<CameraEditScreen> createState() => _CameraEditScreenState();
 }
+
 class _CameraEditScreenState extends State<CameraEditScreen> {
   @override
   void initState() {
@@ -125,6 +127,74 @@ class _CameraEditScreenState extends State<CameraEditScreen> {
                 child: GestureDetector(
                     onTap: (){
                       pr.onTakePictureButtonPressed(context);},
+                    child: const Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        Icon(Icons.circle,color: Colors.white70,size: 100),
+                        Icon(Icons.circle,color: Colors.white,size: 80),
+                      ],
+                    )),
+              ),
+              Positioned(
+                // left: 0.0,
+                right: 60.0,
+                bottom: 70.0,
+                child: GestureDetector(
+                  onTap: () {
+                    front=!front;
+                    if(front){pr.pickImageFromCamera(CameraLensDirection.front);}
+                    else{pr.pickImageFromCamera(CameraLensDirection.back);}
+                  },
+                  child: SvgPicture.asset(AssetsPics.camrotate,height: 40),
+                ),
+              )
+            ],
+          );
+        })
+    );
+  }
+}
+
+//--------------------- Chat Image
+class CameraChatScreen extends StatefulWidget {
+  const CameraChatScreen({Key? key}) : super(key: key);
+  @override
+  State<CameraChatScreen> createState() => _CameraChatScreenState();
+}
+
+class _CameraChatScreenState extends State<CameraChatScreen> {
+  @override
+  void initState() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+    // TODO: implement initState
+    super.initState();
+  }
+
+  bool front=true;
+  @override
+  Widget build(BuildContext context) {
+    final pr=Provider.of<CamController>(context,listen: false);
+    final size=MediaQuery.of(context).size;
+    return Scaffold(
+        backgroundColor: Colors.black,
+        body: Consumer<CamController>(builder: (ctx,val,child){
+          return Stack(
+            children: [
+              Positioned(
+                top: 50,
+                child: Container(
+                  height: size.height/1.5,
+                  width: size.width,
+                  color: Colors.grey,
+                  child: CameraPreview(val.camcontroller),
+                ),
+              ),
+              Positioned(
+                left: 50.0,
+                right: 50.0,
+                bottom: 40.0,
+                child: GestureDetector(
+                    onTap: (){pr.onTakePictureButtonPressed(context);},
                     child: const Stack(
                       alignment: Alignment.center,
                       children: [

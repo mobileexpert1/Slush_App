@@ -47,6 +47,22 @@ Widget buildTextOverFlow(String stxt,double num,FontWeight wt,Color clr,{
   );
 }
 
+Widget buildTextOverFlow2(String stxt,double num,FontWeight wt,Color clr,{
+  String fontFamily=FontFamily.baloo2,
+  double spacing=0.4}) {
+  return Text(
+    stxt,
+    overflow: TextOverflow.ellipsis,
+    textAlign: TextAlign.right,
+    style:  TextStyle(
+        fontSize: num,
+        fontWeight: wt,
+        color: clr,
+        fontFamily: fontFamily,
+        letterSpacing: spacing),
+  );
+}
+
 Widget buildTextoneline(String stxt,double num,FontWeight wt,Color clr,{
   String fontFamily=FontFamily.baloo2,
   double spacing=0.4,}) {

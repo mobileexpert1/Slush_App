@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:slush/constants/prefs.dart';
 import 'package:slush/video_player//config/cache_config.dart';
 import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter/cupertino.dart';
@@ -27,6 +28,7 @@ class profileController extends ChangeNotifier {
         'Authorization': 'Bearer ${LocaleHandler.accessToken}'
       });
       if (response.statusCode == 200) {
+        dataa.clear();
         Map<String, dynamic> data = jsonDecode(response.body);
         dataa = data["data"];
         LocaleHandler.dataa = dataa;
@@ -179,6 +181,35 @@ class profileController extends ChangeNotifier {
     _spark=0;
     LocaleHandler.entencity.clear();
     LocaleHandler.entencityname.clear();
+
+    LocaleHandler.avatar="";
+    LocaleHandler.isChecked=false;
+    LocaleHandler.accessToken='';
+    LocaleHandler.refreshToken='';
+    LocaleHandler.bearer='';
+    LocaleHandler.nextAction = "";
+    LocaleHandler.nextDetailAction = "";
+    LocaleHandler.emailVerified = "";
+    LocaleHandler.name = "";
+    LocaleHandler.gender = "";
+    LocaleHandler.lookingfor = "";
+    LocaleHandler.sexualOreintation = "";
+    LocaleHandler.location = "";
+    LocaleHandler.userId = "";
+    LocaleHandler.role = "";
+    LocaleHandler.subscriptionPurchase = "";
+    LocaleHandler.bottomSheetIndex=0;
+    Preferences.setValue("token",LocaleHandler.accessToken);
+    Preferences.setrefreshToken(LocaleHandler.refreshToken);
+    Preferences.setNextAction("");
+    Preferences.setNextDetailAction("");
+    Preferences.setValue("emailVerified", LocaleHandler.emailVerified);
+    Preferences.setValue("name", LocaleHandler.name);
+    Preferences.setValue("location", LocaleHandler.location);
+    Preferences.setValue("userId", LocaleHandler.userId);
+    Preferences.setValue("role", LocaleHandler.role);
+    Preferences.setValue("subscriptionPurchase", LocaleHandler.subscriptionPurchase);
+
     notifyListeners();
   }
 

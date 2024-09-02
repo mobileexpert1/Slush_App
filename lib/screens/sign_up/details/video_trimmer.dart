@@ -13,13 +13,14 @@ class VideoTrimmerScreen extends StatefulWidget {
 }
 
 class _VideoTrimmerScreenState extends State<VideoTrimmerScreen> {
+
   @override
   void initState() {
     callSetState();
     super.initState();
   }
-  callSetState(){Future.delayed(Duration(seconds: 2),(){    setState(() {});});
-  }
+
+  callSetState(){Future.delayed(const Duration(seconds: 2),(){setState(() {});});}
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +57,8 @@ class _VideoTrimmerScreenState extends State<VideoTrimmerScreen> {
                           onChangeStart: (value) => detailcntrl.saveVlue(0, value),
                           onChangeEnd: (value) => detailcntrl.saveVlue(1, value),
                           // onChangePlaybackState: (value) => setState(() => _isPlaying = value),
-                          onChangePlaybackState: (value)  =>detailcntrl.trimmVideoPLayPause(value),
+                          onChangePlaybackState: (value)  =>
+                              WidgetsBinding.instance.addPostFrameCallback((_) {detailcntrl.trimmVideoPLayPause(value);})
                         ),
                       ],
                     ),

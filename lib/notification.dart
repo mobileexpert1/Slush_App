@@ -1,11 +1,6 @@
-import 'dart:io';
-
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:rxdart/rxdart.dart';
-import 'package:http/http.dart'as http;
 
 class FirebaseLocalNotification {
   //TODO Permission for USer notification
@@ -18,8 +13,8 @@ class FirebaseLocalNotification {
 
   static Future<void> initMessaging() async {
     const AndroidNotificationChannel channel = AndroidNotificationChannel(
-      'high_importance_channel', // id
-      'High Importance Notifications', // title
+      'high_importance_channel',
+      'High Importance Notifications',
       importance: Importance.max,
     );
     // await flutterLocalNotificationsPlugin.resolvePlatformSpecificImplementation<AndroidFlutterLocalNotificationsPlugin>()?.createNotificationChannel(channel);
@@ -46,7 +41,6 @@ class FirebaseLocalNotification {
       importance: Importance.max,
       priority: Priority.high,
     );
-    // var iosDetails = IOSNotificationDetails();
 
 
 

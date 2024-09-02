@@ -41,46 +41,36 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   ];
 
   int selectedIndex = -1;
-
-  // bool camOnn = false;
-  // bool micOnn = false;
   static const appId = 'ace5073becd844af9e3a1651abf1b1ef';
   // static const token = '007eJxTYFA558h1UUpsgbTf4o1dB9KV2y4aimhlijNEyPL8F90uaazAkJicampgbpyUmpxiYWKSmGaZapxoaGZqmJiUZphkmJp2d9uMtIZARobO93WsjAwQCOJzMJSkFpeAMAMDALn9Hu4=';
   // String channelId = 'testtest';
 
   @override
   void initState() {
-    // FireStoreService().deleteCallStatusToPicked();
     super.initState();
     initializeAgora();
     // _initAgora();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-
-      // Provider.of<TimerProvider>(context, listen: false).resetTimer();
-      // Provider.of<TimerProvider>(context, listen: false).startTimer();
-    });
   }
   final AgoraClient client = AgoraClient(
     agoraConnectionData: AgoraConnectionData(
       appId: appId,
       channelName: LocaleHandler.channelId,
       tempToken: LocaleHandler.rtctoken,
-
     ),
     enabledPermission: [Permission.camera, Permission.microphone],
   );
 
+  bool _isLoading = true;
+
   Future<void> initializeAgora() async {
-    print('Permission.camera.isGranted;-;-;-;-');
-    print(Permission.camera.isGranted);
-    print(Permission.microphone.isGranted);
+    setState(() {_isLoading = true;});
+    try {
     await [Permission.camera, Permission.microphone].request();
     // Initialize the client
     await client.initialize();
     await client.engine.muteLocalVideoStream(LocaleHandler.camOn);
     await client.engine.muteLocalAudioStream(LocaleHandler.micOn);
     await client.engine.startPreview();
-
     client.engine.registerEventHandler(
       RtcEngineEventHandler(
         onUserJoined: (connection, remoteUid, elapsed) {
@@ -101,7 +91,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
         },
       ),
     );
-    final ChannelMediaOptions options = ChannelMediaOptions(
+    final ChannelMediaOptions options = const ChannelMediaOptions(
       autoSubscribeVideo: true,
       autoSubscribeAudio: true,
     );
@@ -109,20 +99,28 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       token: LocaleHandler.rtctoken,  // Pass the token here
       channelId: LocaleHandler.channelId,  // Pass the channel ID here
       uid: 0, options: options,  // Auto-assign UID if not required
-    );
+    );}catch (e) {
+      print('Error initializing Agora: $e');
+    }finally {
+      setState(() {_isLoading = false;});
+    }
   }
 
   void _handleRemoteUserJoined(int remoteUid) {
     // Implement your logic here when the remote user connects
     print('Remote user $remoteUid connected');
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<TimerProvider>(context, listen: false).vstopTimerr();
       Provider.of<TimerProvider>(context, listen: false).resetTimer();
       Provider.of<TimerProvider>(context, listen: false).startTimer();
     });
+    // setState(() {notjoined=true;});
     // For example, you can show a message or update the UI
   }
 
   void _handleRemoteUserLeft() {
+    showToastMsg("${LocaleHandler.eventParticipantData["firstName"]} is didn't Pick you call");
+    // setState(() {notjoined=true;});
     // Implement your logic here when the remote user cuts the call
     print('Remote user cut the call');
     // For example, you can navigate to a different screen or show a dialog
@@ -134,8 +132,10 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   void dispose() {
     client.engine.leaveChannel();
     client.release();
+
     super.dispose();
   }
+
   void _onExit() {
     client.release();
     client.engine.leaveChannel();
@@ -143,6 +143,9 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   }
 
   bool onlyrejectonce=true;
+  bool onlywaitonce=true;
+  bool onlyacepctonce=true;
+
   @override
   Widget build(BuildContext context) {
     final timerProvider = Provider.of<TimerProvider>(context);
@@ -161,8 +164,8 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
       canPop: false,
       child: Scaffold(
         backgroundColor: color.txtWhite,
-        body: SafeArea(
-          child: Stack(
+        body:  SafeArea(
+          child:_isLoading?const Center(child: CircularProgressIndicator(color: color.txtBlue)): Stack(
             children: [
               AgoraVideoViewer(
                 client: client,
@@ -173,8 +176,6 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                 renderModeType: RenderModeType.renderModeHidden,
                 showAVState: true,
               ),
-              // Positioned(top: 16.0, right: 16.0, child: FloatingActionButton(backgroundColor: Colors.transparent, onPressed: () {// _client.sessionController.switchCamera();
-              //     }, child: SvgPicture.asset(AssetsPics.camrotate),),),
               AgoraVideoButtons(
                   client: client,
                   autoHideButtons: false,
@@ -235,7 +236,6 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                   child: buildText(formattedTime, 25, FontWeight.w600, color.txtWhite),
                 ),
               ),
-
               Positioned(
                 top: 25,
                 right: 25,
@@ -244,35 +244,45 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                     child: SizedBox(height: 26, width: 26, child: SvgPicture.asset(AssetsPics.camrotate))),
               ),
 
-
-                Flexible(
-                    child: StreamBuilder<DocumentSnapshot>(
-                      stream: FireStoreService().getCallStatusStream(),
-                      builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-                        if (snapshot.hasError) {return buildSizedBox();}
-                        if (!snapshot.hasData || !snapshot.data!.exists) {return buildSizedBox();}
-                        else if (snapshot.hasData) {
-                          var data = snapshot.data!.data() as Map<String, dynamic>;
-                          if (data['callstatus'] == "wait" && data['createdUserId'] != LocaleHandler.userId) {}
-                          else if (data['callstatus'] == "wait" && data['createdUserId'] == LocaleHandler.userId) {
-                            return  Center(child: blue_buttonwidehi(context, "Waiting for you date to join...", press: () {}),);
-                          } else if (data['callstatus'] == "accept" && data['createdUserId'] == LocaleHandler.userId) {return SizedBox();}
-                          else if (data['callstatus'] == "reject" ) {
-                            WidgetsBinding.instance.addPostFrameCallback((_) {if(onlyrejectonce){onlyrejectonce=false;
-                            showToastMsg("${LocaleHandler.eventParticipantData["firstName"]} is didn't Pick you call");
-                            if(LocaleHandler.dateno==LocaleHandler.totalDate){
-                              LocaleHandler.dateno=0;
+              StreamBuilder<DocumentSnapshot>(
+                  stream: FireStoreService().getCallStatusStream(),
+                  builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                    if (snapshot.hasError) {return buildSizedBox();}
+                    if (!snapshot.hasData || !snapshot.data!.exists) {return buildSizedBox();}
+                    else if (snapshot.hasData) {
+                      var data = snapshot.data!.data() as Map<String, dynamic>;
+                      if (data['callstatus'] == "wait" && data['createdUserId'] == LocaleHandler.userId) {
+                        print(";-;-;-;-${data['callstatus']}");
+                        return  Center(child: blue_buttonwidehi(context, "Waiting for you date to join..."));
+                      }
+                      else if (data['callstatus'] == "accept") {
+                        print(";-;-;-;-${data['callstatus']}");
+                        if(onlyacepctonce){
+                          onlyacepctonce=false;
+                        Provider.of<TimerProvider>(context, listen: false).vstopTimerr();}
+                        return const SizedBox();}
+                      else if (data['callstatus'] == "reject" ) {
+                        print(";-;-;-;-${data['callstatus']}");
+                        if(onlyrejectonce) {
+                          onlyrejectonce=false;
+                          Provider.of<TimerProvider>(context, listen: false).vstopTimerr();
+                          WidgetsBinding.instance.addPostFrameCallback((_) {
+                              onlyrejectonce = false;
+                              showToastMsg("${LocaleHandler.eventParticipantData["firstName"]} is didn't Pick you call");
+                              if (LocaleHandler.dateno == LocaleHandler.totalDate) {LocaleHandler.dateno = 0;
+                              LocaleHandler.totalDate = 1;
                               showToastMsg("Event is over");
-                              Get.offAll(()=>BottomNavigationScreen());
-                              Provider.of<TimerProvider>(context,listen: false).stopTimerr();}
-                            else{Get.offAll(()=>WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));}
-                            }});
-                          }
+                                Get.offAll(() => BottomNavigationScreen());
+                                Provider.of<TimerProvider>(context, listen: false).stopTimerr();}
+                              else {Get.offAll(() => WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));}
+                          });
                         }
-                        return buildSizedBox();
-                      },
-                    ),
-                  ),
+
+                      }}
+                    return buildSizedBox();
+                  },
+                ),
+
             ],
           ),
         ),
@@ -296,62 +306,66 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
               backgroundColor: Colors.transparent,
               body: Align(
                 alignment: Alignment.bottomCenter,
-                child: Container(
-                    height: MediaQuery.of(context).size.height / 1.65,
-                    width: MediaQuery.of(context).size.width / 1.1,
-                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(color: color.txtWhite, borderRadius: BorderRadius.circular(16)),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        const SizedBox(height: 10),
-                        buildText(title, 20, FontWeight.w600, color.txtBlack),
-                        buildText2(heading, 18, FontWeight.w500, color.txtgrey, fontFamily: FontFamily.hellix),
-                        Expanded(
-                          child: StatefulBuilder(builder:
-                              (BuildContext context, StateSetter setState) {
-                            return ListView.builder(
-                                itemCount: reportingMatter.length,
-                                itemBuilder: (context, index) {
-                                  return Padding(
-                                    padding: const EdgeInsets.symmetric(vertical: 10),
-                                    child: GestureDetector(
-                                      onTap: () {
-                                        setState(() {selectedIndex = index;reportReason=reportingMatter[index];
-                                        });
-                                      },
-                                      child: Container(
-                                        color: Colors.transparent,
-                                        child: Row(
-                                          children: [
-                                            CircleAvatar(
-                                              backgroundColor: selectedIndex == index ? color.txtBlue : color.txtBlack,
-                                              radius: 9,
-                                              child: CircleAvatar(
-                                                radius: 8,
-                                                backgroundColor: selectedIndex == index ? color.txtWhite : color.txtWhite,
-                                                child: selectedIndex == index
-                                                    ? SvgPicture.asset(AssetsPics.blueTickCheck, fit: BoxFit.cover,)
-                                                    : const SizedBox(),
+                child: GestureDetector(
+                  onTap: (){},
+                  child: Container(
+                      height: MediaQuery.of(context).size.height / 1.65,
+                      width: MediaQuery.of(context).size.width / 1.1,
+                      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(color: color.txtWhite, borderRadius: BorderRadius.circular(16)),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          const SizedBox(height: 10),
+                          buildText(title, 20, FontWeight.w600, color.txtBlack),
+                          buildText2(heading, 18, FontWeight.w500, color.txtgrey, fontFamily: FontFamily.hellix),
+                          Expanded(
+                            child: StatefulBuilder(builder:
+                                (BuildContext context, StateSetter setState) {
+                              return ListView.builder(
+                                  itemCount: reportingMatter.length,
+                                  itemBuilder: (context, index) {
+                                    return Padding(
+                                      padding: const EdgeInsets.symmetric(vertical: 7),
+                                      child: GestureDetector(
+                                        onTap: () {
+                                          setState(() {selectedIndex = index;reportReason=reportingMatter[index];
+                                          });
+                                        },
+                                        child: Container(
+                                          height: 25,
+                                          color: Colors.transparent,
+                                          child: Row(
+                                            children: [
+                                              CircleAvatar(
+                                                backgroundColor: selectedIndex == index ? color.txtBlue : color.txtBlack,
+                                                radius: 9,
+                                                child: CircleAvatar(
+                                                  radius: 8,
+                                                  backgroundColor: selectedIndex == index ? color.txtWhite : color.txtWhite,
+                                                  child: selectedIndex == index
+                                                      ? SvgPicture.asset(AssetsPics.blueTickCheck, fit: BoxFit.cover,)
+                                                      : const SizedBox(),
+                                                ),
                                               ),
-                                            ),
-                                            const SizedBox(width: 10),
-                                            buildText2(reportingMatter[index], 18, FontWeight.w500, color.txtgrey, fontFamily: FontFamily.hellix),
-                                          ],
+                                              const SizedBox(width: 10),
+                                              buildText2(reportingMatter[index], 17, FontWeight.w500, color.txtgrey, fontFamily: FontFamily.hellix),
+                                            ],
+                                          ),
                                         ),
                                       ),
-                                    ),
-                                  );
-                                });
-                          }),
-                        ),
-                        const SizedBox(height: 15),
-                        blue_button(context, btnTxt, press: onTap)
-                      ],
-                    )),
+                                    );
+                                  });
+                            }),
+                          ),
+                          const SizedBox(height: 15),
+                          blue_button(context, btnTxt, press: onTap)
+                        ],
+                      )),
+                ),
               ),
             ),
           );

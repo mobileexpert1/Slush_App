@@ -12,7 +12,7 @@ import 'package:slush/screens/getstarted/slider_scree.dart';
 import 'package:slush/screens/login/login.dart';
 import 'package:slush/widgets/text_widget.dart';
 
-Future showToastMsg(String msg,{Color clrbg=Colors.white,Color clrtxt=Colors.black,}) {
+Future showToastMsg(String msg,{Color clrbg=Colors.grey,Color clrtxt=Colors.white}) {
   return Fluttertoast.showToast(
     msg: msg,
     toastLength: Toast.LENGTH_LONG, // You can also use Toast.LENGTH_LONG

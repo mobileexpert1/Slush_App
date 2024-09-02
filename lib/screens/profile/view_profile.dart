@@ -791,9 +791,9 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
   // CachedVideoPlayerPlusController? _controller2;
   // CachedVideoPlayerPlusController? _controller3;
 
-  late VideoPlayerController _controller;
-  late VideoPlayerController _controller2;
-  late VideoPlayerController _controller3;
+   VideoPlayerController? _controller;
+   VideoPlayerController? _controller2;
+   VideoPlayerController? _controller3;
 
 /*  cacheVideoPlay1(url) {
     _controller = CachedVideoPlayerPlusController.networkUrl(
@@ -843,17 +843,17 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
     if (LocaleHandler.dataa["profileVideos"].length != 0) {
       // cacheVideoPlay1(LocaleHandler.dataa["profileVideos"][0]["key"]);
       _controller  = VideoPlayerController.networkUrl(Uri.parse(LocaleHandler.dataa["profileVideos"][0]["key"]))
-        ..initialize().then((value) {videoPlay(_controller);});
+        ..initialize().then((value) {videoPlay(_controller!);});
     }
     if (LocaleHandler.dataa["profileVideos"].length >= 2) {
       // cacheVideoPlay2(LocaleHandler.dataa["profileVideos"][1]["key"]);
       _controller2 = VideoPlayerController.networkUrl(Uri.parse(LocaleHandler.dataa["profileVideos"][1]["key"]))
-        ..initialize().then((value) {videoPlay(_controller2);});
+        ..initialize().then((value) {videoPlay(_controller2!);});
     }
     if (LocaleHandler.dataa["profileVideos"].length >= 3) {
       // cacheVideoPlay3(LocaleHandler.dataa["profileVideos"][2]["key"]);
       _controller3 = VideoPlayerController.networkUrl(Uri.parse(LocaleHandler.dataa["profileVideos"][2]["key"]))
-        ..initialize().then((value) {videoPlay(_controller3);});
+        ..initialize().then((value) {videoPlay(_controller3!);});
     }
     showOnProfile();
     // getINterest();
@@ -869,9 +869,9 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
 
   @override
   void dispose() {
-    _controller.dispose();
-    _controller2.dispose();
-    _controller3.dispose();
+    _controller!.dispose();
+    if(_controller2!=null){_controller2!.dispose();}
+    if(_controller3!=null){_controller3!.dispose();}
     super.dispose();
   }
 

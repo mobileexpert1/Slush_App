@@ -1,12 +1,12 @@
-
-
 import 'package:flutter/material.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/prefs.dart';
 
 class reelTutorialController with ChangeNotifier{
+
   int index=0;
   int get cou=>index;
+
   void increamnt(){
     index++;
     if(index==6){
@@ -16,8 +16,8 @@ class reelTutorialController with ChangeNotifier{
     notifyListeners();
   }
 
-  void setScrollLimit(bool val){
-    LocaleHandler.scrollLimitreached=val;
-    notifyListeners();
-  }
+  // void setScrollLimit(bool val){
+  // LocaleHandler.scrollLimitreached=val;
+  // notifyListeners(); }
+
 }

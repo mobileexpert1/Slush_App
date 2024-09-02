@@ -8,8 +8,10 @@ import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/prefs.dart';
+import 'package:slush/controller/controller.dart';
 import 'package:slush/controller/event_controller.dart';
 import 'package:slush/controller/profile_controller.dart';
+import 'package:slush/controller/spark_Liked_controler.dart';
 import 'package:slush/screens/events/payment_history.dart';
 import 'package:slush/screens/getstarted/slider_scree.dart';
 import 'package:slush/screens/setting/account_settings.dart';
@@ -96,6 +98,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           btnTxt1: "Cancel",btnTxt2: "Yes, logout",onTap2: (){
                             logout();
                             removeData();
+                            Provider.of<reelController>(context,listen: false).removeVideoLimit(context);
                             // Get.offAll(()=>const SliderScreen());
                           }
                           );
@@ -183,47 +186,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
     const url = ApiList.logout;
     print(url);
     var uri=Uri.parse(url);
-    var response = await http.post(
-      uri,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': "Bearer ${LocaleHandler.accessToken}",
-      },
-    );
-      // Fluttertoast.showToast(msg: "Logout Successfully");
+    var response = await http.post(uri, headers: {'Content-Type': 'application/json', 'Authorization': "Bearer ${LocaleHandler.accessToken}"},);
+      // Fluttertoast.showToast(msg: "Logout Successfully"); Preferences.setToken(LocaleHandler.bearer='');
         showToastMsgTokenExpired(msg: "Logout successful");
-        // Preferences.setToken(LocaleHandler.bearer='');
+        Provider.of<SparkLikedController>(context,listen: false).cleanSparkLike();
   }
 
   void removeData(){
-    setState(() {
-      LocaleHandler.avatar="";
-      LocaleHandler.accessToken='';
-      LocaleHandler.refreshToken='';
-      LocaleHandler.bearer='';
-      LocaleHandler.nextAction = "";
-      LocaleHandler.nextDetailAction = "";
-      LocaleHandler.emailVerified = "";
-      LocaleHandler.name = "";
-      LocaleHandler.gender = "";
-      LocaleHandler.lookingfor = "";
-      LocaleHandler.sexualOreintation = "";
-      LocaleHandler.location = "";
-      LocaleHandler.userId = "";
-      LocaleHandler.role = "";
-      LocaleHandler.subscriptionPurchase = "";
-      LocaleHandler.bottomSheetIndex=0;
-      Preferences.setValue("token",LocaleHandler.accessToken);
-      Preferences.setrefreshToken(LocaleHandler.refreshToken);
-      Preferences.setNextAction("");
-      Preferences.setNextDetailAction("");
-      Preferences.setValue("emailVerified", LocaleHandler.emailVerified);
-      Preferences.setValue("name", LocaleHandler.name);
-      Preferences.setValue("location", LocaleHandler.location);
-      Preferences.setValue("userId", LocaleHandler.userId);
-      Preferences.setValue("role", LocaleHandler.role);
-      Preferences.setValue("subscriptionPurchase", LocaleHandler.subscriptionPurchase);
-    });
     Provider.of<eventController>(context, listen: false).removeMyEvent();
     Provider.of<profileController>(context,listen: false).removeData();
   }

@@ -34,7 +34,7 @@ class SplashController extends ChangeNotifier{
     bool authenticated = false;
     try {
       authenticated = await auth.authenticate(
-        localizedReason: 'Enter phoe screen lock pattern, PIN, password or fingerprint',
+        localizedReason: 'Enter phone screen lock pattern, PIN, password or fingerprint',
         options: const AuthenticationOptions(stickyAuth: true),
       );
     } on PlatformException catch (e) {
@@ -43,10 +43,10 @@ class SplashController extends ChangeNotifier{
       notifyListeners();
       return;
     }
-    if (authenticated) {LocaleHandler.bioAuth = false;print("Welcome");
+    if (authenticated) {LocaleHandler.bioAuth = false;
     notifyListeners();
     }
-    else {LocaleHandler.bioAuth = true;print(" NO Welcome ji");
+    else {LocaleHandler.bioAuth = true;
     notifyListeners();}
     // if (!mounted) {return;}
   }
@@ -63,10 +63,6 @@ class SplashController extends ChangeNotifier{
     notifyListeners();
   }
 
-
-
-
-
   Future getProfileDetails(BuildContext context,String userId) async {
     final url = ApiList.getUser + userId;
     print(url);
@@ -77,37 +73,31 @@ class SplashController extends ChangeNotifier{
       });
       if (response.statusCode == 200) {
       Map<String, dynamic> data = jsonDecode(response.body);
-      // My.i=data["data"];
-      LocaleHandler.dataa=data["data"];
-      LocaleHandler.name=data["data"]["firstName"];
-      LocaleHandler.avatar=data["data"]["avatar"];
-      // age= calculateAge(data["data"]["dateOfBirth"].toString());
-      // usergender=data["data"]["gender"];
-      // location=data["data"]["state"]+", "+data["data"]["country"];
-      // userSexuality=data["data"]["sexuality"];
-      LocaleHandler.gender=data["data"]["gender"];
-      LocaleHandler.subscriptionPurchase=data["data"]["isSubscriptionPurchased"];
-      if(data["data"]["isVerified"]==null){LocaleHandler.isVerified = false;}
-      else{LocaleHandler.isVerified=data["data"]["isVerified"];}}
-      else if (response.statusCode == 401) {Get.offAll(()=>LoginScreen());}
+      LocaleHandler.dataa=data["data"]??"";
+      LocaleHandler.name=data["data"]["firstName"]??data["data"]["email"]??"";
+      LocaleHandler.avatar=data["data"]["avatar"]??"";
+      LocaleHandler.gender=data["data"]["gender"]??"male";
+      LocaleHandler.subscriptionPurchase=data["data"]["isSubscriptionPurchased"]??"no";
+      _age=calculateAge(data["data"]["dateOfBirth"].toString());
+      LocaleHandler.isVerified=data["data"]["isVerified"]??false;}
+      else if (response.statusCode == 401) {Get.offAll(()=>const LoginScreen());}
       else {throw Exception('Failed to load data');}
     } catch (e) {throw Exception('Failed to fetch data: $e');}
     notifyListeners();
   }
 
-  void getTotalSparks()async{
-    const url=ApiList.remainspark;
-    print(url);
-    var uri=Uri.parse(url);
-    var response=await http.get(uri,headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${LocaleHandler.accessToken}'});
-    var i =jsonDecode(response.body);
-    if(response.statusCode==200){
-      if(i["remain_sparks"]!=null){
-        LocaleHandler.totalSpark=i["remain_sparks"];
-      }
+  int _age = 0;
+  int get age => _age;
+
+  int calculateAge(String dobString) {
+    DateTime dob = DateTime.parse(dobString);
+    DateTime now = DateTime.now();
+    int age = now.year - dob.year;
+    if (now.month < dob.month ||
+        (now.month == dob.month && now.day < dob.day)) {
+      age--;
     }
-    else{print("Exception");}
-    notifyListeners();
+    return age;
   }
 }
 

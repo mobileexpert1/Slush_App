@@ -75,7 +75,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     final size=MediaQuery.of(context).size;
     return Scaffold(
       body:Consumer<profileController>(builder: (ctx,val,child){
-        return val.dataa.length==0?const Center(child: CircularProgressIndicator(color: color.txtBlue)): Stack(children: [
+        return val.dataa.length==0 ?const Center(child: CircularProgressIndicator(color: color.txtBlue)): Stack(children: [
           SizedBox(height: size.height, width: size.width, child: Image.asset(AssetsPics.background,fit: BoxFit.cover)),
           SingleChildScrollView(
             physics: const ClampingScrollPhysics(),
