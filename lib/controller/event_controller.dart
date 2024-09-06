@@ -727,7 +727,6 @@ class eventController extends ChangeNotifier{
 
   void setCountDown() {
     final seconds = _myDuration!.inSeconds - 1;
-    print(";-;-;-;-$seconds");
     // if(timestampSecondsCurrent<timestampSeconds){}
     if (seconds < 0) {countdownTimer!.cancel();}
     else {_myDuration = Duration(seconds: seconds);
@@ -774,7 +773,6 @@ class eventController extends ChangeNotifier{
     _minutes="";
     _seconds="";
     if(countdownTimer!=null){countdownTimer!.cancel();}
-    notifyListeners();
   }
 
 }

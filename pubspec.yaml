@@ -74,7 +74,7 @@ dependencies:
   permission_handler: ^11.3.1
   image_cropper: ^5.0.0
   video_trimmer: ^3.0.1
-  video_player:
+  video_player: ^2.8.5
   location:
   http_parser:
 #  video_compress:
@@ -96,6 +96,9 @@ dependencies:
   lottie: ^3.1.2
   onesignal_flutter:
   wakelock_plus:
+  firebase_dynamic_links:
+  chewie:
+
   #  modal_progress_hud_nsn:
   #  flutter_screenutil:
 #  screenshot:

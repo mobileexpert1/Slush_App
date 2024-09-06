@@ -1,4 +1,5 @@
 import 'package:agora_uikit/agora_uikit.dart';
+import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -30,6 +31,7 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void initState() {
+    _initDynamicLinks();
     callFunction();
     _register();
     firebaseNotificationHandling();
@@ -141,6 +143,39 @@ class _SplashScreenState extends State<SplashScreen> {
 
   Future<void> backGroundHandler(RemoteMessage message) async {
     LocalNotificationService.display(message);
+  }
+
+  // void initDeeplinking(){
+  //   FirebaseDynamicLinks.instance.onLink(
+  //     onSuccess:(PendingDynamicLinkData ? dynamicLink)async{
+  //       final Uri? deeplink=dynamicLink?.link;
+  //       if(deeplink!=null){
+  //         print("Deeplinkdata;-;-;-;-${deeplink.toString()}");
+  //       }
+  //     },
+  //   );
+  // }
+
+  Future<void> _initDynamicLinks() async {
+    final PendingDynamicLinkData? data =
+    await FirebaseDynamicLinks.instance.getInitialLink();
+    _handleDynamicLink(data);
+
+    FirebaseDynamicLinks.instance.onLink.listen((dynamicLinkData) {
+      _handleDynamicLink(dynamicLinkData);
+    }).onError((error) {
+      print('onLink error');
+      print(error.message);
+    });
+  }
+
+  void _handleDynamicLink(PendingDynamicLinkData? data) {
+    final Uri? deepLink = data?.link;
+
+    if (deepLink != null) {
+      // Handle the deep link and navigate to the relevant screen
+      print('Deep Link: ${deepLink.toString()}');
+    }
   }
 
   @override

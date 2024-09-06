@@ -54,7 +54,7 @@ class _ReelViewScreenState extends State<ReelViewScreen> {
               Container(
               child: LocaleHandler.feedTutorials || Provider.of<reelController>(context).stopReelScroll ?
               feedTutorials(context):const SizedBox(),
-        ):SizedBox();}),
+        ):const SizedBox();}),
       ],
     );
   }

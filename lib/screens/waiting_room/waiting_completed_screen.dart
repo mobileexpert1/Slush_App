@@ -83,7 +83,6 @@ class _WaitingCompletedState extends State<WaitingCompleted> with SingleTickerPr
 
         for (var i = 0; i < dataa["data"].length; i++) {
           LocaleHandler.dateno = i + 1;
-          print("i;-;-;-;-$i");
           print('dataa["data"][i]["status"];-;-;-;-${dataa["data"][i]["status"]}');
           print("dateno;-;-;-;-${LocaleHandler.dateno}");
           print("totalDAte;-;-;-;-${LocaleHandler.totalDate}");

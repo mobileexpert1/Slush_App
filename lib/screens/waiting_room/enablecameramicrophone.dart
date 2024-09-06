@@ -103,7 +103,6 @@ class _EnableCameraMicrophoneScreenState extends State<EnableCameraMicrophoneScr
                         setState(() {camOn=!camOn;
                         LocaleHandler.camOn=camOn;
                         });
-                        print(";-;-;-$camOn");
                       }, child: CircleAvatar(
                           radius: 27,
                           backgroundColor: color.txtWhite,

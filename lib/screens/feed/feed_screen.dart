@@ -26,6 +26,7 @@ import 'package:slush/widgets/toaster.dart';
 import 'package:video_player/video_player.dart';
 import '../../controller/login_controller.dart';
 import '../../widgets/thumb_class.dart';
+// import 'package:chewie/chewie.dart';
 
 class FeedScreen extends StatefulWidget {
   FeedScreen({super.key, required this.reels, required this.index, this.data});
@@ -60,9 +61,9 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
     _pageController = PageController(initialPage: LocaleHandler.pageIndex);
     callFuntion();
     Future.delayed(const Duration(seconds: 5), () {
-      // Provider.of<reelController>(context,listen: false).videoPause(false,LocaleHandler.pageIndex);
-      Provider.of<reelController>(context, listen: false).videoPause(false, LocaleHandler.pageCurrentIndex);
-      Provider.of<reelController>(context, listen: false).playNextReel(LocaleHandler.pageIndex);
+      // Provider.of<reelController>(context, listen: false).videoPause(false, LocaleHandler.pageCurrentIndex);
+      Provider.of<reelController>(context, listen: false).videoPause(false, 0);
+      // Provider.of<reelController>(context, listen: false).playNextReel(LocaleHandler.pageIndex);
     });
   }
 
@@ -159,7 +160,8 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
           Consumer<reelController>(builder: (build, val, child) {
             return mounted ? PageView.builder(
                     physics: LocaleHandler.subscriptionPurchase != "no" && val.count != 0 ?
-                    const ClampingScrollPhysics() :val.adstart? const NeverScrollableScrollPhysics():const ClampingScrollPhysics(),
+                    const ClampingScrollPhysics() :val.adstart  ?
+                    const NeverScrollableScrollPhysics():const ClampingScrollPhysics(),
                     scrollDirection: Axis.vertical,
                     controller: _pageController,
                     // itemCount: widget.reels.length,
@@ -172,6 +174,7 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                         debounce.run(() async {
                           reelcntrol.videoPause(true, index - 1);
                           reelcntrol.playNextReel(index);
+                          reelcntrol.reelInilizedstop();
                           isPLaying = !isPLaying;
                           reelcntrol.swippedVideo(context, widget.data[index]["id"]);
                         });
@@ -179,14 +182,16 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                         debounce.run(() async {
                           reelcntrol.videoPause(true, index + 1);
                           reelcntrol.playPreviousReel(index);
+                          reelcntrol.reelInilizedstop();
                           isPLaying = !isPLaying;});}
                       Provider.of<reelController>(context,listen: false).changeBioHieght(false);
-                      if(Provider.of<reelController>(context,listen: false).totallen==index){
+                      if(Provider.of<reelController>(context,listen: false).totallen==index) {
                         Provider.of<reelController>(context,listen: false).stopReels(context);
                       }
                     },
                     itemBuilder: (context, index) {
                       String name =val.videocntroller.length==index?"": widget.data[index]["user"]["fullName"] ?? widget.data[index]["user"]["nickName"] ?? "";
+                      // if(val.videocntroller.length==index){print(";-;-;-;-${val.videocntroller[index].value.isInitialized}");}
                       return val.videocntroller.length==index?const SizedBox(): GestureDetector(
                         onTap: () {if (val.pause) {reelcntrol.videoPause(false, index);}
                         else {reelcntrol.videoPause(true, index);}},
@@ -200,7 +205,11 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                     aspectRatio: val.videoPlayerController[index].value.aspectRatio,
                                     child: ClipRRect(
                                         borderRadius: BorderRadius.circular(10),
-                                        child: VideoPlayer(val.videocntroller[index])))
+                                        child:
+                                        // Chewie(controller: val.chewieController!,),
+                                        VideoPlayer(val.videocntroller[index])
+
+                                    ))
                                 : const Center(child: CircularProgressIndicator(color: color.txtBlue)),
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 15, vertical: defaultTargetPlatform == TargetPlatform.iOS ? 45 : 20),
@@ -365,8 +374,8 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                               transitionBuilder: (Widget child, Animation<double> animation) {
                                                 return FadeTransition(opacity: animation, child: child);},
                                               child:Provider.of<SparkLikedController>(context, listen: false).sparkLike.contains(widget.data[index]["user"]["id"])?
-                                              CircleAvatar(backgroundColor: color.sparkPurple, radius: 30, child: SvgPicture.asset(AssetsPics.superlikewhite, height: 25),
-                                                  key: const ValueKey('sparked'))
+                                              CircleAvatar(backgroundColor: color.sparkPurple, radius: 30,
+                                                  key: const ValueKey('sparked'), child: SvgPicture.asset(AssetsPics.superlikewhite, height: 25))
                                               :CircleAvatar(backgroundColor: Colors.white, radius: 30, child: SvgPicture.asset(AssetsPics.superlike, height: 25,
                                                   key: const ValueKey('unsparked')
                                               )),

@@ -156,7 +156,11 @@ Widget second(BuildContext context){
             child: CircleAvatar(radius: 32,
             backgroundColor: Colors.transparent,
             child: Consumer<reelController>(builder: (context,val,child){
-           return val.data==null ||val.data.isEmpty?const CircleAvatar(radius: 32): SizedBox(width: 75, height: 75,child: ClipOval(child: CachedNetworkImage(imageUrl: val.data[0]["user"]["avatar"],fit: BoxFit.cover,
+              print("val.data");
+              print(val.data);
+           return val.data==null ||val.data.isEmpty?const CircleAvatar(radius: 32,backgroundImage: AssetImage(AssetsPics.demouser)):
+           val.data[0]["user"]["avatar"]==null? const CircleAvatar(radius: 32,backgroundImage: AssetImage(AssetsPics.demouser)):
+           SizedBox(width: 75, height: 75,child: ClipOval(child: CachedNetworkImage(imageUrl: val.data[0]["user"]["avatar"],fit: BoxFit.cover,
              placeholder: (ctx, url) => const Center(child: SizedBox()),
            )));
             })
@@ -260,7 +264,7 @@ Widget fourth(BuildContext context){
             bottom: 28.0,
             left: 0.0,
             child: Consumer<reelController>(builder: (ctx,val,child)
-              {return val.data==null||val.data.isEmpty?SizedBox(): Column(
+              {return val.data==null||val.data.isEmpty?const SizedBox(): Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                 SizedBox(height: 1.h),

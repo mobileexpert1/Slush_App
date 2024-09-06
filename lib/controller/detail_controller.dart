@@ -46,15 +46,15 @@ class detailedController extends ChangeNotifier{
   bool _progressVisibility = false;
 
   void setCurrentIndex(){
-    if(LocaleHandler.nextAction=="fill_firstname"){currentIndex=0;}
-    if(LocaleHandler.nextAction=="fill_dateofbirth"){currentIndex=1;}
-    if(LocaleHandler.nextAction=="fill_height"){currentIndex=2;}
-    if(LocaleHandler.nextAction=="choose_gender"){currentIndex=3;}
-    if(LocaleHandler.nextAction=="fill_lookingfor"){currentIndex=4;setIndex(currentIndex);}
-    if(LocaleHandler.nextAction=="fill_sexual_orientation"){currentIndex=5;setIndex(currentIndex);}
-    if(LocaleHandler.nextAction=="fill_ethnicity"){currentIndex=6;}
-    if(LocaleHandler.nextAction=="upload_avatar"){currentIndex=8;}
-    if(LocaleHandler.nextAction=="upload_video"){currentIndex=9;}
+    if(LocaleHandler.nextAction=="fill_firstname"){LocaleHandler.nextAction="fill_firstname"; currentIndex=0;}
+    else if(LocaleHandler.nextAction=="fill_dateofbirth"){LocaleHandler.nextAction="fill_dateofbirth";currentIndex=1;}
+    else if(LocaleHandler.nextAction=="fill_height"){LocaleHandler.nextAction="fill_height";currentIndex=2;}
+    else if(LocaleHandler.nextAction=="choose_gender"){LocaleHandler.nextAction="choose_gender";currentIndex=3;}
+    else if(LocaleHandler.nextAction=="fill_lookingfor"){LocaleHandler.nextAction="fill_lookingfor";currentIndex=4;setIndex(currentIndex);}
+    else if(LocaleHandler.nextAction=="fill_sexual_orientation"){LocaleHandler.nextAction="fill_sexual_orientation";currentIndex=5;setIndex(currentIndex);}
+    else if(LocaleHandler.nextAction=="fill_ethnicity"){LocaleHandler.nextAction="fill_ethnicity";currentIndex=6;}
+    else if(LocaleHandler.nextAction=="upload_avatar"){LocaleHandler.nextAction="upload_avatar";currentIndex=8;}
+    else if(LocaleHandler.nextAction=="upload_video"){LocaleHandler.nextAction="upload_video";currentIndex=9;}
     notifyListeners();
   }
 
@@ -132,7 +132,7 @@ class detailedController extends ChangeNotifier{
     if (response.statusCode == 201) {
       // if(action=="upload_video"){registerUserDetail(context, "none");} else
         if(action=="upload_video"){
-        Get.to(()=>const SignUpDetailsCompletedScreen());
+        Get.offAll(()=>const SignUpDetailsCompletedScreen());
         deleteAllData();
         Preferences.setNextAction("none");
         Preferences.setReelAlreadySeen("false");

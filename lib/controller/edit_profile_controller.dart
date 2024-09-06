@@ -211,12 +211,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
-import 'package:slush/constants/loader.dart';
 import 'package:slush/controller/camera_screen.dart';
 import 'package:slush/screens/profile/edit_profile.dart';
 import 'package:slush/screens/sign_up/details/video_trimmer.dart';
 import 'package:slush/widgets/toaster.dart';
-// import 'package:video_compress/video_compress.dart';
 import 'package:video_player/video_player.dart';
 import 'package:video_trimmer/video_trimmer.dart';
 
@@ -349,7 +347,7 @@ class editProfileController extends ChangeNotifier{
       Get.back();
       if(Platform.isIOS){imgFromGallery(context,src);}
       else if(src==ImageSource.gallery && Platform.isAndroid){imgFromGallery(context,src);}
-      else if(src==ImageSource.camera && Platform.isAndroid){Get.to(()=>CameraEditScreen());}
+      else if(src==ImageSource.camera && Platform.isAndroid){Get.to(()=>const CameraEditScreen());}
       selcetedIndex="";
       notifyListeners();
     });
@@ -534,7 +532,7 @@ class editProfileController extends ChangeNotifier{
     request.headers['Authorization'] = "Bearer ${LocaleHandler.accessToken}";
     // Add image file
     if (image != null) {
-      File imageFile = File(image!.path);
+      File imageFile = File(image.path);
       var stream = http.ByteStream(imageFile.openRead());
       var length = await imageFile.length();
       var multipartFile = http.MultipartFile('file', stream, length,
@@ -579,10 +577,10 @@ class editProfileController extends ChangeNotifier{
 
   Future getVideo(BuildContext context, ImageSource img) async {
     print(trimmer);
-    if(galleryFile!=null){controller!.pause();    notifyListeners();}
+    if(galleryFile!=null){controller!.pause();   notifyListeners();}
     const allowedTimeLimit = Duration(seconds: 16);
     // const allowedTimeLimit = Duration(seconds: 4);
-    final allowedTimeLimit2 = Duration(minutes: 20);
+    const allowedTimeLimit2 = Duration(minutes: 20);
     Get.back();
     final pickedFile = await picker.pickVideo(source: img, preferredCameraDevice: CameraDevice.front, maxDuration: const Duration(seconds: 15));
     XFile? xfilePick = pickedFile;
@@ -607,7 +605,7 @@ class editProfileController extends ChangeNotifier{
 
   void _loadVideo(File file) {
     trimmer.loadVideo(videoFile: file);
-    Get.to(()=>EditVideoTrimmerScreen());
+    Get.to(()=>const EditVideoTrimmerScreen());
     notifyListeners();
   }
 
@@ -683,7 +681,7 @@ class editProfileController extends ChangeNotifier{
 
   void trimmVideoPLayPause(bool val){
     isPlaying=val;
-    notifyListeners();
+    // notifyListeners();
   }
 
   void cancelSelectedTrimVideo()async{
@@ -724,7 +722,6 @@ class editProfileController extends ChangeNotifier{
         body: jsonEncode({"ids": [id]}));
     print(response.statusCode);
     if (response.statusCode == 201) {profileData(context);
-    Get.back();
     }
     else if (response.statusCode == 401) {showToastMsgTokenExpired();} else {}
   }

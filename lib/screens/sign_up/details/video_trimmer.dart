@@ -95,6 +95,15 @@ class EditVideoTrimmerScreen extends StatefulWidget {
 }
 
 class _EditVideoTrimmerScreenState extends State<EditVideoTrimmerScreen> {
+
+  @override
+  void initState() {
+    callSetState();
+    super.initState();
+  }
+
+  callSetState(){Future.delayed(const Duration(seconds: 2),(){setState(() {});});}
+
   @override
   Widget build(BuildContext context) {
     final editcntrl=Provider.of<editProfileController>(context,listen: false);

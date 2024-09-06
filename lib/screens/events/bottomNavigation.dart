@@ -59,7 +59,10 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
       _selectedIndex.value = index;
       if (_selectedIndex.value != 2) {
         Provider.of<reelController>(context, listen: false).videoPause(true, LocaleHandler.pageIndex);
-        Provider.of<reelController>(context, listen: false).remove();}
+        Provider.of<reelController>(context, listen: false).remove();
+        if(_selectedIndex.value!=0){
+          Provider.of<eventController>(context, listen: false).timerCancel();
+        }}
       else if(_selectedIndex.value!=0){
         Provider.of<eventController>(context, listen: false).timerCancel();
       }}

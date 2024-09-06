@@ -124,15 +124,11 @@ class loginControllerr with ChangeNotifier{
       "deviceId":id,
       "deviceName":name
     }));
-    if(response.statusCode==201){
-
-    }
+    if(response.statusCode==201){}
     else if(response.statusCode==401){}
     else{}
     notifyListeners();
   }
-
-
 
   Future sentEmailToverify(String email)async{
     const url=ApiList.sendverifyemail;

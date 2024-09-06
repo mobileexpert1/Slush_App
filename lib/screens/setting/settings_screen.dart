@@ -7,6 +7,7 @@ import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
+import 'package:slush/constants/loader.dart';
 import 'package:slush/constants/prefs.dart';
 import 'package:slush/controller/controller.dart';
 import 'package:slush/controller/event_controller.dart';
@@ -181,6 +182,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }*/
 
   Future logout() async {
+    setState(() {LoaderOverlay.show(context);});
     LocaleHandler.accessToken=await Preferences.getValue("token")??"";
     LocaleHandler.bearer="Bearer ${LocaleHandler.accessToken}";
     const url = ApiList.logout;
@@ -190,6 +192,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       // Fluttertoast.showToast(msg: "Logout Successfully"); Preferences.setToken(LocaleHandler.bearer='');
         showToastMsgTokenExpired(msg: "Logout successful");
         Provider.of<SparkLikedController>(context,listen: false).cleanSparkLike();
+    setState(() {LoaderOverlay.hide();});
   }
 
   void removeData(){

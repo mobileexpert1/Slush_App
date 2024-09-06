@@ -45,8 +45,7 @@ class SplashController extends ChangeNotifier{
     }
     if (authenticated) {LocaleHandler.bioAuth = false;
     notifyListeners();
-    }
-    else {LocaleHandler.bioAuth = true;
+    } else {LocaleHandler.bioAuth = true;
     notifyListeners();}
     // if (!mounted) {return;}
   }

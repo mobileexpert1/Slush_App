@@ -112,7 +112,7 @@ class LocaleHandler {
   //Int
   static int curentIndexNum = 0;
   static int pageIndex = 0;
-  static int pageCurrentIndex = 0;
+  // static int pageCurrentIndex = 0;
 
   //Double
   //List

@@ -225,7 +225,6 @@ class _AccountSettingsState extends State<AccountSettings> {
     else if (i == 1) {setState(() {isSwitch = !isSwitch;
          Preferences.setValue("BioAuth", isSwitch.toString());
          LocaleHandler.bioAuth2=isSwitch.toString();
-         print(";-;-;-${LocaleHandler.bioAuth2}");
          });}
     else if (i == 2) {Get.to(() => const DeactivateProfile());}
     else if (i == 3) {Get.to(() => const DeleteProfile());}
