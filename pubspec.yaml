@@ -97,7 +97,7 @@ dependencies:
   onesignal_flutter:
   wakelock_plus:
   firebase_dynamic_links:
-  chewie:
+#  chewie:
 
   #  modal_progress_hud_nsn:
   #  flutter_screenutil:
