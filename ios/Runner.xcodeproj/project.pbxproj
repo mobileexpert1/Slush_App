@@ -16,6 +16,7 @@
 		7522CB3C2C7D9D3C00EA6CE5 /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7522CB3B2C7D9D3C00EA6CE5 /* NotificationService.swift */; };
 		7522CB402C7D9D3C00EA6CE5 /* OneSignalNotificationServiceExtension.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 7522CB392C7D9D3C00EA6CE5 /* OneSignalNotificationServiceExtension.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		75A8B18C2C6A39C900275299 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 75A8B18B2C6A39C900275299 /* GoogleService-Info.plist */; };
+		75BB41D22C91E2E800F933BD /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 75BB41D12C91E2E800F933BD /* StoreKit.framework */; };
 		97C146FC1CF9000F007C117D /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FA1CF9000F007C117D /* Main.storyboard */; };
 		97C146FE1CF9000F007C117D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FD1CF9000F007C117D /* Assets.xcassets */; };
 		97C147011CF9000F007C117D /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 97C146FF1CF9000F007C117D /* LaunchScreen.storyboard */; };
@@ -84,6 +85,7 @@
 		7522CB3D2C7D9D3C00EA6CE5 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		7522CB462C7D9D5600EA6CE5 /* OneSignalNotificationServiceExtension.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = OneSignalNotificationServiceExtension.entitlements; sourceTree = "<group>"; };
 		75A8B18B2C6A39C900275299 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
+		75BB41D12C91E2E800F933BD /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 		7AFA3C8E1D35360C0083082E /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; name = Release.xcconfig; path = Flutter/Release.xcconfig; sourceTree = "<group>"; };
 		902B4AF7CC177BADCE30154A /* Pods-RunnerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-RunnerTests.release.xcconfig"; path = "Target Support Files/Pods-RunnerTests/Pods-RunnerTests.release.xcconfig"; sourceTree = "<group>"; };
 		92D44040D07D4533FAA84462 /* Pods-Runner.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Runner.debug.xcconfig"; path = "Target Support Files/Pods-Runner/Pods-Runner.debug.xcconfig"; sourceTree = "<group>"; };
@@ -113,6 +115,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				CDC4C67E4DF50004ADF558A4 /* Pods_Runner.framework in Frameworks */,
+				75BB41D22C91E2E800F933BD /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -138,6 +141,7 @@
 		648F8B6323793C0CC276FB4D /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				75BB41D12C91E2E800F933BD /* StoreKit.framework */,
 				452A1D26F2F9E3291AB466A7 /* Pods_Runner.framework */,
 				3DAFD84BFC3B7F33D9120621 /* Pods_RunnerTests.framework */,
 				196AF9B2F1601FB3A5675DFA /* Pods_OneSignalNotificationServiceExtension.framework */,
@@ -295,7 +299,7 @@
 			attributes = {
 				BuildIndependentTargetsInParallel = YES;
 				LastSwiftUpdateCheck = 1530;
-				LastUpgradeCheck = 1510;
+				LastUpgradeCheck = 1430;
 				ORGANIZATIONNAME = "";
 				TargetAttributes = {
 					331C8080294A63A400263BE5 = {
