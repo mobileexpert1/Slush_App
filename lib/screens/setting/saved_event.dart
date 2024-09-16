@@ -4,7 +4,6 @@ import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
@@ -169,7 +168,7 @@ class _MyEventListScreenState extends State<MySavedEvent> {
             width: 170,child: buildTextOverFlow(data[index]["event"]["title"]+" - "+data[index]["event"]["type"], 16, FontWeight.w600, color.txtBlack)),
         Row(
           children: [
-            SvgPicture.asset(AssetsPics.blueClock,color: Colors.transparent,),const SizedBox(width: 2),
+            SvgPicture.asset(AssetsPics.blueMapPoint),const SizedBox(width: 2),
             buildText(data[index]["event"]["gender"], 14, FontWeight.w500, color.txtgrey2,fontFamily: FontFamily.hellix),
           ],
         ),
@@ -184,7 +183,6 @@ class _MyEventListScreenState extends State<MySavedEvent> {
             buildTextOverFlow(data[index]["event"]["isFree"]==true? "" : "£", 13, FontWeight.w600, color.txtgrey2,fontFamily: FontFamily.hellix),
             const SizedBox(width: 1),
             buildTextOverFlow(data[index]["event"]["isFree"]==false? data[index]["event"]["eventFee"].toString() : "Free", 13, FontWeight.w500, color.txtgrey2,fontFamily: FontFamily.hellix),
-
           ],),
       ],);
   }

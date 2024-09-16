@@ -5,10 +5,7 @@ import 'package:get/get.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
 import 'package:http/http.dart'as http;
-import 'package:slush/screens/events/bottomNavigation.dart';
 import 'package:slush/screens/video_call/feedback_screen.dart';
-import 'package:slush/screens/waiting_room/readytocall.dart';
-import 'package:slush/screens/waiting_room/waiting_completed_screen.dart';
 import 'package:slush/widgets/toaster.dart';
 
 class TimerProvider with ChangeNotifier {
@@ -95,6 +92,7 @@ class TimerProvider with ChangeNotifier {
     _timerr = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (_min > 0) {
         _min--;
+        print(";-;-;-;-${_min}_min");
         notifyListeners();
       } else {_timerr?.cancel();
       stopTimerr();}
@@ -106,7 +104,6 @@ class TimerProvider with ChangeNotifier {
     _min=360;
     _durationn = const Duration(minutes: 6);
   }
-
 
   Future updateFixtureStatus(int participantid, String status) async {
     final url = "${ApiList.fixtures}${LocaleHandler.eventId}/fixtures";

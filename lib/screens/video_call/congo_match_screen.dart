@@ -77,6 +77,7 @@ class _CongratMatchScreenState extends State<CongratMatchScreen> {
                               LocaleHandler.dateno = 0;
                               LocaleHandler.totalDate = 1;
                               showToastMsg("Event is over");
+                              customRatingSheet(context: context, title: "How’s your\nexperience so far?", heading: "We’d love to know!");
                               Get.offAll(() => BottomNavigationScreen());
                               Provider.of<TimerProvider>(context, listen: false).stopTimerr();
                             } else {
@@ -107,35 +108,25 @@ class _CongratMatchScreenState extends State<CongratMatchScreen> {
                     ],
                   ),
                   const SizedBox(height: 24),
-                  buildText2(
-                      "It’s a Match!", 28, FontWeight.w600, color.txtWhite),
-                  buildText2(
-                      "Congratulations!", 28, FontWeight.w600, color.txtWhite),
+                  buildText2("It’s a Match!", 28, FontWeight.w600, color.txtWhite),
+                  buildText2("Congratulations!", 28, FontWeight.w600, color.txtWhite),
                   const SizedBox(height: 22),
                   // buildText2("“Steve liked you back”", 16, FontWeight.w500, color.txtWhite,fontFamily: FontFamily.hellix),
-                  buildText2(
-                      "“${LocaleHandler.eventParticipantData["firstName"]} liked you back”",
-                      16,
-                      FontWeight.w500,
-                      color.txtWhite,
-                      fontFamily: FontFamily.hellix),
+                  buildText2("“${LocaleHandler.eventParticipantData["firstName"]} liked you back”",
+                      16, FontWeight.w500, color.txtWhite, fontFamily: FontFamily.hellix),
                   const SizedBox(height: 20),
                   // SvgPicture.asset("assets/sample/matchingSample.svg"),
 
                   Stack(
                     children: [
-                      Container(
-                          // color: Colors.red,
-                          width: size.width,
-                          height: 41.h),
+                      SizedBox(width: size.width, height: 41.h),
                       Positioned(
                         top: 50.0,
                         right: 60.0,
                         child: RotationTransition(
                             turns: const AlwaysStoppedAnimation(10 / 360),
                             child: Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.white54,
+                                decoration: BoxDecoration(color: Colors.white54,
                                     borderRadius: BorderRadius.circular(40)),
                                 padding: const EdgeInsets.all(4),
                                 height: 19.h,

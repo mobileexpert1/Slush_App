@@ -5,6 +5,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -27,6 +28,8 @@ import 'package:slush/widgets/toaster.dart';
 import 'package:video_player/video_player.dart';
 import 'package:http/http.dart'as http;
 
+import '../../constants/loader.dart';
+
 class UnMatchedPersonProfileScreen extends StatefulWidget {
   const UnMatchedPersonProfileScreen({Key? key,required this.id}) : super(key: key);
   final String id;
@@ -35,6 +38,12 @@ class UnMatchedPersonProfileScreen extends StatefulWidget {
 }
 
 class _UnMatchedPersonProfileScreenState extends State<UnMatchedPersonProfileScreen> {
+  List reportingMatter = [
+    "Fake Account",
+    "Nudity / inappropriate",
+    "Swearing / Aggression",
+    "Harassment","Other"
+  ];
   PageController controller = PageController();
   int currentPage = 0;
   int indicatorIndex = 0;
@@ -159,6 +168,50 @@ class _UnMatchedPersonProfileScreenState extends State<UnMatchedPersonProfileScr
       imgvideitems.add(ii);
     }
   }
+  Future reportUser(String reason)async{
+    final url = '${ApiList.reportUser}${widget.id}/report';
+    print(url);
+    try {
+      var uri = Uri.parse(url);
+      var response = await http.post(uri,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ${LocaleHandler.accessToken}'
+          },
+          body: jsonEncode({'reason': reason})
+      );
+      setState(() {LoaderOverlay.hide();});
+      if(response.statusCode==201)
+      {
+        Get.back();
+        print('User Reported Successfully:::::::::::::::::::::;');
+        Fluttertoast.showToast(msg: 'User Reported');
+        setState(() {
+          Get.back(result: true);
+          snackBaar(context, AssetsPics.reportbannerSvg,false);
+          // LocaleHandler.reportedSuccesfuly=true;
+          LocaleHandler.curentIndexNum=2;
+          LocaleHandler.isThereAnyEvent=false;
+          LocaleHandler.isThereCancelEvent=false;
+          LocaleHandler.unMatchedEvent=false;
+          LocaleHandler.subScribtioonOffer=false;
+          // Get.offAll(()=>BottomNavigationScreen());
+        });
+      }
+      else if(response.statusCode==401){
+        showToastMsgTokenExpired();
+      }
+      else{
+        print('Reported Failed With Status Code :${response.statusCode}');
+        Fluttertoast.showToast(msg: 'Something Went Wrong');
+      }
+    }
+    catch(error)
+    {
+      print('Error ::::::::::::::::::: ${error.toString()}');
+      Fluttertoast.showToast(msg: 'Something Went Wrong::');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -238,7 +291,13 @@ class _UnMatchedPersonProfileScreenState extends State<UnMatchedPersonProfileScr
                         ),
                         child: SvgPicture.asset(AssetsPics.arrowLeft))),
                 GestureDetector(
-                  onTap: (){},
+                  onTap: (){
+                    customBuilderSheet(context, 'Report User',"Submit",reportingMatter,onTap: (){
+                      setState(() {
+                        reportUser(reportingMatter[selectedIndex]);
+                      });
+                    });
+                  },
                   child: Container(
                     alignment: Alignment.center,
                     height: size.height*0.04,

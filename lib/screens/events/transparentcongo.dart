@@ -62,7 +62,7 @@ class _TransparentCongoWithBottomScreenState extends State<TransparentCongoWithB
                     onTap: (){
                       // setState(() {
                       // LocaleHandler.matchedd=false;
-                      Provider.of<reelController>(context,listen: false).congoScreen(false,"","",0);
+                      Provider.of<ReelController>(context,listen: false).congoScreen(false,"","",0);
                       Get.back();
                       // Get.back();// });
                 },
@@ -113,7 +113,7 @@ class _TransparentCongoWithBottomScreenState extends State<TransparentCongoWithB
                             child: ClipRRect(
                                 borderRadius: BorderRadius.circular(40),
                                 // child: Image.asset(AssetsPics.sample,fit: BoxFit.cover),
-                              child: Consumer<reelController>(builder: (ctx,val,child){
+                              child: Consumer<ReelController>(builder: (ctx,val,child){
                                 return CachedNetworkImage(imageUrl: val.imgurl,fit: BoxFit.cover);
                               })
 
@@ -169,13 +169,13 @@ class _TransparentCongoWithBottomScreenState extends State<TransparentCongoWithB
               blue_button(context,"Start a conversation",press: (){
                 Get.back();
                 Get.to(()=>TextChatScreen(id: widget.userId,name: widget.name));
-                Provider.of<reelController>(context,listen: false).congoScreen(false,"","",0);
+                Provider.of<ReelController>(context,listen: false).congoScreen(false,"","",0);
               }),
               SizedBox(height: 2.h-4),
               white_button(context, "View profile",press: (){
                 Get.back();
                 Get.to(()=>FeedPersonProfileScreen(id: widget.userId.toString()));
-                Provider.of<reelController>(context,listen: false).congoScreen(false,"","",0);
+                Provider.of<ReelController>(context,listen: false).congoScreen(false,"","",0);
                 // Get.to(()=>const DidnotFindAnyoneScreen());
               }),
                SizedBox(height: 3.h),
@@ -204,7 +204,7 @@ Widget stackbuild(BuildContext context,String name,int userId){
                 onTap: (){
                   // setState(() {
                   // LocaleHandler.matchedd=false;
-                  Provider.of<reelController>(context,listen: false).congoScreen(false,"","",0);
+                  Provider.of<ReelController>(context,listen: false).congoScreen(false,"","",0);
                   Get.back();
                   // Get.back();// });
                 },
@@ -255,7 +255,7 @@ Widget stackbuild(BuildContext context,String name,int userId){
                         child: ClipRRect(
                             borderRadius: BorderRadius.circular(40),
                             // child: Image.asset(AssetsPics.sample,fit: BoxFit.cover),
-                            child: Consumer<reelController>(builder: (ctx,val,child){
+                            child: Consumer<ReelController>(builder: (ctx,val,child){
                               return CachedNetworkImage(imageUrl: val.imgurl,fit: BoxFit.cover);
                             })
 
@@ -311,13 +311,13 @@ Widget stackbuild(BuildContext context,String name,int userId){
           blue_button(context,"Start a conversation",press: (){
             Get.back();
             Get.to(()=>TextChatScreen(id: userId,name: name));
-            Provider.of<reelController>(context,listen: false).congoScreen(false,"","",0);
+            Provider.of<ReelController>(context,listen: false).congoScreen(false,"","",0);
           }),
           SizedBox(height: 2.h-4),
           white_button(context, "View profile",press: (){
             Get.back();
             Get.to(()=>FeedPersonProfileScreen(id: userId.toString()));
-            Provider.of<reelController>(context,listen: false).congoScreen(false,"","",0);
+            Provider.of<ReelController>(context,listen: false).congoScreen(false,"","",0);
             // Get.to(()=>const DidnotFindAnyoneScreen());
           }),
           SizedBox(height: 3.h),

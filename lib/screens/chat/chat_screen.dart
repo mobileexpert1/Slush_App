@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -13,8 +12,10 @@ import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/loader.dart';
 import 'package:slush/controller/event_controller.dart';
+import 'package:slush/controller/spark_Liked_controler.dart';
 import 'package:slush/screens/chat/text_chat_screen.dart';
 import 'package:slush/screens/events/bottomNavigation.dart';
+import 'package:slush/screens/matches/matched_person_profile.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
 import 'package:slush/widgets/text_widget.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
@@ -33,6 +34,14 @@ class _ChatScreenState extends State<ChatScreen> {
 
   bool isListEmpty=true;
   bool itemDelted=false;
+  List data=[];
+  int totalpages=0;
+  int currentpage=0;
+  int totalItems=-1;
+  int _page=1;
+  bool _isLoadMoreRunning=false;
+  ScrollController? _controller;
+  Timer? _timer;
 
   @override
   void initState() {
@@ -47,15 +56,6 @@ class _ChatScreenState extends State<ChatScreen> {
         itemDelted=val;
       });});
   }
-
-  List data=[];
-  int totalpages=0;
-  int currentpage=0;
-  int totalItems=-1;
-  int _page=1;
-  bool _isLoadMoreRunning=false;
-  ScrollController? _controller;
-
 
   Future getChat()async{
     final url="${ApiList.getSingleChat}?page=$_page&limit=50";
@@ -95,13 +95,13 @@ class _ChatScreenState extends State<ChatScreen> {
       }}
   }
 
-  Timer? _timer;
   void _startTimer() {
     getChat();
     _timer = Timer.periodic(const Duration(seconds: 15), (timer) {
       getChat();
     });
   }
+
   @override
   void dispose() {
     _timer!.cancel();
@@ -171,30 +171,33 @@ class _ChatScreenState extends State<ChatScreen> {
                         itemBuilder: (BuildContext context, int index) {
                           var items=data;
                           var personData=items[index]==null?"":  items[index]["sender"]["userId"].toString()==LocaleHandler.userId?items[index]["receiver"]:items[index]["sender"];
-                          return personData==""?SizedBox(): Container(
-                            width: 72,
-                            height: 72,
-                            decoration: BoxDecoration(
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.1),
-                                    spreadRadius: 0,
-                                    blurRadius: 1,
-                                    offset: const Offset(0,0), // changes position of shadow
-                                  ),
-                                ],
-                                color: color.example2,
-                                borderRadius: BorderRadius.circular(8)
-                            ),
-                            margin: const EdgeInsets.all(5),
-                            child: ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child:personData["profilePictures"].isEmpty?Image.asset(AssetsPics.demouser): CachedNetworkImage(imageUrl: personData["profilePictures"][0]["key"]??"", fit: BoxFit.cover,
-                                  colorBlendMode: BlendMode.darken,
-                                  // color:personData["onlineStatus"]?Colors.transparent: Colors.black.withOpacity(0.7),
-                                  placeholder: (ctx, url) => const Center(child: SizedBox()),
-                                )
-                              // Image.asset(AssetsPics.sample,fit: BoxFit.cover),
+                          return personData==""?const SizedBox(): GestureDetector(
+                            onTap:(){Get.to(() => MatchedPersonProfileScreen(id: personData["userId"].toString()));} ,
+                            child: Container(
+                              width: 72,
+                              height: 72,
+                              decoration: BoxDecoration(
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.1),
+                                      spreadRadius: 0,
+                                      blurRadius: 1,
+                                      offset: const Offset(0,0), // changes position of shadow
+                                    ),
+                                  ],
+                                  color: color.example2,
+                                  borderRadius: BorderRadius.circular(8)
+                              ),
+                              margin: const EdgeInsets.all(5),
+                              child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child:personData["profilePictures"].isEmpty?Image.asset(AssetsPics.demouser): CachedNetworkImage(imageUrl: personData["profilePictures"][0]["key"]??"", fit: BoxFit.cover,
+                                    colorBlendMode: BlendMode.darken,
+                                    // color:personData["onlineStatus"]?Colors.transparent: Colors.black.withOpacity(0.7),
+                                    placeholder: (ctx, url) => const Center(child: SizedBox()),
+                                  )
+                                // Image.asset(AssetsPics.sample,fit: BoxFit.cover),
+                              ),
                             ),
                           );
                         })
@@ -212,7 +215,6 @@ class _ChatScreenState extends State<ChatScreen> {
                               if(likecnt>0){
                                 _timer!.cancel();
                                 setState(() {
-                                  print("Daaaddaadd");
                                   LoaderOverlay.show(context);
                                   LocaleHandler.liked=true;
                                   LocaleHandler.bottomSheetIndex=3;
@@ -313,14 +315,39 @@ class _ChatScreenState extends State<ChatScreen> {
                          int timestamp=items[index]["createdAt"];
                          DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
                          String formattedTime = DateFormat.jm().format(dateTime);
+
+                         // int currentTimestamp = DateTime.now().millisecondsSinceEpoch ~/ 1000;
+                         // int differenceInSeconds = currentTimestamp - timestamp;
+                         // Duration differenceDuration = Duration(seconds: differenceInSeconds);
+                         // String timeAgo;
+                         // if (differenceDuration.inSeconds < 60) {timeAgo = 'now';}
+                         // else if (differenceDuration.inMinutes < 60) {timeAgo = '${differenceDuration.inMinutes}min ago';}
+                         // else if (differenceDuration.inHours < 24) {timeAgo = '${differenceDuration.inHours}h ago';}
+                         // else {timeAgo = '${differenceDuration.inDays}d ago';}
+
+
+                         DateTime now = DateTime.now();
+                         DateTime yesterday = now.subtract(const Duration(days: 1));
+                         if (dateTime.year == now.year && dateTime.month == now.month && dateTime.day == now.day)
+                         {formattedTime= DateFormat.jm().format(dateTime.add(const Duration(minutes: 2)));}
+                         else if (dateTime.year == yesterday.year && dateTime.month == yesterday.month && dateTime.day == yesterday.day)
+                         {formattedTime= "Yesterday";}
+                         else {formattedTime= DateFormat('dd/MM/yy').format(dateTime);}
+
                          var personData=items[index]==null?"": items[index]["sender"]["userId"].toString()==LocaleHandler.userId?items[index]["receiver"]:items[index]["sender"];
                          return Column(
                          children: [
-                           personData==""?SizedBox(): GestureDetector(
+                           personData==""?const SizedBox(): GestureDetector(
                              onTap: (){
+                               int chatId=items[index]["chatId"];
+                               Provider.of<CamController>(context,listen: false).clearimg();
                                Get.to(()=> TextChatScreen(id: personData["userId"], name: personData["firstName"],))!.then((value) {
-                                 setState(() {_startTimer();});
-                                 getChat();
+                                 if(value){
+                                   setState(() {
+                                     data.removeWhere((item) => item['chatId'] == chatId);
+                                   });
+                                 }
+                                 _startTimer();
                                });
                                // LocaleHandler.chatUserId=personData["userId"];
                                _timer!.cancel();
@@ -350,11 +377,14 @@ class _ChatScreenState extends State<ChatScreen> {
                                      onTap2: (){
                                        setState(() {
                                          Get.back();
-                                         chatDelete(personData["userId"],index);
-                                         setState(() {data.removeAt(index);});
+                                         int chatId=items[index]["chatId"];
+                                         data.removeWhere((item) => item['chatId'] == chatId);
+                                         // chatDelete(personData["userId"],index);
+                                         // setState(() {data.removeAt(index);});
                                          _slidableController?.close();
                                          // futuredelayed(2, true);
                                          futuredelayed(10, false);
+
                                        });});
                                    },
                                    child: CircleAvatar(radius: 17,
@@ -383,14 +413,24 @@ class _ChatScreenState extends State<ChatScreen> {
                                            // buildText("Ariana", 16, FontWeight.w600, color.txtBlack,fontFamily: FontFamily.hellix),
                                            buildText(personData["firstName"], 16, FontWeight.w600, color.txtBlack,fontFamily: FontFamily.hellix),
                                            // buildText("Nice to meet you, darling", 15, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix)
-                                           buildText(items[index]["content"], 15,items[index]["unreadCount"]==0?FontWeight.w500:FontWeight.w800,
-                                               items[index]["unreadCount"]==0?color.txtgrey:color.txtBlack,fontFamily: FontFamily.hellix)
+                                           buildTextOverFlow(items[index]["content"].startsWith('https://')?"file...":items[index]["content"], 15,items[index]["unreadCount"]==0?FontWeight.w500:FontWeight.w800,
+                                               items[index]["unreadCount"]==0?color.txtgrey:color.txtBlack,fontFamily: FontFamily.hellix),
+
+
+
                                          ],),
                                      ),
-                                     Column(
+                                     Column(crossAxisAlignment: CrossAxisAlignment.end,
                                        children: [
-                                         const SizedBox(height: 2),
+                                         // const SizedBox(height: 2),
                                          buildText(formattedTime, 14, FontWeight.w400, color.txtgrey,fontFamily: FontFamily.hellix),
+                                         const SizedBox(height: 6),
+                                         items[index]["unreadCount"]==0?const SizedBox():
+                                         CircleAvatar(backgroundColor: color.txtBlue, radius: 10,
+                                           child: Center(child: buildText(items[index]["unreadCount"].toString(), 14, FontWeight.w500, color.txtWhite)),
+                                         )
+
+
                                        ],
                                      ),
                                    ],)
@@ -400,7 +440,7 @@ class _ChatScreenState extends State<ChatScreen> {
                              padding: EdgeInsets.only(left: 5.0,right: 5.0),
                              child:  Divider(thickness: 0.8,color: color.lightestBlue),
                            ),
-                           _isLoadMoreRunning? const Center(child: CircularProgressIndicator(color: color.txtBlue)):SizedBox(),
+                           _isLoadMoreRunning? const Center(child: CircularProgressIndicator(color: color.txtBlue)):const SizedBox(),
                          ],
                        );
                      }),
@@ -442,5 +482,52 @@ class _ChatScreenState extends State<ChatScreen> {
                    ],
                  ),
                );
+  }
+}
+
+
+
+
+class DynamicCircleAvatar extends StatelessWidget {
+  final String text;
+  final TextStyle textStyle;
+  final Color backgroundColor;
+
+  DynamicCircleAvatar({
+    required this.text,
+    this.textStyle = const TextStyle(fontSize: 24, color: Colors.white),
+    this.backgroundColor = Colors.blue,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    // Create a TextPainter to measure the text size
+    final textSpan = TextSpan(text: text, style: textStyle);
+    final textPainter = TextPainter(
+      text: textSpan,
+      // textDirection: TextDirection.ltr,
+      textAlign: TextAlign.center,
+    )..layout();
+
+    final textWidth = textPainter.width;
+    final textHeight = textPainter.height;
+
+    // Calculate the diameter of the circle based on the text size
+    final diameter = (textWidth > textHeight ? textWidth : textHeight) + 32; // Adding padding
+
+    return Container(
+      width: diameter,
+      height: diameter,
+      decoration: BoxDecoration(
+        color: backgroundColor,
+        shape: BoxShape.circle,
+      ),
+      alignment: Alignment.center,
+      child: Text(
+        text,
+        style: textStyle,
+        textAlign: TextAlign.center,
+      ),
+    );
   }
 }

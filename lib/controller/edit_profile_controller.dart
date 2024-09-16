@@ -241,7 +241,6 @@ class editProfileController extends ChangeNotifier{
   File? galleryFile;
   Trimmer trimmer = Trimmer();
   bool _trimmerstrt=false;
-  bool get trimmerstrt=>_trimmerstrt;
   bool _progressVisibility = false;
   double _startValue = 0.0;
   double _endValue = 0.0;
@@ -251,6 +250,9 @@ class editProfileController extends ChangeNotifier{
   List get basicInfo=>_basicInfo;
   List<BasicInfoclass> _moreaboutme=[];
   List get moreaboutme=>_moreaboutme;
+
+  late CameraController camcontroller;
+  List _items=[];
 
 
   void saveValue(String gender,String hight,String job,String education,String sexualO,String ideal,String cook,String smoke,List enth){
@@ -280,7 +282,6 @@ class editProfileController extends ChangeNotifier{
 
     notifyListeners();
   }
-
 
   void changevalue(){
     _fromProv=false;
@@ -324,19 +325,6 @@ class editProfileController extends ChangeNotifier{
     notifyListeners();
   }
 
-  // Upload and Update image
-  // void tappedOPtion(BuildContext context,ImageSource src,String index,String picId){
-  //   PictureId=picId;
-  //   selcetedIndex=index;
-  //   notifyListeners();
-  //   Future.delayed(const Duration(seconds: 1),(){
-  //     Get.back();
-  //     imgFromGallery(context,src);
-  //     selcetedIndex="";
-  //     notifyListeners();
-  //   });
-  // }
-
   void tappedOPtion(BuildContext context,ImageSource src,String index,String picId,int i){
     _imgindex=i;
     PictureId=picId;
@@ -353,7 +341,6 @@ class editProfileController extends ChangeNotifier{
     });
   }
 
-  late CameraController camcontroller;
   void pickImageFromCamera(CameraLensDirection lens) async {
     final cameras = await availableCameras();
     final front = cameras.firstWhere((camera) => camera.lensDirection == lens);
@@ -481,6 +468,7 @@ class editProfileController extends ChangeNotifier{
       _croppedFile3=croppedFile;
     }
   }
+
   removeImgtoLocale(){
     if(_imgindex==1){
       _showNetImg1=false;
@@ -635,17 +623,6 @@ class editProfileController extends ChangeNotifier{
     notifyListeners();
   }
 
-  Future getValueInController(BuildContext context,String outputVideoPath)async{
-    // Get.back();
-    _trimmerstrt=false;
-    _controller4 = VideoPlayerController.file(File(outputVideoPath))..initialize().then((_) {
-      galleryFile=File(trimmer.currentVideoFile!.path);
-      UploadVideo(context,galleryFile!);
-      notifyListeners();
-    });
-    notifyListeners();
-  }
-
   Future UploadVideo(BuildContext context,File video) async {
     const url = ApiList.uploadVideo;
     var uri = Uri.parse(url);
@@ -744,15 +721,6 @@ class editProfileController extends ChangeNotifier{
   }
 
 
-  List _items=[];
-  List get items=>_items;
-
-  void addImages(var data){
-    for(var i=0;i<data.length;i++){
-      if(!_items.contains(data[i]["key"])){_items.add(data[i]["key"]);}}
-    notifyListeners();
-  }
-
   int _imgindex=0;
   bool _showNetImg1=false;
   bool  get  showNetImg1=>_showNetImg1;
@@ -767,7 +735,5 @@ class editProfileController extends ChangeNotifier{
   CroppedFile? get croppedFile2=> _croppedFile2;
   CroppedFile? _croppedFile3;
   CroppedFile? get croppedFile3=> _croppedFile3;
-
-
 
 }

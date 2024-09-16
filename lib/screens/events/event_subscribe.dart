@@ -142,8 +142,9 @@ class _EvenetFreeScreenState extends State<EvenetSuscribeScreen> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              buildText(widget.data["title"]+" - "+widget.data["type"], 28, FontWeight.w600, color.txtBlack),
+              SizedBox(width: size.width*0.8,child: buildText(widget.data["title"]+" - "+widget.data["type"], 28, FontWeight.w600, color.txtBlack)),
               SizedBox(
                   height: 3.h+1,width: 24,
                   child:widget.data["hasPassword"]? SvgPicture.asset(AssetsPics.lock):const SizedBox())

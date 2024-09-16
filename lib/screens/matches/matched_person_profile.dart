@@ -650,7 +650,7 @@ class _MatchedPersonProfileScreenState
         label: Row(
           children: [Image.asset(AssetsPics.floatiActionp,height: 22), buildText('  Tap to chat',15,FontWeight.w600,color.txtWhite)],
         ), onPressed: () {
-          Get.to(()=>TextChatScreen(name: dataa['firstName']??"", id: dataa['userId']));
+          Get.to(()=>TextChatScreen(name: dataa['firstName']??"", id: dataa['userId']??dataa['id']));
       },
       )
     );

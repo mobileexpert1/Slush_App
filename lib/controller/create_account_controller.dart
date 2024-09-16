@@ -193,8 +193,7 @@ class createAccountController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future socialLoginUser(String type,
-      {required String socialToken, providerName}) async {
+  Future socialLoginUser(String type, {required String socialToken, providerName}) async {
     final url = ApiList.socialLogin;
     print(url);
     var uri = Uri.parse(url);

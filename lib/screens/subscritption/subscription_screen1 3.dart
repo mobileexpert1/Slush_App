@@ -336,14 +336,15 @@ class _Subscription1State extends State<Subscription1> {
                       controller: _pageController,
                       children: [
                         customScroller(text1: 'See who has Liked you', text2: 'See everyone that likes you', iconName: AssetsPics.like),
-                        customScroller(text1: 'Sparks', text2: '3 sparks', iconName: AssetsPics.shock),
+                        // customScroller(text1: 'Sparks', text2: '3 sparks', iconName: AssetsPics.shock),
+                        customScroller(text1: 'More Sparks', text2: 'Get 3 Sparks now + 1 daily for 30 days', iconName: AssetsPics.shock),
                         customScroller(text1: 'Unlimited Swipes', text2: 'Endless swiping', iconName: AssetsPics.watch),
                       ],
                     ) : selectedIndex ==2 ?  PageView(
                       controller: _pageController,
                       children: [
                         customScroller(text1: 'See who has Liked you', text2: 'See everyone that likes you', iconName: AssetsPics.like),
-                        customScroller(text1: 'Sparks', text2: '5 sparks', iconName: AssetsPics.shock),
+                        customScroller(text1: 'Sparks', text2: 'Get 5 Sparks now', iconName: AssetsPics.shock),
                         customScroller(text1: 'Unlimited Swipes', text2:  'Endless swiping', iconName: AssetsPics.watch),
                         customScroller(text1: 'AI Dating Coach', text2: 'Your dating coach', iconName: AssetsPics.dating),
                         customScroller(text1: 'No ads', text2: 'Your dating coach', iconName: AssetsPics.noAds),
@@ -352,7 +353,7 @@ class _Subscription1State extends State<Subscription1> {
                       controller: _pageController,
                       children: [
                         customScroller(text1: 'See who has Liked you', text2: 'See everyone that likes you', iconName: AssetsPics.like),
-                        customScroller(text1: 'Sparks', text2: '10 sparks', iconName: AssetsPics.shock),
+                        customScroller(text1: 'Sparks', text2: 'Get 10 Sparks now', iconName: AssetsPics.shock),
                         customScroller(text1: 'Unlimited Swipes', text2:  'Endless swiping', iconName: AssetsPics.watch),
                         customScroller(text1: 'AI Dating Coach', text2: 'Your dating coach', iconName: AssetsPics.dating),
                         customScroller(text1: 'No ads', text2: 'Your dating coach', iconName: AssetsPics.noAds),
@@ -537,10 +538,11 @@ class _Subscription1State extends State<Subscription1> {
                   const SizedBox(height: 18),
                   blue_button(context, "Continue",press: (){
                     int num=selectedIndex==1?2:selectedIndex==2?0:1;
+                    _buySubscription(_products[num]);
                     if(LocaleHandler.subscriptionPurchase=="no" && selectedIndex == 1){
-
+                      _buySubscription(_products[num]);
                       // if(Platform.isAndroid){_buySubscription(_products[num]);}else{subscribeApi(selectedIndex);}
-                      selectedIndex==1?subscribeApi(selectedIndex):showToastMsg("Coming soon...");
+                      // selectedIndex==1?subscribeApi(selectedIndex):showToastMsg("Coming soon...");
                     }else if(selectedIndex != 1){showToastMsg("Coming soon...");}
                     else{}
                   }),

@@ -27,11 +27,8 @@ import 'package:slush/screens/video_call/notification_serivce.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'notification.dart';
-Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  // Handle background messages
-  print("Handling a background message: ${message.messageId}");
-  // LocalNotificationService.display(message);a
-}
+
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {print("Handling a background message: ${message.messageId}");}
 
 
 Future<void> main() async {
@@ -40,9 +37,7 @@ Future<void> main() async {
 
   OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
   if(Platform.isAndroid){OneSignal.initialize("482a292e-4c3a-48f0-ad0b-8b0f4b653fd8");}else{OneSignal.initialize("4cee1d81-6350-4319-970d-3421754c0fa7");}
-  // OneSignal.initialize("7ce97f5b-ded6-4313-adda-abd0d7c10fdf");
   OneSignal.Notifications.requestPermission(true);
-
   InAppPurchase.instance.restorePurchases();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
@@ -76,7 +71,7 @@ class MyApp extends StatelessWidget {
               // ChangeNotifierProvider<matchController>(create: (_)=>matchController()),
               ChangeNotifierProvider<reelTutorialController>(create: (_)=>reelTutorialController()),
               ChangeNotifierProvider<nameControllerr>(create: (_)=>nameControllerr()),
-              ChangeNotifierProvider<reelController>(create: (_)=>reelController()),
+              ChangeNotifierProvider<ReelController>(create: (_)=>ReelController()),
               //login
               ChangeNotifierProvider<loginControllerr>(create: (_)=>loginControllerr()),
               //waitingRoom

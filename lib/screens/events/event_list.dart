@@ -36,7 +36,7 @@ class _MyEventListScreenState extends State<MyEventListScreen> {
   String eventType="";
 
   getEventList()async{
-    final url= "${ApiList.getEvent}${LocaleHandler.miliseconds}&distance=${LocaleHandler.distancee}&events=$eventType&latitude=${LocaleHandler.latitude}&longitude=${LocaleHandler.longitude}&page=1&limit=10";
+    final url= "${ApiList.getEvent}${LocaleHandler.miliseconds}&distance=${LocaleHandler.distancee}$eventType&latitude=${LocaleHandler.latitude}&longitude=${LocaleHandler.longitude}&page=1&limit=10";
     print(url);
     var uri=Uri.parse(url);
     var response=await http.get(uri,
@@ -81,7 +81,7 @@ class _MyEventListScreenState extends State<MyEventListScreen> {
   void initState() {
     _page=widget.pageNum;
     // post=widget.myEventData;
-    eventType=widget.myEvent?"me":"popular";
+    eventType=widget.myEvent?"&events=me":"";
     getEventList();
     _controller = ScrollController()..addListener(loadmore);
     super.initState();

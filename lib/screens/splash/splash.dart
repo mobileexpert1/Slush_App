@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:agora_uikit/agora_uikit.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -14,6 +16,7 @@ import 'package:slush/controller/profile_controller.dart';
 import 'package:slush/screens/events/bottomNavigation.dart';
 import 'package:slush/screens/getstarted/slider_scree.dart';
 import 'package:slush/screens/onboarding/introscreen.dart';
+import 'package:slush/screens/sign_up/create_account.dart';
 import 'package:slush/screens/splash/splash_controller.dart';
 
 import '../../notification.dart';
@@ -35,7 +38,6 @@ class _SplashScreenState extends State<SplashScreen> {
     callFunction();
     _register();
     firebaseNotificationHandling();
-    // auth.isDeviceSupported().then((bool isSupported) => setState(() => _supportState = isSupported ? _SupportState.supported : _SupportState.unsupported));
     auth.isDeviceSupported().then((bool isSupported) => _supportState = isSupported ? _SupportState.supported : _SupportState.unsupported);
     super.initState();
   }
@@ -43,7 +45,6 @@ class _SplashScreenState extends State<SplashScreen> {
 // calling biometrics
   void openBio() {
     if (_supportState == _SupportState.supported) {
-      //_getAvailableBiometrics();
       Provider.of<SplashController>(context, listen: false).getAvailableBiometrics();
     }
   }
@@ -59,28 +60,8 @@ class _SplashScreenState extends State<SplashScreen> {
       });
     }
   }
-
-  permission() async {
-    NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
-      alert: true,
-      announcement: false,
-      badge: true,
-      carPlay: false,
-      criticalAlert: false,
-      provisional: false,
-      sound: true,
-    );
-    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
-      print('User granted permission');
-      FirebaseMessaging.onMessage.listen((RemoteMessage message) {
-        print("onMessage: $message");
-      });
-      // TODO: handle the received notifications
-    } else {
-      print('User declined or has not accepted permission');
-    }
-  }
-
+  String jsonString="";
+  // function to check user navigation scnerio
   void callFunction() async {
     String alreadyIn = "";
     LocaleHandler.bioAuth2 = await Preferences.getValue("BioAuth") ?? "";
@@ -91,7 +72,7 @@ class _SplashScreenState extends State<SplashScreen> {
     LocaleHandler.emailVerified = await Preferences.getValue("emailVerified") ?? "";
     LocaleHandler.userId = await Preferences.getValue("userId") ?? "";
     print(LocaleHandler.accessToken);
-    Future.delayed(const Duration(seconds: 3), () {
+    Future.delayed(const Duration(seconds: 3), () async {
       if (alreadyIn == "done") {
         if (LocaleHandler.accessToken != "") {
           if (LocaleHandler.emailVerified == "true") {
@@ -100,65 +81,40 @@ class _SplashScreenState extends State<SplashScreen> {
               Provider.of<eventController>(context, listen: false).getmeEvent(context, "me");
               Provider.of<profileController>(context, listen: false).getTotalSparks();
               Get.offAll(() => BottomNavigationScreen());
+              jsonString = await Preferences.getValue('filterList')??"";
+              getFeedFilter();
             } else {
-              Get.offAll(() => const SliderScreen());}
+              Get.offAll(() => const SliderScreen());
+            }
           } else {
-            Get.offAll(() => const SliderScreen());}
+            Get.offAll(() => const SliderScreen());
+          }
         } else {
-          Get.offAll(() => const SliderScreen());}
+          Get.offAll(() => const SliderScreen());
+        }
       } else {
-        Get.offAll(() => const IntroScreen());}
-      if (LocaleHandler.bioAuth2 == "true") {openBio();}
-    });
-  }
-
-  void firebaseNotificationHandling() {
-    Permission.notification.request();
-    permission();
-    _register();
-
-    LocalNotificationService.initialize(context);
-    FirebaseMessaging.instance.getInitialMessage().then((message) {
-      if (message != null) {
-        // final routeFromMessage = message.data["route"];
-        // Navigator.of(context).pushNamed(routeFromMessage);
+        Get.offAll(() => const IntroScreen());
+      }
+      if (LocaleHandler.bioAuth2 == "true") {
+        openBio();
       }
     });
-    //forground
-
-    FirebaseMessaging.onMessage.listen((message) {
-      LocalNotificationService.display(message);
-    });
-
-    FirebaseMessaging.onBackgroundMessage(backGroundHandler);
-
-    FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-    //Background
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {});
   }
 
-  Future<void> backGroundHandler(RemoteMessage message) async {
-    LocalNotificationService.display(message);
+  void getFeedFilter(){
+    if (jsonString != "") {
+      List<dynamic> jsonList = jsonDecode(jsonString);
+      LocaleHandler.selectedIndexGender=jsonList[0];
+    LocaleHandler.startage=jsonList[1];
+    LocaleHandler.endage=jsonList[2];
+    LocaleHandler.distancevalue=jsonList[3];
+    LocaleHandler.isChecked=jsonList[4];
+    } else {}
   }
 
-  // void initDeeplinking(){
-  //   FirebaseDynamicLinks.instance.onLink(
-  //     onSuccess:(PendingDynamicLinkData ? dynamicLink)async{
-  //       final Uri? deeplink=dynamicLink?.link;
-  //       if(deeplink!=null){
-  //         print("Deeplinkdata;-;-;-;-${deeplink.toString()}");
-  //       }
-  //     },
-  //   );
-  // }
-
+  // Deep link
   Future<void> _initDynamicLinks() async {
-    final PendingDynamicLinkData? data =
-    await FirebaseDynamicLinks.instance.getInitialLink();
+    final PendingDynamicLinkData? data = await FirebaseDynamicLinks.instance.getInitialLink();
     _handleDynamicLink(data);
 
     FirebaseDynamicLinks.instance.onLink.listen((dynamicLinkData) {
@@ -173,8 +129,9 @@ class _SplashScreenState extends State<SplashScreen> {
     final Uri? deepLink = data?.link;
 
     if (deepLink != null) {
+      Get.to(() => const CreateNewAccount());
       // Handle the deep link and navigate to the relevant screen
-      print('Deep Link: ${deepLink.toString()}');
+      print('Deep Link;-;-;-: ${deepLink.toString()}');
     }
   }
 
@@ -204,6 +161,53 @@ class _SplashScreenState extends State<SplashScreen> {
         ),
       ),
     );
+  }
+
+
+  permission() async {
+    NotificationSettings settings = await FirebaseMessaging.instance.requestPermission(
+      alert: true,
+      announcement: false,
+      badge: true,
+      carPlay: false,
+      criticalAlert: false,
+      provisional: false,
+      sound: true,
+    );
+    if (settings.authorizationStatus == AuthorizationStatus.authorized) {
+      print('User granted permission');
+      FirebaseMessaging.onMessage.listen((RemoteMessage message) {print("onMessage: $message");});
+    } else {print('User declined or has not accepted permission');}
+  }
+
+  void firebaseNotificationHandling() {
+    Permission.notification.request();
+    permission();
+    _register();
+
+    LocalNotificationService.initialize(context);
+    FirebaseMessaging.instance.getInitialMessage().then((message) {
+      if (message != null) {}
+    });
+    //forground
+
+    FirebaseMessaging.onMessage.listen((message) {
+      LocalNotificationService.display(message);
+    });
+
+    FirebaseMessaging.onBackgroundMessage(backGroundHandler);
+
+    FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+      alert: true,
+      badge: true,
+      sound: true,
+    );
+    //Background
+    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {});
+  }
+
+  Future<void> backGroundHandler(RemoteMessage message) async {
+    LocalNotificationService.display(message);
   }
 }
 

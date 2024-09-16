@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ui';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -232,14 +233,45 @@ class _NotificationScreen1State extends State<NotificationScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     // SvgPicture.asset(AssetsPics.mailImg,height: 40),
-                                    (dataa[index]["fromUser"]??"")==""?SvgPicture.asset(AssetsPics.mailImg,height: 40): SizedBox(
-                                        height: 50,width: 50,
-                                        child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(10),
-                                            child: CachedNetworkImage(imageUrl: dataa[index]["fromUser"]["profilePictures"],fit: BoxFit.cover,
-                                              placeholder: (ctx, url) => const Center(child: SizedBox()),
-                                              errorWidget: (context, url, error) => Image.asset(AssetsPics.demouser,height: 35),
-                                            ))),
+                                    (dataa[index]["fromUser"]??"")==""?SvgPicture.asset(AssetsPics.mailImg,height: 40):
+                                    Stack(
+                                      children: [
+                                        SizedBox(
+                                            height: 50,width: 50,
+                                            child: ClipRRect(
+                                                borderRadius: BorderRadius.circular(10),
+                                                child: CachedNetworkImage(imageUrl: dataa[index]["fromUser"]["profilePictures"],fit: BoxFit.cover,
+                                                  placeholder: (ctx, url) => const Center(child: SizedBox()),
+                                                  errorWidget: (context, url, error) => Image.asset(AssetsPics.demouser,height: 35),
+                                                ))),
+                                        LocaleHandler.subscriptionPurchase == "no"
+                                            ? IgnorePointer(
+                                            child: Column(
+                                              children: [
+                                                ClipRRect(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  child: ClipRect(
+                                                    child: BackdropFilter(
+                                                      filter: ImageFilter.blur(sigmaX: 2.0, sigmaY: 2.0),
+                                                      child: Container(
+                                                        height: 50,
+                                                        width: 50,
+                                                        alignment: Alignment.bottomCenter,
+                                                        color: Colors.black.withOpacity(0.1),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ))
+                                            : IgnorePointer(
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadius.circular(10),
+                                              child: ClipRect(child: BackdropFilter(filter: ImageFilter.blur(sigmaX: 6.0, sigmaY: 6.0),
+                                                  child: Container(width: 50, alignment: Alignment.bottomCenter, color: Colors.black.withOpacity(0.1)))),
+                                            )),
+                                      ],
+                                    ),
                                     const SizedBox(width: 15),
                                     Expanded(child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
@@ -347,7 +379,45 @@ class _NotificationScreen1State extends State<NotificationScreen> {
                                 Row(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    SvgPicture.asset(AssetsPics.mailImg,height: 40),
+                                    (dataa[index]["fromUser"]??"")==""?SvgPicture.asset(AssetsPics.mailImg,height: 40):
+                                    Stack(
+                                      children: [
+                                        SizedBox(
+                                            height: 50,width: 50,
+                                            child: ClipRRect(
+                                                borderRadius: BorderRadius.circular(10),
+                                                child: CachedNetworkImage(imageUrl: dataa[index]["fromUser"]["profilePictures"],fit: BoxFit.cover,
+                                                  placeholder: (ctx, url) => const Center(child: SizedBox()),
+                                                  errorWidget: (context, url, error) => Image.asset(AssetsPics.demouser,height: 35),
+                                                ))),
+                                        LocaleHandler.subscriptionPurchase == "no"
+                                            ? IgnorePointer(
+                                            child: Column(
+                                              children: [
+                                                ClipRRect(
+                                                  borderRadius: BorderRadius.circular(10),
+                                                  child: ClipRect(
+                                                    child: BackdropFilter(
+                                                      filter: ImageFilter.blur(sigmaX: 2.0, sigmaY: 2.0),
+                                                      child: Container(
+                                                        height: 50,
+                                                        width: 50,
+                                                        alignment: Alignment.bottomCenter,
+                                                        color: Colors.black.withOpacity(0.1),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            ))
+                                            : IgnorePointer(
+                                            child: ClipRRect(
+                                              borderRadius: BorderRadius.circular(10),
+                                              child: ClipRect(child: BackdropFilter(filter: ImageFilter.blur(sigmaX: 6.0, sigmaY: 6.0),
+                                                  child: Container(width: 50, alignment: Alignment.bottomCenter, color: Colors.black.withOpacity(0.1)))),
+                                            )),
+                                      ],
+                                    ),
                                     const SizedBox(width: 15),
                                     Expanded(
                                       child: Column(

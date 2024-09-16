@@ -116,10 +116,7 @@ customDialogBoxWithtwobutton(BuildContext context, String title,
               alignment: Alignment.bottomCenter,
               child: Container(
                 // height: MediaQuery.of(context).size.height/2.5,
-                  width: MediaQuery
-                      .of(context)
-                      .size
-                      .width / 1.1,
+                  width: MediaQuery.of(context).size.width / 1.1,
                   margin: EdgeInsets.symmetric(horizontal: 16, vertical: 3.h),
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(color: color.txtWhite,
@@ -134,8 +131,7 @@ customDialogBoxWithtwobutton(BuildContext context, String title,
                         alignment: Alignment.center,
                         height: isPng ? 70 : 80,
                         width: isPng ? 70 : 80,
-                        child: isPng ? Image.asset(img!) : SvgPicture.asset(
-                            img!),
+                        child: isPng ? Image.asset(img!) : SvgPicture.asset(img!),
                       ),
                       const SizedBox(height: 10),
                       Text(
@@ -1170,6 +1166,7 @@ List appRatingg = [
   AssetsPics.smiley4svg,
   AssetsPics.smiley5svg,
 ];
+
 int selectedIndex1 = -1;
 
 customRatingSheet({required BuildContext context,
@@ -1191,10 +1188,7 @@ customRatingSheet({required BuildContext context,
               alignment: Alignment.bottomCenter,
               child: Container(
 // height: MediaQuery.of(context).size.height/2.5,
-                  width: MediaQuery
-                      .of(context)
-                      .size
-                      .width / 1.1,
+                  width: MediaQuery.of(context).size.width / 1.1,
                   margin: const EdgeInsets.symmetric(
                       horizontal: 16, vertical: 30),
                   padding: const EdgeInsets.all(20),
@@ -1213,19 +1207,18 @@ customRatingSheet({required BuildContext context,
                       SizedBox(
                         height: 52,
                         child: StatefulBuilder(
-                            builder: (BuildContext context,
-                                StateSetter setState) {
+                            builder: (BuildContext context, StateSetter setState) {
                               return Center(
                                 child: ListView.builder(
                                     shrinkWrap: true,
                                     itemCount: appRating.length,
                                     scrollDirection: Axis.horizontal,
-                                    itemBuilder: (BuildContext context,
-                                        int index) {
+                                    itemBuilder: (BuildContext context, int index) {
                                       return GestureDetector(
                                         onTap: () {
-                                          setState(() {
+                                          setState(() async {
                                             selectedIndex1 = index;
+                                           await Future.delayed(const Duration(seconds:1));
                                             Get.back();
                                             customDialogBoxWithtwobutton(
                                                 context,
@@ -1239,9 +1232,7 @@ customRatingSheet({required BuildContext context,
                                         },
                                         child: CircleAvatar(
                                           radius: 29,
-                                          backgroundColor: selectedIndex1 ==
-                                              index ? color.txtBlue : color
-                                              .txtgrey4,
+                                          backgroundColor: selectedIndex1 == index ? color.txtBlue : color.txtgrey4,
                                           // child: Image.asset(appRating[index],height: 45),
                                           child: CircleAvatar(
                                               radius: 15,
@@ -1709,6 +1700,51 @@ customSlidingImage(BuildContext context,int inedxId, List? imges, {VoidCallback?
                   );
                 }),
               ),
+            ],
+          ),
+        );
+      });
+    },
+  );
+}
+
+customSingleImage(BuildContext context, String imges, {VoidCallback? onTapp = pressed}) {
+  return showGeneralDialog(
+    barrierLabel: "Label",
+    transitionDuration: const Duration(milliseconds: 500),
+    context: context,
+    pageBuilder: (context, anim1, anim2) {
+      return StatefulBuilder(builder: (context, setState) {
+        return Scaffold(
+          backgroundColor: Colors.black54,
+          body: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(right: 20),
+                child: Align(
+                    alignment: Alignment.centerRight,
+                    child: GestureDetector(
+                        onTap: onTapp,
+                        child: SvgPicture.asset(AssetsPics.whiteCancel))),
+              ),
+              Container(
+                  height: MediaQuery.of(context).size.height / 2,
+                  width: MediaQuery.of(context).size.width,
+                  // padding: EdgeInsets.only(right: 20,left: 20),
+                  margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                  child: ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: Image.network(imges, fit: BoxFit.cover)
+                      // child: CachedNetworkImage(
+                      //   imageUrl: imges,
+                      //   fit: BoxFit.cover,
+                      //   errorWidget: (context, url, error) => const SizedBox(),
+                      //   placeholder: (context, url) => const Center(child: CircularProgressIndicator(color: color.txtBlue)),
+                      // )
+
+                  )),
+              SizedBox()
             ],
           ),
         );

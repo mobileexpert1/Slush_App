@@ -185,8 +185,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        isLiked
-                            ? white_button_half(context, "Matches", press: () {
+                        isLiked ? white_button_half(context, "Matches", press: () {
                           setState(() {
                             isLiked = false;
                             getListData();
@@ -366,9 +365,9 @@ class _MatchesScreenState extends State<MatchesScreen> {
           ),
         ),
         Positioned(
-          bottom: 50.0,
+          bottom: 28.0,
           left: 10.0,
-          child: Row(
+          child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               SizedBox(
@@ -383,13 +382,10 @@ class _MatchesScreenState extends State<MatchesScreen> {
                   ],
                 ),
               ),
-              // buildText(
-              //     item[index]['firstName'] == null ? ""
-              //         : "${item[index]["firstName"] ?? ""}, ${item[index]['dateOfBirth'] == null ? "" : calculateAge(item[index]['dateOfBirth'] ?? "")}",
-              //     15, FontWeight.w600, color.txtWhite, fontFamily: FontFamily.hellix),
-              // const SizedBox(width: 4),
-              // SvgPicture.asset(item[index]["isVerified"] == null ? AssetsPics.verifygrey : item[index]["isVerified"]
-              //     ? AssetsPics.verify : AssetsPics.verifygrey)
+              SizedBox(
+                width: 150,
+                child: buildTextOverFlow(item[index]['jobTitle']==null?"":"${item[index]['jobTitle']??""}", 13.5, FontWeight.w500, color.txtWhite),
+              ),
             ],
           ),
         ),
@@ -448,8 +444,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
           ),
         ),
         LocaleHandler.subscriptionPurchase == "yes"
-            ? IgnorePointer(
-                child: Column(
+            ? IgnorePointer(child: Column(
                 children: [
                   const Spacer(),
                   ClipRRect(
@@ -468,17 +463,16 @@ class _MatchesScreenState extends State<MatchesScreen> {
                   ),
                 ],
               ))
-            : IgnorePointer(
-                child: ClipRRect(
+            : IgnorePointer(child: ClipRRect(
                 borderRadius: BorderRadius.circular(16),
                 child: ClipRect(child: BackdropFilter(filter: ImageFilter.blur(sigmaX: 6.0, sigmaY: 6.0),
                         child: Container(width: 21.h, alignment: Alignment.bottomCenter, color: Colors.black.withOpacity(0.1)))),
               )),
         LocaleHandler.subscriptionPurchase == "yes"
             ? Positioned(
-                bottom: 50.0,
+                bottom: 28.0,
                 left: 10.0,
-                child: Row(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     SizedBox(
@@ -493,12 +487,10 @@ class _MatchesScreenState extends State<MatchesScreen> {
                         ],
                       ),
                     ),
-                    // buildText(item[index]['firstName'] == null ? ""
-                    //         : "${item[index]["firstName"] ?? ""}, ${item[index]['dateOfBirth'] == null ? "" : calculateAge(item[index]['dateOfBirth'] ?? "")}",
-                    //     15, FontWeight.w600, color.txtWhite, fontFamily: FontFamily.hellix),
-                    // const SizedBox(width: 4),
-                    // SvgPicture.asset(item[index]["isVerified"] == null ? AssetsPics.verifygrey : item[index]["isVerified"]
-                    //     ? AssetsPics.verify : AssetsPics.verifygrey)
+                    SizedBox(
+                      width: 150,
+                      child: buildTextOverFlow(item[index]['jobTitle']==null?"":"${item[index]['jobTitle']??""}", 13.5, FontWeight.w500, color.txtWhite),
+                    ),
                   ],
                 ),
               )

@@ -9,7 +9,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
-import 'package:slush/ad_manager.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
@@ -48,7 +47,7 @@ class _EventScreenState extends State<EventScreen> {
   bool _isLoadMoreRunning = false;
   String location = "";
 
-  TextEditingController locationController = TextEditingController();
+  TextEditingController locationController = TextEditingController(text: LocaleHandler.location);
   FocusNode locationNode = FocusNode();
   List statesList = [];
   String _searchQuery = '';
@@ -146,7 +145,8 @@ class _EventScreenState extends State<EventScreen> {
 
   Future getEvents() async {
     selectedIndex = int.parse(cateId);
-    final url = "${ApiList.getEvent}${LocaleHandler.miliseconds}&distance=${LocaleHandler.distancee}&events=popular&latitude=${LocaleHandler.latitude}&longitude=${LocaleHandler.longitude}&category_id=$cateId&page=1&limit=10";
+    // final url = "${ApiList.getEvent}${LocaleHandler.miliseconds}&distance=${LocaleHandler.distancee}&events=popular&latitude=${LocaleHandler.latitude}&longitude=${LocaleHandler.longitude}&category_id=$cateId&page=1&limit=10";
+    final url = "${ApiList.getEvent}${LocaleHandler.miliseconds}&distance=${LocaleHandler.distancee}&latitude=${LocaleHandler.latitude}&longitude=${LocaleHandler.longitude}&category_id=$cateId&page=1&limit=10";
     print(url);
     var uri = Uri.parse(url);
     var response = await http.get(uri, headers: {
@@ -208,7 +208,8 @@ class _EventScreenState extends State<EventScreen> {
         _isLoadMoreRunning = true;
       });
       _page = _page + 1;
-      final url = "${ApiList.getEvent}${LocaleHandler.miliseconds}&distance=${LocaleHandler.distancee}&events=popular&latitude=${LocaleHandler.latitude}&longitude=${LocaleHandler.longitude}&category_id=$cateId&page=$_page&limit=10";
+      // final url = "${ApiList.getEvent}${LocaleHandler.miliseconds}&distance=${LocaleHandler.distancee}&events=popular&latitude=${LocaleHandler.latitude}&longitude=${LocaleHandler.longitude}&category_id=$cateId&page=$_page&limit=10";
+      final url = "${ApiList.getEvent}${LocaleHandler.miliseconds}&distance=${LocaleHandler.distancee}&latitude=${LocaleHandler.latitude}&longitude=${LocaleHandler.longitude}&category_id=$cateId&page=$_page&limit=10";
       print(url);
       var uri = Uri.parse(url);
       var response = await http.get(uri, headers: {
@@ -238,6 +239,7 @@ class _EventScreenState extends State<EventScreen> {
   String longitude = "";
 
   Future<void> _getCurrentPosition() async {
+    if(LocaleHandler.cordinatesFetch){return;}
     final hasPermission = await _handlePermission();
     if (!hasPermission) {
       Fluttertoast.showToast(msg: "Location permission is neccessary");
@@ -309,9 +311,10 @@ class _EventScreenState extends State<EventScreen> {
         setState(() {
           Map<String, dynamic> data = jsonDecode(response.body);
           userData = data["data"];
-          LocaleHandler.userId = userData["userId"].toString();
+          // LocaleHandler.userId = userData["userId"].toString();
+          LocaleHandler.userId = userData["id"].toString();
           LocaleHandler.name = userData["firstName"]??userData["email"];
-          LocaleHandler.avatar = userData["avatar"]??"";
+          LocaleHandler.avatar = userData["avatar"]??userData["profilePictures"][0]["key"]??"";
           age = calculateAge(data["data"]["dateOfBirth"].toString());
           usergender = userData["gender"]??"male";
           location = userData["state"] + ", " + userData["country"];
@@ -1069,8 +1072,7 @@ class _EventScreenState extends State<EventScreen> {
                       itemCount: itemList.isEmpty ? post.length : itemList.length,
                       itemBuilder: (context, index) {
                         var item = itemList.isEmpty ? post : itemList;
-                        String type =
-                            item[index]["gender"].toString().toLowerCase();
+                        String type = item[index]["gender"].toString().toLowerCase();
                         String typename = type == "straight"
                             ? "Straight" : type == "lesbian"
                                 ? "Lesbian" : type == "queer"
@@ -1377,8 +1379,10 @@ class _EventScreenState extends State<EventScreen> {
 
   String getAvailable(int i, item) {
     int totalPaticipants = post[i]["type"]=="5 Dates"?10:20;
+    int ii=0;
     // var total =  post[i]["totalParticipants"] - post[i]["participants"].length;
-    int ii =post[i]["totalParticipants"]<=10?post[i]["totalParticipants"]:10;
+    if(post[i]["type"]=="5 Dates"){ii =post[i]["totalParticipants"]<=10?post[i]["totalParticipants"]:10;}
+    else{ii =post[i]["totalParticipants"]<=20?post[i]["totalParticipants"]:20;}
     var total = totalPaticipants - ii;
     return total.toString();
   }

@@ -32,7 +32,7 @@ PreferredSizeWidget commonBar(BuildContext context,Color bg,{VoidCallback? press
                 color: Colors.transparent,
                   borderRadius: BorderRadius.circular(20)
               ),
-            padding: EdgeInsets.only(left: 9,right: 9),
+            padding: const EdgeInsets.only(left: 9,right: 9),
               child: SvgPicture.asset(AssetsPics.arrowLeft)),
           // child: Icon(Icons.arrow_back,color: color.txtBlack,),
         ),
@@ -65,7 +65,7 @@ PreferredSizeWidget commonBarWithText(BuildContext context,Color bg,{VoidCallbac
               color: Colors.transparent,
               borderRadius: BorderRadius.circular(20)
             ),
-              padding: EdgeInsets.only(left: 7,right: 7),
+              padding: const EdgeInsets.only(left: 7,right: 7),
               child: SvgPicture.asset(AssetsPics.arrowLeft)),
         ),
       ),
@@ -105,7 +105,7 @@ PreferredSizeWidget commonBarWithTextleft(BuildContext context,Color bg,String t
                 // color: Colors.red,
                   borderRadius: BorderRadius.circular(20)
               ),
-              padding: EdgeInsets.only(left: 9,right: 8),
+              padding: const EdgeInsets.only(left: 9,right: 8),
               child: SvgPicture.asset(AssetsPics.arrowLeft)),
         ),
       ),
@@ -137,7 +137,7 @@ PreferredSizeWidget commonBarWithTextleftforChat(BuildContext context,Color bg,S
                 color: Colors.transparent,
                   borderRadius: BorderRadius.circular(20)
               ),
-              padding: EdgeInsets.only(left: 8,right: 8),
+              padding: const EdgeInsets.only(left: 8,right: 8),
               child: SvgPicture.asset(AssetsPics.arrowLeft)),
         ),
       ),actions: [

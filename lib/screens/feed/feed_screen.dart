@@ -8,7 +8,9 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get_core/src/get_main.dart';
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:slush/constants/api.dart';
+import 'package:slush/constants/prefs.dart';
 import 'package:slush/controller/controller.dart';
 import 'package:slush/controller/profile_controller.dart';
 import 'package:slush/controller/spark_Liked_controler.dart';
@@ -26,7 +28,6 @@ import 'package:slush/widgets/toaster.dart';
 import 'package:video_player/video_player.dart';
 import '../../controller/login_controller.dart';
 import '../../widgets/thumb_class.dart';
-// import 'package:chewie/chewie.dart';
 
 class FeedScreen extends StatefulWidget {
   FeedScreen({super.key, required this.reels, required this.index, this.data});
@@ -53,7 +54,7 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
   final debounce = Debounce(milliseconds: 300);
   bool isPLaying = false;
   double videoContainerRatio = 0.5;
-  List user=[];
+  List<dynamic> _items = [];
 
   @override
   void initState() {
@@ -62,7 +63,7 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
     callFuntion();
     Future.delayed(const Duration(seconds: 5), () {
       // Provider.of<reelController>(context, listen: false).videoPause(false, LocaleHandler.pageCurrentIndex);
-      Provider.of<reelController>(context, listen: false).videoPause(false, 0);
+      // Provider.of<reelController>(context, listen: false).videoPause(false, 0);
       // Provider.of<reelController>(context, listen: false).playNextReel(LocaleHandler.pageIndex);
     });
   }
@@ -104,8 +105,8 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
     if (response.statusCode == 201) {
       var data=jsonDecode(response.body);
       if(data["isMatch"]&&action!="DISLIKED") {
-        Provider.of<reelController>(context, listen: false).videoPause(true, index);
-        Provider.of<reelController>(context, listen: false).congoScreen(true, widget.data[index]["user"]["avatar"],name,userId);
+        Provider.of<ReelController>(context, listen: false).videoPause(true, index);
+        Provider.of<ReelController>(context, listen: false).congoScreen(true, widget.data[index]["user"]["avatar"],name,userId);
         // Get.to(() => TransparentCongoWithBottomScreen(userId: widget.data[index]["user"]["id"], name: name));
       }
       Provider.of<profileController>(context,listen: false).getTotalSparks();
@@ -123,8 +124,8 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
     if(response.statusCode==201){
       var data=jsonDecode(response.body);
       if(data["isMatch"]&&action!="DISLIKED") {
-        Provider.of<reelController>(context, listen: false).videoPause(true, index);
-        Provider.of<reelController>(context, listen: false).congoScreen(true, widget.data[index]["user"]["avatar"],name,userId);
+        Provider.of<ReelController>(context, listen: false).videoPause(true, index);
+        Provider.of<ReelController>(context, listen: false).congoScreen(true, widget.data[index]["user"]["avatar"],name,userId);
         // Get.to(() => TransparentCongoWithBottomScreen(userId: widget.data[index]["user"]["id"], name: name));
       }
       Provider.of<profileController>(context,listen: false).getTotalSparks();
@@ -150,14 +151,14 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
-    final reelcntrol = Provider.of<reelController>(context, listen: false);
+    final reelcntrol = Provider.of<ReelController>(context, listen: false);
     final size = MediaQuery.of(context).size;
     return Scaffold(
       key: _scaffoldKey,
       backgroundColor: Colors.black,
       body: Stack(
         children: [
-          Consumer<reelController>(builder: (build, val, child) {
+          Consumer<ReelController>(builder: (build, val, child) {
             return mounted ? PageView.builder(
                     physics: LocaleHandler.subscriptionPurchase != "no" && val.count != 0 ?
                     const ClampingScrollPhysics() :val.adstart  ?
@@ -184,15 +185,14 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                           reelcntrol.playPreviousReel(index);
                           reelcntrol.reelInilizedstop();
                           isPLaying = !isPLaying;});}
-                      Provider.of<reelController>(context,listen: false).changeBioHieght(false);
-                      if(Provider.of<reelController>(context,listen: false).totallen==index) {
-                        Provider.of<reelController>(context,listen: false).stopReels(context);
+                      Provider.of<ReelController>(context,listen: false).changeBioHieght(false);
+                      if(Provider.of<ReelController>(context,listen: false).totallen==index) {
+                        Provider.of<ReelController>(context,listen: false).stopReels(context);
                       }
                     },
                     itemBuilder: (context, index) {
                       String name =val.videocntroller.length==index?"": widget.data[index]["user"]["fullName"] ?? widget.data[index]["user"]["nickName"] ?? "";
-                      // if(val.videocntroller.length==index){print(";-;-;-;-${val.videocntroller[index].value.isInitialized}");}
-                      return val.videocntroller.length==index?const SizedBox(): GestureDetector(
+                    return val.videocntroller.length==index?const SizedBox(): GestureDetector(
                         onTap: () {if (val.pause) {reelcntrol.videoPause(false, index);}
                         else {reelcntrol.videoPause(true, index);}},
                         child: Stack(
@@ -219,7 +219,7 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Consumer<reelController>(builder: (context, value, child) {
+                                      Consumer<ReelController>(builder: (context, value, child) {
                                         return GestureDetector(
                                           onTap: () {
                                             reelcntrol.setVolumne(value.isMute ? false : true, index);
@@ -239,12 +239,14 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                             _endValue = LocaleHandler.endage.toDouble();
                                             distancevalue = LocaleHandler.distancevalue;
                                             isChecked = LocaleHandler.isChecked;
+                                            print("LocaleHandler.endage;-;-;-${LocaleHandler.endage}");
+                                            print(_endValue);
                                           });
                                           customReelBoxFilter(context);
                                         },
                                         child: Consumer<reelTutorialController>(
                                             builder: (context, val, child) {
-                                          return val.cou == 5 || Provider.of<reelController>(context).stopReelScroll
+                                          return val.cou == 5 || Provider.of<ReelController>(context).stopReelScroll
                                               ? const SizedBox()
                                               : SvgPicture.asset(AssetsPics.reelFilterIcon, height: 50);
                                         }),
@@ -310,7 +312,7 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                           }),
                                           // buildText(name, 17, FontWeight.w600, color.txtWhite),
                                           SizedBox(height: 1.h - 5),
-                                          Consumer<reelController>(builder: (context, value, i) {
+                                          Consumer<ReelController>(builder: (context, value, i) {
                                             return SizedBox(
                                                 height:value.biohieght? MediaQuery.of(context).size.height/6:45,
                                                 // height:MediaQuery.of(context).size.height/2,
@@ -328,7 +330,7 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                                       maxLines: 3,
                                                       linkColor: color.txtWhite,
                                                       onExpandedChanged: (val) {
-                                                        Provider.of<reelController>(context, listen: false).changeBioHieght(val);
+                                                        Provider.of<ReelController>(context, listen: false).changeBioHieght(val);
                                                       },
                                                     ),
                                                   );
@@ -395,7 +397,7 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                     }
                                   }, // child: SvgPicture.asset(isLiked? AssetsPics.active:AssetsPics.inactive,height: 70)
                                       child: Consumer<reelTutorialController>(builder: (context, val, child) {
-                                    return val.cou == 2
+                                    return val.cou == 2 && LocaleHandler.feedTutorials
                                         ? SizedBox(height: size.height * 0.1 - 8, width: size.width * 0.2 - 6)
                                         : AnimatedSwitcher(
                                         duration: const Duration(milliseconds: 300),
@@ -500,20 +502,14 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                               activeTrackColor: color.txtBlue,
                                               inactiveTrackColor: color.lightestBlueIndicator,
                                               activeTickMarkColor: Colors.transparent,
-                                              thumbShape: CustomSliderThumb(
-                                                displayValue: distancevalue,
-                                              ),
+                                              thumbShape: CustomSliderThumb(displayValue: distancevalue),
                                               thumbColor: color.txtBlue,
                                               overlayColor: const Color(0xff2280EF).withOpacity(0.2),
                                               overlayShape: const RoundSliderOverlayShape(overlayRadius: 20.0),
                                               valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
                                               valueIndicatorColor: Colors.blue,
                                               showValueIndicator: ShowValueIndicator.never,
-                                              valueIndicatorTextStyle:
-                                                  const TextStyle(
-                                                color: Colors.white,
-                                                fontSize: 20.0,
-                                              ),
+                                              valueIndicatorTextStyle: const TextStyle(color: Colors.white, fontSize: 20.0),
                                             ),
                                             child: Slider(
                                               min: 5.0,
@@ -568,7 +564,6 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                                   RangeSlider(
                                                     activeColor: color.txtBlue,
                                                     inactiveColor: color.lightestBlueIndicator,
-                                                    // divisions: 9,
                                                     labels: RangeLabels(
                                                       _startValue.round().toString(),
                                                       _endValue.round().toString(),
@@ -631,12 +626,9 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                     buildText("Show me", 18, FontWeight.w600, color.txtBlack),
                                     Container(
                                         padding: const EdgeInsets.only(left: 5),
-                                        //   alignment: Alignment.center,
                                         height: 46,
                                         width: MediaQuery.of(context).size.width,
-                                        // color: Colors.red,
                                         child: Row(
-                                          // mainAxisAlignment: MainAxisAlignment.center,
                                           children: [
                                             ListView.builder(
                                                 shrinkWrap: true,
@@ -689,13 +681,16 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     GestureDetector(
-                                      onTap: () {
+                                      onTap: () async {
                                         LocaleHandler.selectedIndexGender = -1;
                                         LocaleHandler.startage = 18;
                                         LocaleHandler.endage = 90;
                                         LocaleHandler.distancevalue = 250;
                                         LocaleHandler.isChecked = false;
                                         Get.back();
+                                        _items=[LocaleHandler.selectedIndexGender,LocaleHandler.startage,LocaleHandler.endage,LocaleHandler.distancevalue,LocaleHandler.isChecked];
+                                        String jsonString = jsonEncode(_items);
+                                        await Preferences.setValue('filterList', jsonString);
                                       },
                                       child: Container(
                                         alignment: Alignment.center,
@@ -715,17 +710,20 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                       onTap: () {
                                         int min = _startValue.toInt();
                                         int max = _endValue.toInt();
-                                        setState(() {
+                                        setState(() async {
                                           LocaleHandler.selectedIndexGender = selectedIndex;
                                           LocaleHandler.startage = min;
                                           LocaleHandler.endage = max;
                                           LocaleHandler.distancevalue = distancevalue;
                                           LocaleHandler.isChecked = isChecked;
                                           LocaleHandler.pageIndex = 0;
+                                          _items=[LocaleHandler.selectedIndexGender,LocaleHandler.startage,LocaleHandler.endage,LocaleHandler.distancevalue,LocaleHandler.isChecked];
+                                          String jsonString = jsonEncode(_items);
+                                          await Preferences.setValue('filterList', jsonString);
                                         });
-                                        Provider.of<reelController>(context, listen: false).videoPause(true, LocaleHandler.pageIndex);
-                                        Provider.of<reelController>(context,listen: false).stopReels(context);
-                                        Provider.of<reelController>(context, listen: false).getVidero(context, 1, min, max, distancevalue, LocaleHandler.latitude,
+                                        Provider.of<ReelController>(context, listen: false).videoPause(true, LocaleHandler.pageIndex);
+                                        Provider.of<ReelController>(context,listen: false).stopReels(context);
+                                        Provider.of<ReelController>(context, listen: false).getVidero(context, 1, min, max, distancevalue, LocaleHandler.latitude,
                                                 LocaleHandler.longitude, selectedGender == "Everyone" ? "" : selectedGender.toLowerCase(),filter: true);
                                         Get.back();
                                       },
@@ -880,4 +878,5 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
           );
         });
   }
+
 }

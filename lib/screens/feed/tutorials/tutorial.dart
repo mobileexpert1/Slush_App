@@ -1,4 +1,6 @@
 
+import 'dart:convert';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:dotted_border/dotted_border.dart';
 import 'package:expandable_text/expandable_text.dart';
@@ -11,6 +13,7 @@ import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
+import 'package:slush/constants/prefs.dart';
 import 'package:slush/controller/controller.dart';
 import 'package:slush/controller/login_controller.dart';
 import 'package:slush/screens/feed/tutorials/controller_class.dart';
@@ -37,7 +40,7 @@ Widget feedTutorials(BuildContext context){
       Consumer<reelTutorialController>(
         builder: (context,value,child){
           // return LocaleHandler.scrollLimitreached ?const SizedBox(): Container(
-          return Provider.of<reelController>(context).stopReelScroll ?const SizedBox(): Container(
+          return Provider.of<ReelController>(context).stopReelScroll ?const SizedBox(): Container(
           child:  value.cou==0? first(context):
           value.cou==1? second(context):
           value.cou==2? third(context):
@@ -48,7 +51,7 @@ Widget feedTutorials(BuildContext context){
           );
         },
       ),
-      Consumer<reelController>(builder: (ctx,val,child){
+      Consumer<ReelController>(builder: (ctx,val,child){
         return val.count==0?seventh(context):const SizedBox();
       })
       ],
@@ -155,7 +158,7 @@ Widget second(BuildContext context){
             bottom: 95.0,
             child: CircleAvatar(radius: 32,
             backgroundColor: Colors.transparent,
-            child: Consumer<reelController>(builder: (context,val,child){
+            child: Consumer<ReelController>(builder: (context,val,child){
               print("val.data");
               print(val.data);
            return val.data==null ||val.data.isEmpty?const CircleAvatar(radius: 32,backgroundImage: AssetImage(AssetsPics.demouser)):
@@ -263,7 +266,7 @@ Widget fourth(BuildContext context){
           Positioned(
             bottom: 28.0,
             left: 0.0,
-            child: Consumer<reelController>(builder: (ctx,val,child)
+            child: Consumer<ReelController>(builder: (ctx,val,child)
               {return val.data==null||val.data.isEmpty?const SizedBox(): Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -383,7 +386,7 @@ double _startValue = 18.0;
 double _endValue = 90.0;
 String selectedGender = "";
 List gender = ["Male", "Female", "Everyone"];
-
+List<dynamic> _items = [];
 Widget seventh(BuildContext context){
   final size=MediaQuery.of(context).size;
   return SafeArea(
@@ -403,6 +406,7 @@ Widget seventh(BuildContext context){
                _endValue = LocaleHandler.endage.toDouble();
                distancevalue = LocaleHandler.distancevalue;
                isChecked = LocaleHandler.isChecked;
+               print("LocaleHandler.startage;-;-;-${LocaleHandler.endage}");
                customReelBoxFilte(context);
                },
               child: Container(alignment: Alignment.topRight, child: SvgPicture.asset(AssetsPics.reelFilterIcon,fit: BoxFit.cover,height: 48))),
@@ -688,13 +692,16 @@ customReelBoxFilte(BuildContext context) {
                                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                                   GestureDetector(
-                                    onTap: () {
+                                    onTap: () async {
                                       LocaleHandler.selectedIndexGender = -1;
                                       LocaleHandler.startage = 18;
                                       LocaleHandler.endage = 90;
                                       LocaleHandler.distancevalue = 250;
                                       LocaleHandler.isChecked = false;
                                       Get.back();
+                                      _items=[LocaleHandler.selectedIndexGender,LocaleHandler.startage,LocaleHandler.endage,LocaleHandler.distancevalue,LocaleHandler.isChecked];
+                                      String jsonString = jsonEncode(_items);
+                                      await Preferences.setValue('filterList', jsonString);
                                     },
                                     child: Container(
                                       alignment: Alignment.center,
@@ -711,7 +718,7 @@ customReelBoxFilte(BuildContext context) {
                                     ),
                                   ),
                                   GestureDetector(
-                                    onTap: () {
+                                    onTap: () async {
                                       int min = _startValue.toInt();
                                       int max = _endValue.toInt();
                                       setState(() {
@@ -722,10 +729,13 @@ customReelBoxFilte(BuildContext context) {
                                         LocaleHandler.isChecked = isChecked;
                                         LocaleHandler.pageIndex = 0;
                                       });
-                                      Provider.of<reelController>(context, listen: false).videoPause(true, LocaleHandler.pageIndex);
-                                      Provider.of<reelController>(context, listen: false).getVidero(context, 1, min, max, distancevalue, LocaleHandler.latitude,
+                                      Provider.of<ReelController>(context, listen: false).videoPause(true, LocaleHandler.pageIndex);
+                                      Provider.of<ReelController>(context, listen: false).getVidero(context, 1, min, max, distancevalue, LocaleHandler.latitude,
                                           LocaleHandler.longitude, selectedGender == "Everyone" ? "" : selectedGender.toLowerCase());
                                       Get.back();
+                                      _items=[LocaleHandler.selectedIndexGender,LocaleHandler.startage,LocaleHandler.endage,LocaleHandler.distancevalue,LocaleHandler.isChecked];
+                                      String jsonString = jsonEncode(_items);
+                                      await Preferences.setValue('filterList', jsonString);
                                     },
                                     // onTap: onTap2,
                                     child: Container(

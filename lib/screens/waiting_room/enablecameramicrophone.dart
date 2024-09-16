@@ -28,6 +28,7 @@ class _EnableCameraMicrophoneScreenState extends State<EnableCameraMicrophoneScr
 
   CameraController? _controller;
   void _initializeCamera() async {
+    LocaleHandler.onCamPrefrencescreen=true;
     final cameras = await availableCameras();
     final front = cameras.firstWhere((camera) => camera.lensDirection == CameraLensDirection.front);
     _controller = CameraController(front, ResolutionPreset.medium);

@@ -26,7 +26,6 @@ import 'package:slush/widgets/bottom_sheet.dart';
 import 'package:slush/widgets/text_widget.dart';
 import 'package:slush/widgets/toaster.dart';
 import 'package:http/http.dart'as http;
-import 'package:slush/widgets/topSnackbar.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
@@ -40,7 +39,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
 
   List<Settings> settingsType=[
-    Settings(1,AssetsPics.notification, "Notification Settings", AssetsPics.rightArrow,),
+    Settings(1,AssetsPics.notification, "Notification Settings", AssetsPics.rightArrow),
     Settings(2,AssetsPics.acSetting, "Account Settings", AssetsPics.rightArrow,),
     Settings(3,AssetsPics.discovery,  "Discovery Settings", AssetsPics.rightArrow,),
     // Settings(4,AssetsPics.deviceManagement,  "Device Management", AssetsPics.rightArrow,),
@@ -99,7 +98,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           btnTxt1: "Cancel",btnTxt2: "Yes, logout",onTap2: (){
                             logout();
                             removeData();
-                            Provider.of<reelController>(context,listen: false).removeVideoLimit(context);
+                            Provider.of<ReelController>(context,listen: false).removeVideoLimit(context);
                             // Get.offAll(()=>const SliderScreen());
                           }
                           );

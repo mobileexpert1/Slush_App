@@ -63,13 +63,4 @@ class SettingController extends ChangeNotifier{
     LocaleHandler.filtergender=val;
     notifyListeners();
   }
-  void updateDistance(val){
-    LocaleHandler.distancevalue=val;
-    notifyListeners();
-  }
-  void updateAgeRange(min,max){
-    LocaleHandler.startage = min;
-    LocaleHandler.endage = max;
-    notifyListeners();
-  }
 }

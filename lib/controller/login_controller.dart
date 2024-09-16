@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -31,7 +32,11 @@ import 'package:slush/widgets/toaster.dart';
 class loginControllerr with ChangeNotifier{
 
   int value=50000;
-  int get val=>value;
+  bool recordingOff=false;
+  bool get recordingOfff=>recordingOff;
+  late Timer _timer;
+  int _secondsLeft = 5;
+  int get secondsLeft=>_secondsLeft;
 
   void changeValue(vall){
     value=vall;
@@ -39,17 +44,16 @@ class loginControllerr with ChangeNotifier{
     LocaleHandler.distancevalue=vall;
     notifyListeners();
   }
+  void saveagerange(start,end){
+    LocaleHandler.startage=start.toInt();
+    LocaleHandler.endage=end.toInt();
+    notifyListeners();
+  }
 
-  bool recordingOff=false;
-  bool get recordingOfff=>recordingOff;
   void changebool(BuildContext context, val){
     recordingOff=val;
     notifyListeners();
   }
-
-  late Timer _timer;
-  int _secondsLeft = 5;
-  int get secondsLeft=>_secondsLeft;
 
   void startTimer() {
     _secondsLeft=5;
@@ -76,7 +80,7 @@ class loginControllerr with ChangeNotifier{
         print(data);
         if(response.statusCode == 201){
           _refereshToken=data["data"]["authenticate"]["refreshToken"];
-          Provider.of<reelController>(context,listen: false).getVideoCount(context);
+          Provider.of<ReelController>(context,listen: false).getVideoCount(context);
           Provider.of<profileController>(context,listen: false).getTotalSparks();
           saveDAta(context,data);
           print(LocaleHandler.accessToken);
@@ -113,17 +117,35 @@ class loginControllerr with ChangeNotifier{
     notifyListeners();
   }
 
+  String generateUuidV4() {
+    final random = Random();
+    final bytes = List<int>.generate(16, (_) => random.nextInt(256));
+
+    // Set version to 4
+    bytes[6] = (bytes[6] & 0x0f) | 0x40;
+    // Set variant to 8
+    bytes[8] = (bytes[8] & 0x3f) | 0x80;
+
+    final hex = (int i) => i.toRadixString(16).padLeft(2, '0');
+    return '${hex(bytes[0])}${hex(bytes[1])}${hex(bytes[2])}${hex(bytes[3])}-${hex(bytes[4])}${hex(bytes[5])}-${hex(bytes[6])}${hex(bytes[7])}-${hex(bytes[8])}${hex(bytes[9])}-${hex(bytes[10])}${hex(bytes[11])}${hex(bytes[12])}${hex(bytes[13])}${hex(bytes[14])}${hex(bytes[15])}';
+  }
+
   Future hitFCMTOken(String id,String name)async{
+    String playerId=generateUuidV4();
+    String devicetype=Platform.isAndroid?"android":Platform.isIOS?"ios":"";
     const url=ApiList.fcmToken;
     print(url);
     var uri=Uri.parse(url);
-    var response=await http.post(uri,headers: {'Content-Type': 'application/json', 
-      'Authorization': 'Bearer ${LocaleHandler.accessToken}'},
+    var response=await http.post(uri,headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${LocaleHandler.accessToken}'},
     body: jsonEncode({
-      "token":_refereshToken,
-      "deviceId":id,
-      "deviceName":name
+    "token": LocaleHandler.fcmToken,
+    "deviceId": id,
+    "deviceName": name,
+    "playerId":playerId,
+    "deviceType":devicetype
     }));
+    print(response.statusCode);
+    print(jsonDecode(response.body));
     if(response.statusCode==201){}
     else if(response.statusCode==401){}
     else{}
@@ -184,7 +206,6 @@ class loginControllerr with ChangeNotifier{
     Provider.of<eventController>(context, listen: false).getmeEvent(context,"me");
     notifyListeners();
   }
-
 
   Future socialLoginUser(String type,{required String socialToken,providerName})async{
     const url=ApiList.socialLogin;
@@ -272,8 +293,6 @@ class loginControllerr with ChangeNotifier{
     }
     notifyListeners();
   }
-
-
 
   static final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
   Map<String, dynamic> _deviceData = <String, dynamic>{};

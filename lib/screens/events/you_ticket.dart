@@ -313,16 +313,16 @@ class _EventYourTicketScreenState extends State<EventYourTicketScreen> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              SizedBox(
-                width: MediaQuery.of(context).size.width / 1.3,
-                child: buildTextOverFlow(data["title"] + " - " + data["type"],
+              SizedBox(width: size.width*0.8,
+                child: buildText(data["title"] + " - " + data["type"],
                     28, FontWeight.w600, color.txtBlack),
               ),
               SizedBox(
                   height: 3.h + 1,
                   width: 24,
-                  child: data["hasPassword"]
+                  child: !data["hasPassword"]
                       ? SvgPicture.asset(AssetsPics.lock)
                       : const SizedBox())
             ],

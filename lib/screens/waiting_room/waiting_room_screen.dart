@@ -69,6 +69,8 @@ class _WaitingRoomState extends State<WaitingRoom> with SingleTickerProviderStat
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (widget.min > 0) {setState(() {widget.min--;
       if(widget.min < 120 && !LocaleHandler.speeddatePermission){
+        if(LocaleHandler.onCamPrefrencescreen){Get.back();}
+        LocaleHandler.onCamPrefrencescreen=false;
         LocaleHandler.dateno=0;
         DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(widget.data["startsAt"] * 1000);
         DateTime timeFormat = DateTime.now();
@@ -78,7 +80,9 @@ class _WaitingRoomState extends State<WaitingRoom> with SingleTickerProviderStat
       }
       });
       } else {_timer.cancel();
-      if(!LocaleHandler.lateEntry){Get.to(() => WaitingCompleted(data: widget.data, min: min));}
+      if(LocaleHandler.onCamPrefrencescreen){Get.back();}
+      if(!LocaleHandler.lateEntry){
+        Get.to(() => WaitingCompleted(data: widget.data, min: min));}
       }});
   }
 

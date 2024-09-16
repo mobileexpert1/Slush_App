@@ -1,3 +1,4 @@
+/*
 // import 'dart:developer';
 import 'dart:io';
 
@@ -95,13 +96,13 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget>
 
   @override
   Widget build(BuildContext context) {
-    final reelcntrol=Provider.of<reelController>(context,listen: false);
+    final reelcntrol=Provider.of<ReelController>(context,listen: false);
     final size = MediaQuery.of(context).size;
     return SafeArea(
       top: false,
       left: false,
       right: false,
-      child:   Consumer<reelController>(
+      child:   Consumer<ReelController>(
           builder: (context,value,child) {
             if(_videoInitialized){
               _controller!.setVolume(value.isMute==true?0.0:1.0);
@@ -156,3 +157,4 @@ class _VideoPlayerWidgetState extends State<VideoPlayerWidget>
     );
   }
 }
+*/

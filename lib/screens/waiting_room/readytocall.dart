@@ -63,11 +63,13 @@ class _ReadyToCallScreenState extends State<ReadyToCallScreen> {
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mins > 0) {
         setState(() {mins--;});
-        print(";-;-;-;-${mins}mins");
         if (mins - 5 == 5) {
           FireStoreService().updateCallStatusToPicked("reject");
-          // customDialogBoxwithtitle(context, LocaleText.guidetext3, "Ok", AssetsPics.guide3,isPng: true,onTap: (){
-          //   Get.back();   Get.offAll(()=>WaitingCompletedFeedBack(data: LocaleHandler.eventdataa)); });
+          customDialogBoxwithtitle(context, LocaleText.guidetext3, "Ok", AssetsPics.guide3,isPng: true,onTap: (){
+            Get.back();  // Get.offAll(()=>WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));
+            Get.offAll(() => const FeedbackVideoChatScreen());
+            _timer.cancel();
+          });
         }
       } else {
         Get.back();
@@ -112,13 +114,7 @@ class _ReadyToCallScreenState extends State<ReadyToCallScreen> {
                             customDialogBoxx(context, "Not sure what to do?",
                                 LocaleText.guidetext1, "I’m ready", AssetsPics.guide1,
                                 isPng: true, onTap: () {
-                                  // FireStoreService().addCollection();
                                   Get.back();
-                                  // customDialogBoxwithtitle(context, LocaleText.guidetext2, "Join Now", AssetsPics.guide2,isPng: true,onTap: (){
-                                  //   Get.back();
-                                  //   Get.to(()=> const VideoCallScreen());
-                                  //   _timer.cancel();
-                                  // });
                                 });
                           },
                           child: SvgPicture.asset(AssetsPics.notificationI))),
@@ -240,7 +236,7 @@ class _ReadyToCallScreenState extends State<ReadyToCallScreen> {
                         _timer.cancel();
                         Provider.of<TimerProvider>(context, listen: false).vstartTimerr();
                         // customDialogBoxwithtitle(context, LocaleText.guidetext2, "Join Now", AssetsPics.guide2,isPng: true,onTap: (){
-                        // FireStoreService().addCollection();Get.back();Get.to(()=> const VideoCallScreen());_timer.cancel();});
+                        // FireStoreService().addCollection();Get.back();Get.to(()=> const VideoCallScreen());});
                       }),
                       // const SizedBox(height: 15),
                       SizedBox(height: size.height * 0.02),

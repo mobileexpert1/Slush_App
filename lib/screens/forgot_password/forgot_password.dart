@@ -59,7 +59,8 @@ class _ForgotPasswordState extends State<ForgotPassword> {
         if(response.statusCode==201){
           customDialogBox(context: context, title: 'Password link sent',
               secontxt: getInitials(loginController.text),
-              heading: 'Please go to your email and click the\n link to reset your password.',
+              // heading: 'Please go to your email and click the\n link to reset your password.',
+              heading: 'Please go to your email and check the\n OTP to reset your password.',
               // btnTxt: "Go back to login",
               btnTxt: "Go back to OTP screen",
               img: AssetsPics.mailImg,onTap: (){Get.back();

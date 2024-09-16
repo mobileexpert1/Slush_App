@@ -9,11 +9,8 @@ import 'package:slush/constants/api.dart';
 class waitingRoom extends ChangeNotifier{
   late Timer _timer;
   int _secondsLeft = 900;
-  int get seconds=>_secondsLeft;
   String secondsLeft="";
-  String get sec=> secondsLeft;
   int _milisecond=0;
-  int get milisecond=>_milisecond;
 
 
   void timerStart(int i){
@@ -37,29 +34,6 @@ class waitingRoom extends ChangeNotifier{
     return "$twoDigitMinutes:$twoDigitSeconds";
   }
 
-  var _data;
-  get data=>_data;
-  int _num=0;
-  int get num=>_num;
-
-  Future getFixtures()async{
-    final url="${ApiList.fixtures}${LocaleHandler.eventId}/fixtures";
-    print(url);
-    var uri=Uri.parse(url);
-    var response=await http.get(uri,headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${LocaleHandler.accessToken}'} );
-    var dataa=jsonDecode(response.body);
-    if(response.statusCode==200){
-        for(var i=0;i<=dataa["data"].length;i++){print(i);
-        if(dataa["data"][i]["status"]=="NOT_JOINED"){
-          LocaleHandler.channelId=dataa["data"][i]["channelName"];
-          _num=i;
-          break;}}
-        getRtcToken();
-        _data=dataa["data"];}
-    else {}
-    notifyListeners();
-  }
-
   Future getRtcToken()async{
     const url=ApiList.rtcToken;
     var uri=Uri.parse(url);
@@ -72,8 +46,6 @@ class waitingRoom extends ChangeNotifier{
       }
   notifyListeners();
   }
-
-
 
   void changeValue()async{
     final camStatus = await Permission.camera.status;

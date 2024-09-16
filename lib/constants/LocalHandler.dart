@@ -8,6 +8,7 @@ class LocaleHandler {
   static String bioAuth2="false";
   static bool noInternet=false;
   static bool micOn=false;
+  static bool onCamPrefrencescreen=false;
   static bool camOn=false;
   static String channelId="";
   static String rtctoken="";
@@ -79,6 +80,7 @@ class LocaleHandler {
 // location
   static String latitude = "36.7783";
   static String longitude = "119.4179";
+  static bool cordinatesFetch = false;
 
   //String
   static Map<String, dynamic> dataa = {};
@@ -134,6 +136,7 @@ class LocaleHandler {
   static int endage=100;
   static int selectedIndexGender=-1;
   static bool isChecked=false;
+
 
 }
 

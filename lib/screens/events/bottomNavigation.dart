@@ -58,8 +58,8 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
     else {
       _selectedIndex.value = index;
       if (_selectedIndex.value != 2) {
-        Provider.of<reelController>(context, listen: false).videoPause(true, LocaleHandler.pageIndex);
-        Provider.of<reelController>(context, listen: false).remove();
+        Provider.of<ReelController>(context, listen: false).videoPause(true, LocaleHandler.pageIndex);
+        Provider.of<ReelController>(context, listen: false).remove();
         if(_selectedIndex.value!=0){
           Provider.of<eventController>(context, listen: false).timerCancel();
         }}
@@ -129,7 +129,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
             // Consumer<reelController>(builder: (context,child,val){return LocaleHandler.matchedd? TransparentCongoWithBottomScreen():SizedBox();})
           ],
         ),
-        bottomNavigationBar:Consumer<reelController>(builder: (ctx,val,child){return !val.congo?ClipRRect(
+        bottomNavigationBar:Consumer<ReelController>(builder: (ctx,val,child){return !val.congo?ClipRRect(
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
           child: ValueListenableBuilder(valueListenable: _selectedIndex,builder: (ctx,val,child){
             return Theme(

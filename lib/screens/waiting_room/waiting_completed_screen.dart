@@ -16,7 +16,6 @@ import 'package:slush/controller/video_call_controller.dart';
 import 'package:slush/screens/events/bottomNavigation.dart';
 import 'package:slush/screens/video_call/didnofind.dart';
 import 'package:slush/screens/waiting_room/enablecameramicrophone.dart';
-import 'package:slush/screens/waiting_room/firebase_firestore_service.dart';
 import 'package:slush/screens/waiting_room/readytocall.dart';
 import 'package:slush/widgets/blue_button.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
@@ -71,7 +70,7 @@ class _WaitingCompletedState extends State<WaitingCompleted> with SingleTickerPr
     var dataa = jsonDecode(response.body);
     if (response.statusCode == 200) {
       setState(() {
-        if(dataa["data"].length != 0 && fixtureEmpty){
+        if(dataa["data"].length != 0){
         fixtureEmpty=false;
         data = dataa["data"];
         print(data);
@@ -129,8 +128,7 @@ class _WaitingCompletedState extends State<WaitingCompleted> with SingleTickerPr
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (widget.min > 0) {
         setState(() {widget.min--;});
-        if( widget.min<10&&widget.min>7&&fixtureEmpty){
-          print("fixtureEmpty===${fixtureEmpty}");
+        if( widget.min<10&&widget.min>7 && fixtureEmpty){
           getFixtures();
         }} else {
         if (num == -1) {Get.to(() => const DidnotFindAnyoneScreen());}
@@ -281,6 +279,7 @@ class _WaitingCompletedState extends State<WaitingCompleted> with SingleTickerPr
                                 : Padding(
                                     padding: const EdgeInsets.symmetric(horizontal: 20),
                                     child: blue_button(context, "Join the event", press: () {
+                                      showToastMsg("Please wait for everyone to be joined");
                                         // Provider.of<waitingRoom>(context).updateFixtureStatus(data[0]["participantId"], "NOT_JOINED");
                                         // if (num == -1) { Get.to(() => const DidnotFindAnyoneScreen()); }
                                        // else {  Get.to(() => ReadyToCallScreen(data: data[num]));}
@@ -393,7 +392,6 @@ class _WaitingCompletedFeedBackState extends State<WaitingCompletedFeedBack>
 
   var data;
   int num = -1;
-  bool fixtureEmpty=true;
 
   Future getFixtures() async {
     final url = "${ApiList.fixtures}${LocaleHandler.eventId}/fixtures";
@@ -406,8 +404,7 @@ class _WaitingCompletedFeedBackState extends State<WaitingCompletedFeedBack>
     var dataa = jsonDecode(response.body);
     if (response.statusCode == 200) {
       setState(() {
-        if(dataa["data"].length != 0 && fixtureEmpty){
-          fixtureEmpty=false;
+        if(dataa["data"].length != 0){
         data = dataa["data"];
         LocaleHandler.totalDate = data.length;
         for (var i = 0; i < dataa["data"].length; i++) {
@@ -498,8 +495,7 @@ class _WaitingCompletedFeedBackState extends State<WaitingCompletedFeedBack>
         body: Container(
           height: MediaQuery.of(context).size.height,
           width: MediaQuery.of(context).size.width,
-          decoration: const BoxDecoration(
-            image: DecorationImage(image: AssetImage(AssetsPics.background), fit: BoxFit.cover)),
+          decoration: const BoxDecoration(image: DecorationImage(image: AssetImage(AssetsPics.background), fit: BoxFit.cover)),
           child: data == null
               ? const Center(child: CircularProgressIndicator(color: color.txtBlue))
               : Stack(
@@ -672,18 +668,6 @@ class _WaitingCompletedFeedBackState extends State<WaitingCompletedFeedBack>
                           ],
                         )
                       ],
-                    ),
-                    Positioned(
-                      top: 60,
-                      left: 10,
-                      child: GestureDetector(
-                          onTap: () {Get.back();},
-                          child: Container(
-                              padding: const EdgeInsets.all(9),
-                              height: 35,
-                              width: 35,
-                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(20)),
-                              child: SvgPicture.asset(AssetsPics.arrowLeft))),
                     ),
                   ],
                 ),

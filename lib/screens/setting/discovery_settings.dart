@@ -23,6 +23,9 @@ class DiscoverySettings extends StatefulWidget {
   State<DiscoverySettings> createState() => _DiscoverySettingsState();
 }
 
+final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
+String latitude = "";
+String longitude = "";
 List genderList = [
   "Male",
   "Female",
@@ -31,13 +34,8 @@ List genderList = [
 int selectedIndex = -1;
 int selectedLocation = -1;
 var _value = 250;
-var agevalue = 30;
 double _startValue = 20.0;
 double _endValue = 90.0;
-
-final GeolocatorPlatform _geolocatorPlatform = GeolocatorPlatform.instance;
-String latitude = "";
-String longitude = "";
 
 class _DiscoverySettingsState extends State<DiscoverySettings> {
   void check() {
@@ -242,8 +240,7 @@ class _DiscoverySettingsState extends State<DiscoverySettings> {
                             child: Stack(
                               alignment: Alignment.center,
                               children: [
-                                Consumer<loginControllerr>(
-                                    builder: (context, valuee, index) {
+                                Consumer<loginControllerr>(builder: (context, valuee, index) {
                                   return SliderTheme(
                                     data: SliderTheme.of(context).copyWith(
                                       trackHeight: 5.0,
@@ -255,18 +252,14 @@ class _DiscoverySettingsState extends State<DiscoverySettings> {
                                       // thumbShape: const RoundSliderThumbShape(
                                       //     enabledThumbRadius: 14.0,
                                       //     pressedElevation: 8.0),
-                                      thumbShape: CustomSliderThumb(
-                                        displayValue: _value,
-                                      ),
+                                      thumbShape: CustomSliderThumb(displayValue: _value),
                                       thumbColor: color.txtBlue,
                                       overlayColor: const Color(0xff2280EF).withOpacity(0.2),
                                       overlayShape: const RoundSliderOverlayShape(overlayRadius: 20.0),
                                       valueIndicatorShape: const PaddleSliderValueIndicatorShape(),
                                       // valueIndicatorShape: DropSliderValueIndicatorShape(),
                                       valueIndicatorColor: Colors.blue,
-                                      valueIndicatorTextStyle: const TextStyle(
-                                          color: Colors.white, fontSize: 16.0),
-
+                                      valueIndicatorTextStyle: const TextStyle(color: Colors.white, fontSize: 16.0),
                                       disabledThumbColor: Colors.red,
                                       disabledInactiveTrackColor: Colors.red,
                                       disabledActiveTrackColor: Colors.red,
@@ -277,8 +270,7 @@ class _DiscoverySettingsState extends State<DiscoverySettings> {
                                       minThumbSeparation: 20.0,
                                       overlappingShapeStrokeColor: Colors.red,
                                       secondaryActiveTrackColor: Colors.red,
-                                      showValueIndicator:
-                                      ShowValueIndicator.never,
+                                      showValueIndicator: ShowValueIndicator.never,
                                     ),
                                     child: Slider(
                                       min: 5.0,
@@ -289,7 +281,6 @@ class _DiscoverySettingsState extends State<DiscoverySettings> {
                                       onChanged: (value) {
                                         _value = value.toInt();
                                         Provider.of<loginControllerr>(context, listen: false).changeValue(_value);
-                                        // settingPro.updateDistance(_value);
                                       },
                                     ),
                                   );
@@ -321,8 +312,7 @@ class _DiscoverySettingsState extends State<DiscoverySettings> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          buildText(
-                              "Age Range", 18, FontWeight.w600, color.txtBlack),
+                          buildText("Age Range", 18, FontWeight.w600, color.txtBlack),
                           Container(
                             height: 13.h,
                             width: size.width,
@@ -350,20 +340,21 @@ class _DiscoverySettingsState extends State<DiscoverySettings> {
                                                 _startValue = values.start;
                                                 _endValue = values.end;
                                               });
+                                              Provider.of<loginControllerr>(context, listen: false).saveagerange(_startValue,_endValue);
                                             },
                                           ),
                                           Positioned(
                                             left: (size.width - 50) * (_startValue - 18) / (100 - 8), // Calculate left position dynamically
                                             top: 1,
                                             child: Container(
-                                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                               decoration: BoxDecoration(
                                                 color: Colors.blue,
                                                 borderRadius: BorderRadius.circular(8),
                                               ),
                                               child: Text(
                                                 '${_startValue.round()}',
-                                                style: TextStyle(color: Colors.white),
+                                                style: const TextStyle(color: Colors.white),
                                               ),
                                             ),
                                           ),
@@ -371,14 +362,14 @@ class _DiscoverySettingsState extends State<DiscoverySettings> {
                                             right: (size.width - 50) * (100 - _endValue) / (100 - 8), // Calculate right position dynamically
                                             top: 1,
                                             child: Container(
-                                              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                               decoration: BoxDecoration(
                                                 color: Colors.blue,
                                                 borderRadius: BorderRadius.circular(8),
                                               ),
                                               child: Text(
                                                 '${_endValue.round()}',
-                                                style: TextStyle(color: Colors.white),
+                                                style: const TextStyle(color: Colors.white),
                                               ),
                                             ),
                                           ),

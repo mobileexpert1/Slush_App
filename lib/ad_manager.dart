@@ -32,7 +32,7 @@ class AdManager {
             onAdDismissedFullScreenContent: (InterstitialAd ad) {
               ad.dispose();
               onAdClosed();
-             Provider.of<reelController>(context,listen: false).adstarted(false);
+             Provider.of<ReelController>(context,listen: false).adstarted(false);
             },
           );
           ad.show();

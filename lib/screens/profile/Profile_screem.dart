@@ -162,14 +162,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                               });*/
                                       });
                                 }else if(item[index].Id==2){
-                                  Get.to(()=>const SparkPurchaseScreen())?.then((value) {
+                                  Get.to(()=> const SparkPurchaseScreen())?.then((value) {
                                     setState(() {});
                                     //setState(() {LocaleHandler.sparkAndVerification=true;});
                                   });
                                 }},
                               child: !LocaleHandler.isVerified && item[index].Id==1?
                               buildContainerverifiedspark(size, context, 0):
-                              val.sparks==0 && item[index].Id==2?buildContainerverifiedspark(size, context, 1): SizedBox(),);}),
+                              val.sparks!=0 && item[index].Id==2?buildContainerverifiedspark(size, context, 1): SizedBox(),);}),
                     ),
                     Container(
                         padding: const EdgeInsets.only(left: 15,right: 15,bottom: 15,top: 8),
@@ -352,11 +352,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     return Stack(
       alignment: Alignment.center,
       children: [
-        val.dataa["avatar"]!=null?CircleAvatar(
+        val.dataa["avatar"]!=null || val.dataa["profilePictures"][0]["key"]!=null?CircleAvatar(
           backgroundColor: Colors.transparent,
           radius: 75.0,
           // backgroundImage: NetworkImage(val.dataa["avatar"]),
-          child: CachedNetworkImage(imageUrl: val.dataa["avatar"], fit: BoxFit.cover, imageBuilder: (context, imageProvider) => Container(
+          child: CachedNetworkImage(imageUrl: val.dataa["avatar"]??val.dataa["profilePictures"][0]["key"], fit: BoxFit.cover, imageBuilder: (context, imageProvider) => Container(
               decoration: BoxDecoration(shape: BoxShape.circle, image: DecorationImage(image: imageProvider, fit: BoxFit.cover)),),),
         ):const CircleAvatar(
           backgroundColor: Colors.transparent,
@@ -385,7 +385,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                buildText("${val.percent}".split(".").first, 18, FontWeight.w600, color.txtWhite,fontFamily: FontFamily.hellix),
+                // buildText("${val.percent}".split(".").first, 18, FontWeight.w600, color.txtWhite,fontFamily: FontFamily.hellix),
+                buildText("${val.dataa["profileCompletion"]}", 18, FontWeight.w600, color.txtWhite,fontFamily: FontFamily.hellix),
                 buildText("%", 18, FontWeight.w600, color.txtWhite,fontFamily: FontFamily.hellix),
               ],
             ),

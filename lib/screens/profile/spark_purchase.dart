@@ -35,7 +35,7 @@ class _SparkPurchaseScreenState extends State<SparkPurchaseScreen> {
 
   Future purchaseSpark(int sparkCount)async{
     setState(() {LoaderOverlay.show(context);});
-    final url=ApiList.sparkPurchase;
+    const url=ApiList.sparkPurchase;
     var uri=Uri.parse(url);
     var response=await http.post(uri,
         headers: {'Content-Type': 'application/json', "Authorization": "Bearer ${LocaleHandler.accessToken}"},
@@ -67,6 +67,7 @@ class _SparkPurchaseScreenState extends State<SparkPurchaseScreen> {
       setState(() {
         _available = available;
         _products = response.productDetails;
+        print(";-;-;-;-$_products");
       });
     }
   }
@@ -84,6 +85,7 @@ class _SparkPurchaseScreenState extends State<SparkPurchaseScreen> {
           purchaseSpark(count);
         }
       } else if (purchaseDetails.status == PurchaseStatus.error) {
+        showToastMsg("Server error! please try again after few minutes");
         // Handle error
       }
       if (purchaseDetails.pendingCompletePurchase) {
@@ -151,13 +153,15 @@ class _SparkPurchaseScreenState extends State<SparkPurchaseScreen> {
               white_button(context, sparktext,press: ()async{
                 int count=selectedIndex==1?1:selectedIndex==2?3:5;
                 if(Platform.isAndroid){
-                  purchaseSpark(count);
-                // final PurchaseParam purchaseParam = PurchaseParam(productDetails: _products[selectedIndex-1]);
-                // await _inAppPurchase.buyConsumable(purchaseParam: purchaseParam);
+                  // purchaseSpark(count);
+                final PurchaseParam purchaseParam = PurchaseParam(productDetails: _products[selectedIndex-1]);
+                await _inAppPurchase.buyConsumable(purchaseParam: purchaseParam);
+                }else{
+                  int val=selectedIndex==1?2:selectedIndex==2?1:0;
+                  final PurchaseParam purchaseParam = PurchaseParam(productDetails: _products[val]);
+                  await _inAppPurchase.buyConsumable(purchaseParam: purchaseParam);
+                //  purchaseSpark(count);
                 }
-                else{purchaseSpark(count);}
-                // _buyProduct(_products[selectedIndex-1]);
-                // LocaleHandler.sparkAndVerification=true;
               })
             ],),
           ))

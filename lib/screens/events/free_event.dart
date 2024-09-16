@@ -55,6 +55,7 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
   var data;
   bool isParticipant = false;
   bool inwaitlist = false;
+  int eventtotalseats = 0;
 
   Future getEventDetail() async {
     print(LocaleHandler.accessToken);
@@ -66,13 +67,19 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
       "Authorization": "Bearer ${LocaleHandler.accessToken}"
     });
     var i = jsonDecode(response.body);
-    setState(() {LoaderOverlay.hide();});
+    setState(() {
+      LoaderOverlay.hide();
+    });
     if (response.statusCode == 200) {
-      setState(() {data = i["data"];});
+      setState(() {
+        data = i["data"];
+      });
       int timestamp = data["startsAt"];
       int timestamp2 = data["endsAt"];
+      eventtotalseats = data["type"] == "5 Dates" ? 10 : 20;
       DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-      DateTime dateTime2 = DateTime.fromMillisecondsSinceEpoch(timestamp2 * 1000);
+      DateTime dateTime2 =
+          DateTime.fromMillisecondsSinceEpoch(timestamp2 * 1000);
       formattedDate = DateFormat('dd MMMM, yyyy').format(dateTime);
       String formattedDay = DateFormat('EEEE').format(dateTime);
       String formattedstart = DateFormat.jm().format(dateTime);
@@ -80,10 +87,12 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
       formattedTime = "$formattedDay, $formattedstart - $formattedend";
       for (var i = 0; i < data["participants"].length; i++) {
         data["participants"][i]["user"]["userId"];
-        if (data["participants"][i]["user"]["userId"].toString() == LocaleHandler.userId) {
+        if (data["participants"][i]["user"]["userId"].toString() ==
+            LocaleHandler.userId) {
           setState(() {
             isParticipant = true;
-            LocaleHandler.participant=data["participants"][i]["participantId"];
+            LocaleHandler.participant =
+                data["participants"][i]["participantId"];
           });
           print(isParticipant);
           break;
@@ -93,7 +102,8 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
         var ii;
         for (ii = 0; ii < data["waitlist"].length; ii++) {
           {
-            if (data["waitlist"][ii]["user"]["userId"].toString() == LocaleHandler.userId) {
+            if (data["waitlist"][ii]["user"]["userId"].toString() ==
+                LocaleHandler.userId) {
               setState(() {
                 inwaitlist = true;
               });
@@ -107,18 +117,35 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
     } else {}
   }
 
+  int totalpersone = 0;
+
+  void getAvailable() {
+    int totalPaticipants = data["type"] == "5 Dates" ? 10 : 20;
+    int ii = 0;
+    if (data["type"] == "5 Dates") {
+      ii = data["totalParticipants"] <= 10 ? data["totalParticipants"] : 10;
+    } else {
+      ii = data["totalParticipants"] <= 20 ? data["totalParticipants"] : 20;
+    }
+    totalpersone = totalPaticipants - ii;
+  }
+
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
-    return isParticipant ? EventYourTicketScreen(eventId: widget.eventId)
-        : inwaitlist ? EvenetSuscribeScreen(data: data) : Scaffold(
+    return isParticipant
+        ? EventYourTicketScreen(eventId: widget.eventId)
+        : inwaitlist
+            ? EvenetSuscribeScreen(data: data)
+            : Scaffold(
                 // backgroundColor: color.backGroundClr,
                 body: Stack(
                   children: [
                     SizedBox(
                       height: size.height,
                       width: size.width,
-                      child: Image.asset(AssetsPics.background, fit: BoxFit.cover),
+                      child:
+                          Image.asset(AssetsPics.background, fit: BoxFit.cover),
                     ),
                     SingleChildScrollView(
                       physics: const ClampingScrollPhysics(),
@@ -126,7 +153,9 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
                           ? const Center(
                               child: Padding(
                                 padding: EdgeInsets.only(top: 300),
-                                child: CircularProgressIndicator(color: color.txtBlue),),
+                                child: CircularProgressIndicator(
+                                    color: color.txtBlue),
+                              ),
                             )
                           : Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -134,8 +163,10 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
                                 imagesSection(size),
                                 aboutSection(size),
                                 Padding(
-                                  padding: const EdgeInsets.only(left: 15, right: 15, top: 8, bottom: 15),
-                                  child: buildText("Event participants", 18, FontWeight.w600, color.txtBlack),
+                                  padding: const EdgeInsets.only(
+                                      left: 15, right: 15, top: 8, bottom: 15),
+                                  child: buildText("Event participants", 18,
+                                      FontWeight.w600, color.txtBlack),
                                 ),
                                 imageList(),
                                 SizedBox(height: 13.h, width: 13.h)
@@ -159,11 +190,13 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
           SizedBox(
               height: 246,
               width: size.width,
-              child: CachedNetworkImage(imageUrl: LocaleHandler.freeEventImage, fit: BoxFit.cover)),
+              child: CachedNetworkImage(
+                  imageUrl: LocaleHandler.freeEventImage, fit: BoxFit.cover)),
           IgnorePointer(
               child: SizedBox(
                   width: MediaQuery.of(context).size.width,
-                  child: SvgPicture.asset(AssetsPics.eventbg, fit: BoxFit.cover))),
+                  child:
+                      SvgPicture.asset(AssetsPics.eventbg, fit: BoxFit.cover))),
           Container(
             padding: const EdgeInsets.only(left: 20, right: 20, top: 50),
             child: Column(
@@ -195,7 +228,10 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
                       child: CircleAvatar(
                           radius: 18,
                           backgroundColor: color.txtWhite,
-                          child: SvgPicture.asset(LocaleHandler.items.contains(data["eventId"]) ? AssetsPics.eventbluesaved : AssetsPics.greysaved)),
+                          child: SvgPicture.asset(
+                              LocaleHandler.items.contains(data["eventId"])
+                                  ? AssetsPics.eventbluesaved
+                                  : AssetsPics.greysaved)),
                     ),
                   ],
                 ),
@@ -215,9 +251,12 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              buildText(data["title"] + " - " + data["type"], 28,
-                  FontWeight.w600, color.txtBlack),
+              SizedBox(
+                  width: size.width * 0.8,
+                  child: buildText(data["title"] + " - " + data["type"], 28,
+                      FontWeight.w600, color.txtBlack)),
               SizedBox(
                   height: 3.h + 1,
                   width: 24,
@@ -299,18 +338,25 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
               itemCount: data["participants"].length,
               itemBuilder: (context, index) {
                 return Container(
-                  // color: Colors.red,
+                    // color: Colors.red,
                     margin: const EdgeInsets.only(right: 10),
                     width: 70,
                     child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
                         // child: Image.asset(AssetsPics.eventProfile,fit: BoxFit.cover),
                         child: ImageFiltered(
-                          imageFilter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
+                          imageFilter:
+                              ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
                           // child: Image.asset(AssetsPics.eventProfile, fit: BoxFit.cover),
-                          child:data["participants"][index]["user"]["profilePictures"].length==0?
-                          Image.asset(AssetsPics.demouser,height: 35):
-                          CachedNetworkImage(imageUrl: data["participants"][index]["user"]["profilePictures"][0]["key"], fit: BoxFit.cover),
+                          child: data["participants"][index]["user"]
+                                          ["profilePictures"]
+                                      .length ==
+                                  0
+                              ? Image.asset(AssetsPics.demouser, height: 35)
+                              : CachedNetworkImage(
+                                  imageUrl: data["participants"][index]["user"]
+                                      ["profilePictures"][0]["key"],
+                                  fit: BoxFit.cover),
                         )));
               }),
     );
@@ -375,7 +421,8 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
   }
 
   void bottomSHeet() {
-    if (data["isFree"] == false && data["hasPassword"]) {
+    getAvailable();
+    if (!data["isFree"] || data["hasPassword"]) {
       customDialogBoxTextField(
           context, "Passport protected.", "Confirm", passNode,
           heading: "This event is password protected. Please contact the organiser.",
@@ -390,17 +437,45 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
                 customDialogBoxWithtwobutton(
                     context, "Already In", "Your are already joined this event",
                     img: AssetsPics.bookconfirmpng,
-                    btnTxt1: "Go to home",onTap1: (){Get.offAll(()=>BottomNavigationScreen());},
-                    btnTxt2: "View ticket", onTap2: () {
-                  Get.back();
-                  Get.to(() => EventViewTicketScreen(data: data));
-                }, isPng: true);
-              } else {bookEvent();}
-              // setState(() {cntl.clear();});
+                    btnTxt1: "Go to home",
+                    onTap1: () {
+                      Get.offAll(() => BottomNavigationScreen());
+                    },
+                    btnTxt2: "View ticket",
+                    onTap2: () {
+                      Get.back();
+                      Get.to(() => EventViewTicketScreen(data: data));
+                    },
+                    isPng: true);
+              } else {
+                if (totalpersone == 0) {
+                  customDialogBoxWithtwobutton(context, "No seats available!",
+                      "if continue. you will be in waitinglist until anyone cancel the event",
+                      img: AssetsPics.freeEventbookpng,
+                      btnTxt1: "No",
+                      btnTxt2: "Continue", onTap2: () {
+                    Get.back();
+                    bookEvent();
+                  }, isPng: true);
+                } else {
+                  bookEvent();
+                }
+              }
             } else {
-              showToastMsg("Incorrect Password");
+              if (cntl.text.trim() == "") {showToastMsg("Password field is empty");}
+              else {showToastMsg("Incorrect Password");}
             }
           });
+    }
+    else if (!data["isFree"] && totalpersone == 0) {
+      customDialogBoxWithtwobutton(context, "No seats available!",
+          "if continue. you will be in waitinglist until anyone cancel the event",
+          img: AssetsPics.freeEventbookpng,
+          btnTxt1: "No",
+          btnTxt2: "Continue", onTap2: () {
+        Get.back();
+        bookEvent();
+      }, isPng: true);
     } else {
       customDialogBoxWithtwobutton(context, "Confirm your booking",
           "Please confirm you would like to\n book this event.",
@@ -413,11 +488,14 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
           customDialogBoxWithtwobutton(
               context, "Already In", "Your are already joined this event",
               img: AssetsPics.bookconfirmpng,
-              btnTxt1: "Go to home",onTap1: (){Get.offAll(()=>BottomNavigationScreen());},
-              btnTxt2: "View ticket", onTap2: () {
-            Get.back();
-            Get.to(() => EventViewTicketScreen(data: data));
-          }, isPng: true);
+              btnTxt1: "Go to home",
+              onTap1: () {Get.offAll(() => BottomNavigationScreen());},
+              btnTxt2: "View ticket",
+              onTap2: () {
+                Get.back();
+                Get.to(() => EventViewTicketScreen(data: data));
+              },
+              isPng: true);
         } else {
           bookEvent();
         }
@@ -426,7 +504,9 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
   }
 
   Future bookEvent() async {
-    setState(() {LoaderOverlay.show(context);});
+    setState(() {
+      LoaderOverlay.show(context);
+    });
     Map<String, dynamic> formdata = {
       "eventId": widget.eventId,
       "password": cntl.text.trim()
@@ -443,18 +523,29 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
     var dataa = jsonDecode(response.body);
     if (response.statusCode == 201) {
       getEventDetail();
-      customDialogBoxWithtwobutton(context, "You’re in!", "Your event has been booked successfully.",
+      customDialogBoxWithtwobutton(
+          context, "You’re in!", "Your event has been booked successfully.",
           img: AssetsPics.bookconfirmpng,
-          btnTxt1: "Go to home",onTap1: (){Get.offAll(()=>BottomNavigationScreen());},
-          btnTxt2: "View ticket", onTap2: () {Get.back();
-          Get.to(() => EventViewTicketScreen(data: data));}, isPng: true);
+          btnTxt1: "Go to home",
+          onTap1: () {
+            Get.offAll(() => BottomNavigationScreen());
+          },
+          btnTxt2: "View ticket",
+          onTap2: () {
+            Get.back();
+            Get.to(() => EventViewTicketScreen(data: data));
+          },
+          isPng: true);
     } else if (dataa["message"] == "Unauthorized") {
-      setState(() {LoaderOverlay.hide();});
+      setState(() {
+        LoaderOverlay.hide();
+      });
       showToastMsgTokenExpired();
     } else {
       getEventDetail();
       // customWarningBox(context, dataa["error"], dataa["message"],
-      customWarningBox(context, "Event not booked!", dataa["message"], img: AssetsPics.freeEventbookpng, isPng: true);
+      customWarningBox(context, "Event not booked!", dataa["message"],
+          img: AssetsPics.freeEventbookpng, isPng: true);
     }
   }
 }

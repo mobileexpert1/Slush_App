@@ -81,7 +81,7 @@ class _DidnotFindAnyoneScreenState extends State<DidnotFindAnyoneScreen> {
                   padding: const EdgeInsets.only(left: 15),
                   margin: EdgeInsets.only(bottom:defaultTargetPlatform==TargetPlatform.iOS? 15:0),
                   width: size.width-14,
-                  child: white_button(context, "Check out our other events",press: (){
+                  child: white_button(context,LocaleHandler.dateno==LocaleHandler.totalDate? "Check out our other events":"Wait for next round",press: (){
                     setState(() {
                       LocaleHandler.isThereAnyEvent=false;
                       LocaleHandler.isThereCancelEvent=false;

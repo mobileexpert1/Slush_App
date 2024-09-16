@@ -12,11 +12,14 @@ import 'package:video_player/video_player.dart';
 
 class profileController extends ChangeNotifier {
   Map<String, dynamic> dataa = {};
-
-  Map<String, dynamic> get data => dataa;
   double value = 0.0;
   var percent;
   int selectedIndex = 2;
+  VideoPlayerController? _controller2;
+  String _videoUrl = "";
+  Future<void>? initializeVideoPlayerFuture;
+  bool _isPlaying = false;
+  bool get isPlaying => _isPlaying;
 
   Future profileData(BuildContext context) async {
     dataa.clear();
@@ -29,10 +32,11 @@ class profileController extends ChangeNotifier {
       });
       if (response.statusCode == 200) {
         dataa.clear();
-        Map<String, dynamic> data = jsonDecode(response.body);
+        var data = jsonDecode(response.body);
         dataa = data["data"];
         LocaleHandler.dataa = dataa;
-        percantage();
+        // percantage();
+        value= dataa["profileCompletion"] / 100.0;
         getTotalSparks();
       } else if (response.statusCode == 401) {
         showToastMsgTokenExpired();
@@ -50,21 +54,29 @@ class profileController extends ChangeNotifier {
   void percantage() {
     if (dataa["nextAction"] == "fill_firstname") {
       value = 0.0;
-    } else if (dataa["nextAction"] == "fill_dateofbirth") {
+    }
+    else if (dataa["nextAction"] == "fill_dateofbirth") {
       value = 0.1;
-    } else if (dataa["nextAction"] == "fill_height") {
+    }
+    else if (dataa["nextAction"] == "fill_height") {
       value = 0.2;
-    } else if (dataa["nextAction"] == "choose_gender") {
+    }
+    else if (dataa["nextAction"] == "choose_gender") {
       value = 0.3;
-    } else if (dataa["nextAction"] == "fill_lookingfor") {
+    }
+    else if (dataa["nextAction"] == "fill_lookingfor") {
       value = 0.4;
-    } else if (dataa["nextAction"] == "fill_sexual_orientation") {
+    }
+    else if (dataa["nextAction"] == "fill_sexual_orientation") {
       value = 0.5;
-    } else if (dataa["nextAction"] == "fill_ethnicity") {
+    }
+    else if (dataa["nextAction"] == "fill_ethnicity") {
       value = 0.6;
-    } else if (dataa["nextAction"] == "upload_avatar") {
+    }
+    else if (dataa["nextAction"] == "upload_avatar") {
       value = 0.7;
-    } else if (dataa["nextAction"] == "upload_video") {
+    }
+    else if (dataa["nextAction"] == "upload_video") {
       value = 0.9;
     }
     // else if(dataa["nextAction"]=="fill_password"){value=0.0909*11;}
@@ -80,31 +92,6 @@ class profileController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void stopVideo() {
-    // _controller!.pause();
-    // _controller2!.pause();
-    // _controller2!.dispose();
-    notifyListeners();
-  }
-
-  // CachedVideoPlayerPlusController? _controller;
-  // CachedVideoPlayerPlusController? get controller => _controller;
-  VideoPlayerController? _controller2;
-  VideoPlayerController? get controller2 => _controller2;
-  String _videoUrl = "";
-  Future<void>? initializeVideoPlayerFuture;
-  bool _isPlaying = false;
-
-  String get videoUrl => _videoUrl;
-
-  set videoUrl(String url) {
-    _videoUrl = url;
-    _initializeVideoPlayer();
-    notifyListeners();
-  }
-
-  bool get isPlaying => _isPlaying;
-
   set isPlaying(bool playing) {
     _isPlaying = playing;
     if (playing) {
@@ -117,45 +104,6 @@ class profileController extends ChangeNotifier {
       _controller2?.pause();
     }
     notifyListeners();
-  }
-
-  cacheVideos(String url) async {
-    FileInfo? fileInfo = await kCacheManager.getFileFromCache(url);
-    if (fileInfo == null) {
-      print('downloading file ##------->$url##');
-      await kCacheManager.downloadFile(url);
-      print('downloaded file ##------->$url##');
-    }
-  }
-
-
-  _initializeVideoPlayer() {
-    // _controller = CachedVideoPlayerPlusController.networkUrl(Uri.parse(_videoUrl));
-    _controller2=VideoPlayerController.networkUrl(Uri.parse(_videoUrl))..initialize().then((value) {
-      initializeVideoPlayerFuture = _controller2!.initialize();
-    });
-    isPlaying = true;
-    notifyListeners();
-  }
-
-  // @override
-  // void dispose() {
-  //   // _controller!.dispose();
-  //   _controller2!.dispose();
-  //   super.dispose();
-  // }
-
-  //--not used
-  VideoPlayerController? _cntrl;
-  VideoPlayerController? get cntrl => _cntrl;
-  void initController(url) async {
-    _cntrl = VideoPlayerController.networkUrl(Uri.parse(url));
-    await _cntrl!.initialize().then((value) {
-      _cntrl!.play();
-      _cntrl!.setVolume(0.0);
-      _cntrl!.setLooping(true);
-      notifyListeners();
-    });
   }
 
   int _spark=0;
@@ -213,15 +161,4 @@ class profileController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future actionForHItLike(String action,String id)async{
-    final url= "${ApiList.action}$id/action";
-    var uri=Uri.parse(url);
-    var response=await http.post(uri,
-        headers: {'Content-Type': 'application/json', "Authorization": "Bearer ${LocaleHandler.accessToken}"},
-        body: jsonEncode({"action":action})
-    );
-    if(response.statusCode==201){getTotalSparks();}
-    else if(response.statusCode==401){}
-    else{}
-  }
 }

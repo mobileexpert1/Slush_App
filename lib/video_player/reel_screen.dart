@@ -29,7 +29,7 @@ class _ReelViewScreenState extends State<ReelViewScreen> {
 
   void callFunction()async{
     await Future.delayed(const Duration(milliseconds: 100));
-    Provider.of<reelController>(context,listen: false).getVidero(context,1,
+    Provider.of<ReelController>(context,listen: false).getVidero(context,1,
         LocaleHandler.startage, LocaleHandler.endage,LocaleHandler.distancevalue,
         // LocaleHandler.latitude,LocaleHandler.longitude,LocaleHandler.filtergender==""?gender:LocaleHandler.filtergender);
         LocaleHandler.latitude,LocaleHandler.longitude,LocaleHandler.filtergender);
@@ -42,7 +42,7 @@ class _ReelViewScreenState extends State<ReelViewScreen> {
       children: [
         SizedBox(height: size.height, width: size.width,
           child: Image.asset(AssetsPics.background, fit: BoxFit.cover)),
-        Consumer<reelController>(
+        Consumer<ReelController>(
             builder: (context,value,child){ return
               value.data == null ? const Center(child: CircularProgressIndicator(color: color.txtBlue)):
               // value.totallen==-2?buildBuildText():
@@ -52,7 +52,7 @@ class _ReelViewScreenState extends State<ReelViewScreen> {
             builder: (context,value,child){return
               mounted?
               Container(
-              child: LocaleHandler.feedTutorials || Provider.of<reelController>(context).stopReelScroll ?
+              child: LocaleHandler.feedTutorials || Provider.of<ReelController>(context).stopReelScroll ?
               feedTutorials(context):const SizedBox(),
         ):const SizedBox();}),
       ],
@@ -78,7 +78,7 @@ class _ReelViewScreenState extends State<ReelViewScreen> {
           LocaleHandler.distancee=500;
           LocaleHandler.selectedIndexGender=-1;
           });
-          Provider.of<reelController>(context,listen: false).getVidero(context,1,LocaleHandler.startage,
+          Provider.of<ReelController>(context,listen: false).getVidero(context,1,LocaleHandler.startage,
               LocaleHandler.endage, LocaleHandler.distancevalue,
               LocaleHandler.latitude,LocaleHandler.longitude, LocaleHandler.filtergender);
           },
