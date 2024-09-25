@@ -72,10 +72,8 @@ class _TextChatScreenState extends State<TextChatScreen> {
     connectToSocket();
     Future.delayed(const Duration(seconds: 2));
     getChat();
-    // _channel.stream.listen((data) {print('Received message:==== $data');});
     _scrollController = ScrollController()..addListener(loadmore);
     super.initState();
-    // _socketService.connect();
   }
 
   Future getChat()async{
@@ -86,18 +84,20 @@ class _TextChatScreenState extends State<TextChatScreen> {
         headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${LocaleHandler.accessToken}'});
     var i =jsonDecode(response.body)["data"];
     if(response.statusCode==200){
-      setState(() {data=i["items"];});
-      for (var item in data)
-        {var ii={
-            "content":item["content"],
-            "sender":item["sender"]["userId"].toString(),
-            'createdAt': item["createdAt"].toString()};
-        messages.add(ii);
-        }
-      print(";-;-;-${messages.toString()}");
-      totalpages=i["meta"]["totalPages"];
-      totalItems=i["meta"]["totalItems"];
-      currentpage=i["meta"]["currentPage"];
+     // if(mounted){
+       setState(() {data=i["items"];});
+       for (var item in data)
+       {var ii={
+         "content":item["content"],
+         "sender":item["sender"]["userId"].toString(),
+         'createdAt': item["createdAt"].toString()};
+       messages.add(ii);
+       }
+       print(";-;-;-${messages.toString()}");
+       totalpages=i["meta"]["totalPages"];
+       totalItems=i["meta"]["totalItems"];
+       currentpage=i["meta"]["currentPage"];
+     // }
     }
     else if(response.statusCode==401){showToastMsgTokenExpired();}
     else{}}
@@ -256,8 +256,8 @@ class _TextChatScreenState extends State<TextChatScreen> {
       print(response.statusCode);
       if(response.statusCode==201)
       {chatDelete(widget.id);
-        Get.back(result: true);
         Fluttertoast.showToast(msg: 'User Reported Successfully');
+      Get.back(result: true);
         setState(() {});
       }
       else if(response.statusCode==401){
@@ -345,10 +345,6 @@ class _TextChatScreenState extends State<TextChatScreen> {
     }
   }
 
-  // bool isPng(String url) {
-  //   final pngPattern = RegExp(r'\.png$', caseSensitive: false);
-  //   return pngPattern.hasMatch(url);
-  // }
   bool isPng(String url) {
     // Convert the URL to lowercase and check if it ends with '.png'
     return url.toLowerCase().endsWith('.png');
@@ -391,17 +387,7 @@ class _TextChatScreenState extends State<TextChatScreen> {
                       itemCount: messages.length,
                       padding:  EdgeInsets.only(top: 10,bottom:atachement||isEmojiPickerVisible?290: 90),
                       itemBuilder: (context, index){
-                        // var items=messages;
-                        // int timestamp = items[index]["createdAt"];
-                        // DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-                        // var timee = DateTime.tryParse(dateTime.toString());
-                        // int hours = DateTime.now().difference(timee!).inHours;
-                        // if (hours <= 24){ String formattedTimee = DateFormat.jm().format(dateTime); }
-                        // String formattedTime = DateFormat('dd MMM').format(dateTime);
-
                         time=formatTimestamp(int.parse(messages[index]["createdAt"]));
-                        // sameTime = lastdatetime==time;
-                        // lastdatetime=time;
                         return Column(
                           children: [ sameTime ? const SizedBox():
                           Align(
@@ -409,8 +395,6 @@ class _TextChatScreenState extends State<TextChatScreen> {
                                 child: Padding(
                                   padding: const EdgeInsets.only(top: 20),
                                   child: buildText(
-                                    // "Yesterday 10:31AM",
-                                      // formattedTimee,
                                       time, 13, FontWeight.w500, color.dropDowngreytxt,fontFamily: FontFamily.hellix),
                                 )),
                             Container(
@@ -447,7 +431,9 @@ class _TextChatScreenState extends State<TextChatScreen> {
                                         child: ClipRRect(
                                         borderRadius: BorderRadius.circular(10),
                                         // child: Image.network(messages[index]["content"], fit: BoxFit.cover,width: 100,height: 100)
-                                        child: CachedNetworkImage(imageUrl:messages[index]["content"],fit: BoxFit.cover,width: 100,height: 100,filterQuality: FilterQuality.medium),
+                                        child: CachedNetworkImage(imageUrl:messages[index]["content"],fit: BoxFit.cover,width: 100,height: 100,filterQuality: FilterQuality.low,
+                                          placeholder: (ctx, url) => const Center(child: CircularProgressIndicator(color: color.txtBlue,strokeWidth: 0.5)),
+                                        ),
                                         ))
                                         : messages[index]["content"].startsWith('https://')?
                                     ClipRRect(

@@ -1538,6 +1538,8 @@ customDialogBox2({required BuildContext context,
 
 customWarningBox(BuildContext context, String title,
     String subtitle,
+    String subtitle2,
+    String subtitle3,
     {String ?img,
       String ?secontxt = "",
       VoidCallback? onTap = pressed,
@@ -1597,7 +1599,27 @@ customWarningBox(BuildContext context, String title,
                         subtitle,
                         style: const TextStyle(
                           fontFamily: FontFamily.baloo2,
-                          fontSize: 18,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: color.txtgrey,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      Text(
+                        subtitle2,
+                        style: const TextStyle(
+                          fontFamily: FontFamily.baloo2,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: color.txtgrey,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      Text(
+                        subtitle3,
+                        style: const TextStyle(
+                          fontFamily: FontFamily.baloo2,
+                          fontSize: 16,
                           fontWeight: FontWeight.w500,
                           color: color.txtgrey,
                         ),
@@ -1735,16 +1757,16 @@ customSingleImage(BuildContext context, String imges, {VoidCallback? onTapp = pr
                   margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                   child: ClipRRect(
                       borderRadius: BorderRadius.circular(15),
-                      child: Image.network(imges, fit: BoxFit.cover)
-                      // child: CachedNetworkImage(
-                      //   imageUrl: imges,
-                      //   fit: BoxFit.cover,
-                      //   errorWidget: (context, url, error) => const SizedBox(),
-                      //   placeholder: (context, url) => const Center(child: CircularProgressIndicator(color: color.txtBlue)),
-                      // )
+                      // child: Image.network(imges, fit: BoxFit.cover)
+                      child: CachedNetworkImage(
+                        imageUrl: imges,
+                        fit: BoxFit.cover,
+                        errorWidget: (context, url, error) => const SizedBox(),
+                        placeholder: (context, url) => const Center(child: CircularProgressIndicator(color: color.txtBlue,strokeWidth: 0.5,)),
+                      )
 
                   )),
-              SizedBox()
+              const SizedBox()
             ],
           ),
         );

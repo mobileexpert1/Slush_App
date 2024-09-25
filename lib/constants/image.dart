@@ -21,6 +21,7 @@ class AssetsPics{
   static const hearts = "assets/bg/hearts.svg";
   static const blackbackground = "assets/bg/introBlack.svg";
   static const introblackupperbg = "assets/bg/introblackupperbg.svg";
+  // static const introblackupperbg = "assets/bg/introblackupperbg1.svg";
   // static const introwhiteShade = "assets/bg/introwhiteShade.png";//
   static const redbanner = "assets/bg/redError.svg";//
   static const removed = "assets/bg/removed.svg";

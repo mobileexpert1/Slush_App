@@ -66,7 +66,7 @@ class _DetailHieghtScreenState extends State<DetailHieghtScreen> {
               horizontal: false,
               allowPointerTappable:false ,
               background: const Padding(
-                padding: EdgeInsets.only(left: 80,top: 11),
+                padding: EdgeInsets.only(left: 90,top: 11),
                 child: Text("cm"),
               ),
               animationType: Curves.bounceInOut,

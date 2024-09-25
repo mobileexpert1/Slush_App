@@ -17,6 +17,7 @@ import 'package:slush/controller/spark_Liked_controler.dart';
 import 'package:slush/screens/profile/basic_info/profile_video_view.dart';
 import 'package:slush/screens/profile/profile_video_screen.dart';
 import 'package:slush/screens/profile/spark_purchase.dart';
+import 'package:slush/screens/profile/view_profile.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
 import 'package:slush/widgets/distance_calculate.dart';
 import 'package:slush/widgets/text_widget.dart';
@@ -454,7 +455,7 @@ class _FeedPersonProfileScreenState extends State<FeedPersonProfileScreen> {
 
                           splitted.contains("height")?Container(margin: const EdgeInsets.symmetric(horizontal: 5),
                               child: SvgPicture.asset(AssetsPics.greydivider, height: 15)):const SizedBox(),
-                          splitted.contains("sexuality")? buildText(dataa["sexuality"], 15,
+                          splitted.contains("sexuality")? buildText(capitalizeWords(dataa["sexuality"]), 15,
                               FontWeight.w500, color.txtgrey, fontFamily: FontFamily.hellix):const SizedBox(),
                           splitted.contains("sexuality")?Container(margin: const EdgeInsets.symmetric(horizontal: 5),
                               child: SvgPicture.asset(AssetsPics.greydivider, height: 15)):const SizedBox(),
@@ -478,7 +479,7 @@ class _FeedPersonProfileScreenState extends State<FeedPersonProfileScreen> {
                         Container(
                             margin: const EdgeInsets.symmetric(horizontal: 5),
                             child: SvgPicture.asset(AssetsPics.greyoutlineheart, height: 14)),
-                        buildText(dataa["lookingFor"] ?? '', 15,
+                        buildText(capitalizeWords(dataa["lookingFor"] ?? ''), 15,
                             FontWeight.w500, color.txtgrey, fontFamily: FontFamily.hellix)]) : const SizedBox(),
                       SizedBox(height: 2.h),
                       Row(
@@ -744,8 +745,8 @@ class _FeedPersonProfileScreenState extends State<FeedPersonProfileScreen> {
                       // Provider.of<profileController>(context,listen: false).videoUrl = cntrl.dataSource;
                       Get.to(()=>ProfileVideoViewer(url: cntrl.dataSource))!.then((value){
                         videoPlay(_controller!);
-                        videoPlay(_controller2!);
-                        videoPlay(_controller3!);
+                        dataa["profileVideos"].length >= 2? videoPlay(_controller2!):null;
+                        dataa["profileVideos"].length >= 3?  videoPlay(_controller3!):null;
                       });
                     },
                     child: SvgPicture.asset(AssetsPics.videoplayicon)))

@@ -23,6 +23,7 @@ class LocaleHandler {
 
   // login Token
   static String accessToken = "";
+  static String socialLogin = "no";
   static String fcmToken = "";
   static String bearer = "Bearer ${accessToken}";
   static String refreshToken = "";

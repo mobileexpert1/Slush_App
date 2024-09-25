@@ -169,7 +169,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 }},
                               child: !LocaleHandler.isVerified && item[index].Id==1?
                               buildContainerverifiedspark(size, context, 0):
-                              val.sparks!=0 && item[index].Id==2?buildContainerverifiedspark(size, context, 1): SizedBox(),);}),
+                              val.sparks==0 && item[index].Id==2?buildContainerverifiedspark(size, context, 1): SizedBox(),);}),
                     ),
                     Container(
                         padding: const EdgeInsets.only(left: 15,right: 15,bottom: 15,top: 8),
@@ -352,7 +352,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     return Stack(
       alignment: Alignment.center,
       children: [
-        val.dataa["avatar"]!=null || val.dataa["profilePictures"][0]["key"]!=null?CircleAvatar(
+        val.dataa["avatar"]!=null ?CircleAvatar(
           backgroundColor: Colors.transparent,
           radius: 75.0,
           // backgroundImage: NetworkImage(val.dataa["avatar"]),

@@ -143,7 +143,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     else if(i==7){
       // showCustomSnackBar(context, AssetsPics.redbanner,false);
       // snackBaar(context, AssetsPics.verifyinprocess,true);
-      showToastMsg("Coming soon...");
+      // showToastMsg("Coming soon...");
+           const url = 'https://www.slushdating.com/';
+           if (await canLaunch(url)) {
+             await launch(url, forceWebView: true, enableJavaScript: true);}
+           else {throw 'Could not launch $url';}
     }
     else if(i==8){Get.to(()=>const AboutSlush());}
     else if(i==9){

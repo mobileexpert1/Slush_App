@@ -418,6 +418,7 @@ class ReelController with ChangeNotifier {
         /// Play controller
         controller.play();
         controller.setLooping(true);
+        print("aspect---${videoPlayerController[index].value.aspectRatio}");
         if (controller.value.isPlaying) {
           controller.setVolume(isMuted ? 0.0 : 1.0);
         } else {
@@ -425,9 +426,10 @@ class ReelController with ChangeNotifier {
         }
       } else {
         _initializeControllerAtIndex(index).then((value) {
-          if (index != 0) {
+          if (index != 0 || index == 0) {
             videoPlayerController[index].play();
             videoPlayerController[index].setLooping(true);
+            print("aspect---${videoPlayerController[index].value.aspectRatio}");
           }
           if (videoPlayerController[index].value.isPlaying) {
             videoPlayerController[index].setVolume(isMuted ? 0.0 : 1.0);

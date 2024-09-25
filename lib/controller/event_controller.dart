@@ -15,7 +15,9 @@ import 'package:http/http.dart' as http;
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/loader.dart';
 import 'package:slush/controller/controller.dart';
+import 'package:slush/controller/waitingroom_controller.dart';
 import 'package:slush/screens/events/event_list.dart';
+import 'package:slush/screens/waiting_room/waiting_room_screen.dart';
 import 'package:slush/widgets/text_widget.dart';
 import 'package:slush/widgets/toaster.dart';
 
@@ -423,8 +425,7 @@ class eventController extends ChangeNotifier {
       for (var i = 0; i < data.length; i++) {
         LocaleHandler.items.add(data[i]["event"]["eventId"]);
       }
-      Provider.of<eventController>(context, listen: false)
-          .getmeEvent(context, "me");
+      Provider.of<eventController>(context, listen: false).getmeEvent(context, "me");
       getListData();
       return "Ok";
     } else if (response.statusCode == 401) {
@@ -586,7 +587,7 @@ class eventController extends ChangeNotifier {
       int min1 = min % 60;
       int hour1 = hours % 24;
 
-      startTimer();
+      startTimer(context);
 
       if (sec <= 0) {
         countdownTimer!.cancel();
@@ -636,7 +637,7 @@ class eventController extends ChangeNotifier {
       int min1 = min % 60;
       int hour1 = hours % 24;
 
-      startTimer();
+      startTimer(context);
 
       if (sec <= 0) {
         countdownTimer!.cancel();
@@ -758,9 +759,9 @@ class eventController extends ChangeNotifier {
 
   Timer? countdownTimer;
 
-  void startTimer() {
+  void startTimer(BuildContext context) {
     countdownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      setCountDown();
+      setCountDown(context);
     });
   }
 
@@ -778,7 +779,7 @@ class eventController extends ChangeNotifier {
 
   String get seconds => _seconds;
 
-  void setCountDown() {
+  void setCountDown(BuildContext context) {
     final seconds = _myDuration!.inSeconds - 1;
     // if(timestampSecondsCurrent<timestampSeconds){}
     if (seconds < 0) {
@@ -801,25 +802,35 @@ class eventController extends ChangeNotifier {
           snackPosition: SnackPosition.TOP,
           margin: EdgeInsets.zero,
           padding: EdgeInsets.zero,
-          backgroundColor: Colors.transparent, onTap: (snack) {
+          backgroundColor: Colors.transparent,
+          onTap: (snack) {
         // Get.to(() => MyEventListScreen(myEvent: true, pageNum: _page));
       },
           borderRadius: 0.0,
-          titleText: Stack(
-            alignment: Alignment.center,
-            children: [
-              SizedBox(
-                  width: double.infinity,
-                  child: Image.asset(AssetsPics.bannerpng, fit: BoxFit.cover)),
-              Container(
-                  padding: const EdgeInsets.only(
-                      top: 0, left: 10, right: 10, bottom: 15),
-                  child: buildText2(
-                      'Event starting in ${strDigits(_myDuration!.inMinutes.remainder(60))} minutes, Click Here\nto join the waiting room!',
-                      18,
-                      FontWeight.w600,
-                      color.txtWhite)),
-            ],
+          titleText: GestureDetector(
+            onTap: (){
+              DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(_startEventTime * 1000);
+              DateTime timeFormat = DateTime.now();
+              var timee = DateTime.tryParse(dateTime.toString());
+              int min = timee!.difference(timeFormat).inSeconds;
+              Provider.of<waitingRoom>(context,listen: false).timerStart(min);
+              Get.to(()=> WaitingRoom(data: _myevent[_indexnum],min: min));
+            }, child: Stack(
+              alignment: Alignment.center,
+              children: [
+                SizedBox(
+                    width: double.infinity,
+                    child: Image.asset(AssetsPics.bannerpng, fit: BoxFit.cover)),
+                Container(
+                    padding: const EdgeInsets.only(
+                        top: 0, left: 10, right: 10, bottom: 15),
+                    child: buildText2(
+                        'Event starting in ${strDigits(_myDuration!.inMinutes.remainder(60))} minutes, Click Here\nto join the waiting room!',
+                        18,
+                        FontWeight.w600,
+                        color.txtWhite)),
+              ],
+            ),
           ),
           shouldIconPulse: true,
           // maxWidth: MediaQuery.of(context).size.width,

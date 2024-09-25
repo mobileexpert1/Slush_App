@@ -62,9 +62,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
     post.clear();
     data = null;
     // setState(() {LoaderOverlay.show(context);});
-    final url = isLiked
-        ? "${ApiList.result}page=1&limit=10&type=liked"
-        : "${ApiList.result}page=1&limit=10";
+    final url = isLiked ? "${ApiList.result}page=1&limit=10&type=liked" : "${ApiList.result}page=1&limit=10";
     print(url);
     var uri = Uri.parse(url);
     var response = await http.get(uri, headers: {
@@ -73,12 +71,14 @@ class _MatchesScreenState extends State<MatchesScreen> {
     });
     var i = jsonDecode(response.body)["data"];
     if (response.statusCode == 200) {
-      setState(() {
-        data = i;
-        totalpages = data["meta"]["totalPages"];
-        currentpage = data["meta"]["currentPage"];
-        post = data["items"];
-      });
+     if(mounted){
+       setState(() {
+         data = i;
+         totalpages = data["meta"]["totalPages"];
+         currentpage = data["meta"]["currentPage"];
+         post = data["items"];
+       });
+     }
     } else if (response.statusCode == 401) {
       showToastMsgTokenExpired();
     } else {

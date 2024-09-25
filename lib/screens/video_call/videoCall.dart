@@ -31,6 +31,7 @@ class VideoCallScreen extends StatefulWidget {
 
 class _VideoCallScreenState extends State<VideoCallScreen> {
   List reportingMatter = [
+    "They did not show up!",
     "Did not have much in common",
     "Nudity / inappropriate",
     "Swearing / Aggression",

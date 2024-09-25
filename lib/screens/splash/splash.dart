@@ -71,11 +71,12 @@ class _SplashScreenState extends State<SplashScreen> {
     LocaleHandler.nextAction = await Preferences.getNextAction() ?? "";
     LocaleHandler.emailVerified = await Preferences.getValue("emailVerified") ?? "";
     LocaleHandler.userId = await Preferences.getValue("userId") ?? "";
+    LocaleHandler.socialLogin = await Preferences.getValue("socialLogin") ?? "";
     print(LocaleHandler.accessToken);
     Future.delayed(const Duration(seconds: 3), () async {
       if (alreadyIn == "done") {
         if (LocaleHandler.accessToken != "") {
-          if (LocaleHandler.emailVerified == "true") {
+          if (LocaleHandler.emailVerified == "true" || LocaleHandler.socialLogin=="yes") {
             if (LocaleHandler.nextAction == "none") {
               Provider.of<SplashController>(context, listen: false).getProfileDetails(context, LocaleHandler.userId);
               Provider.of<eventController>(context, listen: false).getmeEvent(context, "me");

@@ -75,11 +75,9 @@ class _WaitingCompletedState extends State<WaitingCompleted> with SingleTickerPr
         data = dataa["data"];
         print(data);
         LocaleHandler.totalDate = data.length;
-
         for (var i = 0; i < dataa["data"].length; i++)
         {if(dataa["data"][i]["participantId"]!=null){
           Provider.of<TimerProvider>(context,listen: false).updateFixtureStatus(dataa["data"][i]["participantId"], "NOT_JOINED");}}
-
         for (var i = 0; i < dataa["data"].length; i++) {
           LocaleHandler.dateno = i + 1;
           print('dataa["data"][i]["status"];-;-;-;-${dataa["data"][i]["status"]}');
@@ -107,6 +105,7 @@ class _WaitingCompletedState extends State<WaitingCompleted> with SingleTickerPr
             }
           }
         }   getRtcToken();}
+        else{num=-1;LocaleHandler.totalDate=0;}
       });
     } else {}
   }
@@ -131,7 +130,20 @@ class _WaitingCompletedState extends State<WaitingCompleted> with SingleTickerPr
         if( widget.min<10&&widget.min>7 && fixtureEmpty){
           getFixtures();
         }} else {
-        if (num == -1) {Get.to(() => const DidnotFindAnyoneScreen());}
+        if (num == -1) {//Get.to(() => const DidnotFindAnyoneScreen());
+        customDialogBoxx(context, "It looks like we’ve got an uneven number of participants this round, but don’t worry – your next date will be lined up shortly.",
+            "Ok", AssetsPics.guide1,
+            isPng: true, onTap: () {
+              // Get.back();
+              if(LocaleHandler.dateno==LocaleHandler.totalDate){
+                LocaleHandler.dateno=0;
+                LocaleHandler.totalDate = 1;
+                showToastMsg("Event is over");
+                Get.offAll(()=>BottomNavigationScreen());
+                Provider.of<TimerProvider>(context,listen: false).stopTimerr();}
+              else{Get.offAll(()=>WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));}
+            });
+        }
         else {print("data[num];-;-;-;-${data[num]}");
           Get.to(() => ReadyToCallScreen(data: data[num]));}
         _timer.cancel();
@@ -280,9 +292,7 @@ class _WaitingCompletedState extends State<WaitingCompleted> with SingleTickerPr
                                     padding: const EdgeInsets.symmetric(horizontal: 20),
                                     child: blue_button(context, "Join the event", press: () {
                                       showToastMsg("Please wait for everyone to be joined");
-                                        // Provider.of<waitingRoom>(context).updateFixtureStatus(data[0]["participantId"], "NOT_JOINED");
-                                        // if (num == -1) { Get.to(() => const DidnotFindAnyoneScreen()); }
-                                       // else {  Get.to(() => ReadyToCallScreen(data: data[num]));}
+
                                     }),
                                   ),
                             // const SizedBox(height: 20),
@@ -457,7 +467,28 @@ class _WaitingCompletedFeedBackState extends State<WaitingCompletedFeedBack>
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       if (mins > 0) {setState(() {mins--;});}
       else {
-        if (num == -1) {Get.to(() => const DidnotFindAnyoneScreen());}
+        if (num == -1) {
+          // Get.to(() => const DidnotFindAnyoneScreen());
+          customDialogBoxx(context, "It looks like we’ve got an uneven number of participants this round, but don’t worry – your next date will be lined up shortly.",
+              "Ok", AssetsPics.guide1,
+              isPng: true, onTap: () {
+                Get.back();
+                setState(() {
+                  LocaleHandler.isThereAnyEvent=false;
+                  LocaleHandler.isThereCancelEvent=false;
+                  LocaleHandler.unMatchedEvent=false;
+                  LocaleHandler.subScribtioonOffer=false;
+                });
+                if(LocaleHandler.dateno==LocaleHandler.totalDate){
+                  LocaleHandler.dateno=0;
+                  LocaleHandler.totalDate = 1;
+                  showToastMsg("Event is over");
+                  Get.offAll(()=>BottomNavigationScreen());
+                  Provider.of<TimerProvider>(context,listen: false).stopTimerr();}
+                else{Get.offAll(()=>WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));}
+              });
+
+        }
         else {Get.to(() => ReadyToCallScreen(data: data[num]));}
         _timer.cancel();
       }
@@ -692,4 +723,55 @@ class _WaitingCompletedFeedBackState extends State<WaitingCompletedFeedBack>
       ),
     );
   }
+}
+
+customDialogBoxx(BuildContext context, String title,
+    String btnTxt, String img, {VoidCallback? onTap = pressed, bool isPng = false}) {
+  return showGeneralDialog(
+      barrierLabel: "Label",
+      barrierDismissible: true,
+      transitionDuration: const Duration(milliseconds: 500),
+      context: context,
+      pageBuilder: (context, anim1, anim2) {
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              // height: MediaQuery.of(context).size.height/2.5,
+                width: MediaQuery.of(context).size.width / 1.1,
+                margin:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: color.txtWhite,
+                  borderRadius: BorderRadius.circular(15),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Container(
+                      alignment: Alignment.center,
+                      height: 80,
+                      width: 80,
+                      child: isPng ? Image.asset(img) : SvgPicture.asset(img),
+                    ),
+                    buildText2(title, 18, FontWeight.w500, color.txtBlack),
+                    SizedBox(height: 1.h),
+                    const SizedBox(height: 15),
+                    blue_button(context, btnTxt, press: onTap)
+                  ],
+                )),
+          ),
+        );
+      },
+      transitionBuilder: (context, anim1, anim2, child) {
+        return SlideTransition(
+          position: Tween(begin: const Offset(0, 1), end: const Offset(0, 0))
+              .animate(anim1),
+          child: child,
+        );
+      });
 }

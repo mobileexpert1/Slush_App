@@ -186,18 +186,13 @@ class EachPage extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 15),
-              child: Container(
-                child: Column(
-                  children: [
-                     SizedBox(
-                       height: 61.h
-                     // height: size.height*0.6,
-                     ),
-                    buildText(message, 28, FontWeight.w600, color.txtWhite),
-                    const SizedBox(height: 8),
-                    Container(child: buildText2(message2, 16, FontWeight.w500, color.txtWhite, fontFamily: FontFamily.hellix))
-                  ],
-                ),
+              child: Column(
+                children: [
+                   SizedBox(height: 61.h),
+                  buildText(message, 28, FontWeight.w600, color.txtWhite),
+                  const SizedBox(height: 8),
+                  Container(child: buildText2(message2, 16, FontWeight.w500, color.txtWhite, fontFamily: FontFamily.hellix))
+                ],
               ),
             )
           ],

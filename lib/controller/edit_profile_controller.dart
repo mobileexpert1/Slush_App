@@ -251,7 +251,7 @@ class editProfileController extends ChangeNotifier{
   List<BasicInfoclass> _moreaboutme=[];
   List get moreaboutme=>_moreaboutme;
 
-  late CameraController camcontroller;
+  CameraController? camcontroller;
   List _items=[];
 
 
@@ -345,14 +345,17 @@ class editProfileController extends ChangeNotifier{
     final cameras = await availableCameras();
     final front = cameras.firstWhere((camera) => camera.lensDirection == lens);
     camcontroller = CameraController(front, ResolutionPreset.medium);
-    await camcontroller.initialize();
+    await camcontroller!.initialize();
     // customDialogBoxVideo(context,"I’m ready");
     // if (!mounted) {return;}setState(() {});
     notifyListeners();
   }
 
   void disposecam(){
-    camcontroller.dispose();
+    if (camcontroller != null) {
+      camcontroller!.dispose();
+      camcontroller = null; // Optionally set to null after disposing
+    }
     notifyListeners();
   }
 

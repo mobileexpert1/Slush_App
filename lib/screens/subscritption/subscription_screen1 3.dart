@@ -2,7 +2,6 @@ import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:in_app_purchase/in_app_purchase.dart';
-import 'package:provider/provider.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -16,8 +15,8 @@ import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/loader.dart';
-import 'package:slush/controller/profile_controller.dart';
 import 'package:slush/screens/events/bottomNavigation.dart';
+import 'package:slush/widgets/alert_dialog.dart';
 import 'package:slush/widgets/app_bar.dart';
 import 'package:slush/widgets/blue_button.dart';
 import 'package:slush/widgets/text_widget.dart';
@@ -50,9 +49,7 @@ class _Subscription1State extends State<Subscription1> {
   void initState() {
     subscriptionDetails();
     _pageController.addListener(() {
-      setState(() {
-        currentIndex = _pageController.page!.round();
-      });
+      setState(() {currentIndex = _pageController.page!.round();});
     });
     print(LocaleHandler.subscriptionPurchase);
     super.initState();
@@ -69,16 +66,11 @@ class _Subscription1State extends State<Subscription1> {
 
   Future<void> _initialize() async {
     final bool isAvailable = await _iap.isAvailable();
-    setState(() {
-      _available = isAvailable;
-    });
-
+    setState(() {_available = isAvailable;});
     if (_available) {
       const Set<String> _kIds = {'silversubscription','goldsubscription','platinumsubscription'};
       final ProductDetailsResponse response = await _iap.queryProductDetails(_kIds);
-      setState(() {
-        _products = response.productDetails;
-      });
+      setState(() {_products = response.productDetails;});
     }
   }
 
@@ -98,6 +90,7 @@ class _Subscription1State extends State<Subscription1> {
         await _iap.completePurchase(purchase);
       }
     }
+    setState(() {LoaderOverlay.hide();});
   }
 
   Future<bool> _verifyPurchase(PurchaseDetails purchase) async {
@@ -107,12 +100,12 @@ class _Subscription1State extends State<Subscription1> {
 
   void _deliverProduct(PurchaseDetails purchase) {
     // Deliver the product to the user
-    setState(() {
-      _purchases.add(purchase);
-    });
+    setState(() {_purchases.add(purchase);});
+    showDialog(context: context, builder: (BuildContext context) => Successdialog());
   }
 
   void _handleInvalidPurchase(PurchaseDetails purchase) {
+    showDialog(context: context, builder: (BuildContext context) => Faildialog());
     // Handle invalid purchase here
   }
 
@@ -146,7 +139,8 @@ class _Subscription1State extends State<Subscription1> {
     if(response.statusCode==201){
       Fluttertoast.showToast(msg: i["message"]);
       int count=selectedIndex==1?1:selectedIndex==2?3:5;
-      if(count==5){purchaseSpark(5);
+      if(count==5){
+        purchaseSpark(5);
         purchaseSpark(5);}
       else if(count==3){purchaseSpark(5);}
       else if(count==1){ purchaseSpark(3);}
@@ -174,6 +168,7 @@ class _Subscription1State extends State<Subscription1> {
     else if(response.statusCode==401){showToastMsgTokenExpired();}
     else{Fluttertoast.showToast(msg: i["message"]);}
   }
+
   Future cancelPlanApi()async{
     setState(() {LoaderOverlay.show(context);});
     const url=ApiList.cancelSubscription;
@@ -203,13 +198,17 @@ class _Subscription1State extends State<Subscription1> {
     var response=await http.get(uri,headers: {'Content-Type': 'application/json',
       'Authorization': 'Bearer ${LocaleHandler.accessToken}'});
     var dat =jsonDecode(response.body);
-    if(response.statusCode==200){setState(() {data=dat["data"];
-    if(data!=null){
-      DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(data["startsAt"] * 1000);
-      startDates = DateFormat('MMM dd, yyyy').format(dateTime);
-      DateTime dateTime2 = DateTime.fromMillisecondsSinceEpoch(data["endsAt"] * 1000);
-      endDates = DateFormat('MMM dd, yyyy').format(dateTime2);
-    }});}
+    if(response.statusCode==200){
+      if(mounted){
+        setState(() {data=dat["data"];
+        if(data!=null){
+          DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(data["startsAt"] * 1000);
+          startDates = DateFormat('MMM dd, yyyy').format(dateTime);
+          DateTime dateTime2 = DateTime.fromMillisecondsSinceEpoch(data["endsAt"] * 1000);
+          endDates = DateFormat('MMM dd, yyyy').format(dateTime2);
+        }});
+      }
+    }
     else if(response.statusCode==401){showToastMsgTokenExpired();}
     else{}
   }
@@ -538,11 +537,12 @@ class _Subscription1State extends State<Subscription1> {
                   const SizedBox(height: 18),
                   blue_button(context, "Continue",press: (){
                     int num=selectedIndex==1?2:selectedIndex==2?0:1;
-                    _buySubscription(_products[num]);
                     if(LocaleHandler.subscriptionPurchase=="no" && selectedIndex == 1){
-                      _buySubscription(_products[num]);
-                      // if(Platform.isAndroid){_buySubscription(_products[num]);}else{subscribeApi(selectedIndex);}
-                      // selectedIndex==1?subscribeApi(selectedIndex):showToastMsg("Coming soon...");
+                      if(Platform.isAndroid){_buySubscription(_products[2]);}
+                      else{
+                        // setState(() {LoaderOverlay.show(context);});
+                        _buySubscription(_products[0]);
+                      }
                     }else if(selectedIndex != 1){showToastMsg("Coming soon...");}
                     else{}
                   }),

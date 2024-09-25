@@ -89,6 +89,7 @@ class ApiList {
 
   // -- chat todo
   // static const String getSingleChat= baseUrl + 'chats/746/conversation?page=1&limit=10';
+  static const String getChat= baseUrl + 'chats';
   static const String getSingleChat= baseUrl + 'chats/';
 
 

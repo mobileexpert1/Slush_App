@@ -544,7 +544,11 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
     } else {
       getEventDetail();
       // customWarningBox(context, dataa["error"], dataa["message"],
-      customWarningBox(context, "Event not booked!", dataa["message"],
+      customWarningBox(context, "Event not booked!",
+          // dataa["message"],
+          "Unfortunately the booking window has now closed",
+          "We’re sorry, but bookings for this event are no longer available. Don’t worry—there are still other exciting events you can book onto!",
+          "Why not check out our upcoming events and secure your spot?",
           img: AssetsPics.freeEventbookpng, isPng: true);
     }
   }

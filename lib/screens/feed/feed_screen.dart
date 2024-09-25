@@ -201,15 +201,10 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                             // val.videocntroller[index+1].value.isInitialized || context.mounted?
                             val.videocntroller[index].value.isInitialized  ?
                                 // VideoPlayerWidget(key: Key(val.videocntroller[index].dataSource), reelUrl: val.videocntroller[index].dataSource)
-                                AspectRatio(
-                                    aspectRatio: val.videoPlayerController[index].value.aspectRatio,
-                                    child: ClipRRect(
-                                        borderRadius: BorderRadius.circular(10),
-                                        child:
-                                        // Chewie(controller: val.chewieController!,),
-                                        VideoPlayer(val.videocntroller[index])
-
-                                    ))
+                            AspectRatio(
+                                aspectRatio: val.videoPlayerController[index].value.aspectRatio,
+                                child: ClipRRect(borderRadius: BorderRadius.circular(10), child: VideoPlayer(val.videocntroller[index]))
+                            )
                                 : const Center(child: CircularProgressIndicator(color: color.txtBlue)),
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 15, vertical: defaultTargetPlatform == TargetPlatform.iOS ? 45 : 20),

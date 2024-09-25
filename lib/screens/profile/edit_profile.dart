@@ -180,6 +180,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
         throw Exception('Failed to load data');
       }
     } catch (e) {
+      if(!mounted){return ;}
       throw Exception('Failed to fetch data: $e');
     }
   }
@@ -313,6 +314,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
     final respStr = await response.stream.bytesToString();
     print(respStr);
     if(response.statusCode==200){
+      setState(() {LoaderOverlay.hide();});
       // Provider.of<profileController>(context,listen: false).profileData(context);
       showToastMsg("Updated succesfully");
       // setState(() {LocaleHandler.bottomindex=4;});

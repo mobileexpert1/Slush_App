@@ -19,6 +19,7 @@ import 'package:slush/screens/profile/basic_info/profile_video_view.dart';
 import 'package:slush/screens/profile/profile_img_view.dart';
 import 'package:slush/screens/profile/profile_video_screen.dart';
 import 'package:slush/screens/profile/spark_purchase.dart';
+import 'package:slush/screens/profile/view_profile.dart';
 import 'package:slush/screens/video_call/congo_match_screen.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
 import 'package:slush/widgets/distance_calculate.dart';
@@ -410,7 +411,7 @@ class _UnMatchedPersonProfileScreenState extends State<UnMatchedPersonProfileScr
 
                           splitted.contains("height")?Container(margin: const EdgeInsets.symmetric(horizontal: 5),
                               child: SvgPicture.asset(AssetsPics.greydivider, height: 15)):const SizedBox(),
-                          splitted.contains("sexuality")? buildText(dataa["sexuality"], 15,
+                          splitted.contains("sexuality")? buildText(capitalizeWords(dataa["sexuality"]), 15,
                               FontWeight.w500, color.txtgrey, fontFamily: FontFamily.hellix):const SizedBox(),
                           splitted.contains("sexuality")?Container(margin: const EdgeInsets.symmetric(horizontal: 5),
                               child: SvgPicture.asset(AssetsPics.greydivider, height: 15)):const SizedBox(),
@@ -435,7 +436,7 @@ class _UnMatchedPersonProfileScreenState extends State<UnMatchedPersonProfileScr
                           Container(
                               margin: const EdgeInsets.symmetric(horizontal: 5),
                               child: SvgPicture.asset(AssetsPics.greyoutlineheart, height: 14)),
-                          buildText(dataa["lookingFor"] ?? '', 15,
+                          buildText(capitalizeWords(dataa["lookingFor"] ?? ''), 15,
                               FontWeight.w500, color.txtgrey, fontFamily: FontFamily.hellix),],):const SizedBox(),
                       SizedBox(height: 2.h),
                       Row(

@@ -117,7 +117,7 @@ class _CameraEditScreenState extends State<CameraEditScreen> {
                   height: size.height/1.5,
                   width: size.width,
                   color: Colors.grey,
-                  child: CameraPreview(val.camcontroller),
+                  child: CameraPreview(val.camcontroller!),
                 ),
               ),
               Positioned(

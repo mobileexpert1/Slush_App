@@ -265,9 +265,9 @@ class _CreateNewAccountState extends State<CreateNewAccount> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      buildCircleAvatar(AssetsPics.facebook,(){acccntrl.loginWithFacebook();}),
+                      buildCircleAvatar(AssetsPics.facebook,(){acccntrl.loginWithFacebook(context);}),
                       const SizedBox(width: 15),
-                      buildCircleAvatar(AssetsPics.google,(){acccntrl.signInWithGoogle(googleSignIn);}),
+                      buildCircleAvatar(AssetsPics.google,(){acccntrl.signInWithGoogle(context,googleSignIn);}),
                       const SizedBox(width: 15),
                       buildCircleAvatar(AssetsPics.apple,(){}),
                     ],

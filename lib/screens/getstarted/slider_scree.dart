@@ -1,4 +1,4 @@
-import 'package:carousel_slider/carousel_slider.dart';
+// import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -48,7 +48,8 @@ class _SliderScreenState extends State<SliderScreen> {
                   child: Image.asset(AssetsPics.ticketbackground, fit: BoxFit.fill)),
               Padding(
                 padding: const EdgeInsets.only(top: 20),
-                child: buildCarouselSlider(size),
+                child:SizedBox(width: size.width, height: size.height-180,child: Image.asset(AssetsPics.BG,fit: BoxFit.cover))
+                //buildCarouselSlider(size),
               ),
             ],
           ),
@@ -85,22 +86,22 @@ class _SliderScreenState extends State<SliderScreen> {
     );
   }
 
-  Widget buildCarouselSlider(Size size) {
-    return CarouselSlider.builder(
-        itemCount: images.length,
-        itemBuilder: (context, itemIndex, pageViewIndex) {
-          return Stack(
-            children: [
-              SizedBox(width: size.width, height: size.height-180,child: Image.asset(AssetsPics.BG,fit: BoxFit.cover))
-            ],
-          );
-        },
-        options: CarouselOptions(
-            viewportFraction: 1.0,
-            height: size.height,
-          scrollPhysics: NeverScrollableScrollPhysics()
-        ));
-  }
+  // Widget buildCarouselSlider(Size size) {
+  //   return CarouselSlider.builder(
+  //       itemCount: images.length,
+  //       itemBuilder: (context, itemIndex, pageViewIndex) {
+  //         return Stack(
+  //           children: [
+  //             SizedBox(width: size.width, height: size.height-180,child: Image.asset(AssetsPics.BG,fit: BoxFit.cover))
+  //           ],
+  //         );
+  //       },
+  //       options: CarouselOptions(
+  //           viewportFraction: 1.0,
+  //           height: size.height,
+  //         scrollPhysics: NeverScrollableScrollPhysics()
+  //       ));
+  // }
 
   TextSpan buildTextSpan(String txt, Color clr) {
     return TextSpan(text: txt,

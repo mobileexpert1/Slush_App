@@ -1,6 +1,6 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter_login_facebook/flutter_login_facebook.dart';
+// import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -72,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
-  final facebookLogin = FacebookLogin();
+  // final facebookLogin = FacebookLogin();
 
   @override
   Widget build(BuildContext context) {
@@ -215,11 +215,11 @@ class _LoginScreenState extends State<LoginScreen> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           buildCircleAvatar(AssetsPics.facebook, () {
-                            lgincntrl.loginWithFacebook();
+                            lgincntrl.loginWithFacebook(context);
                           }),
                           const SizedBox(width: 15),
                           buildCircleAvatar(AssetsPics.google, () {
-                            lgincntrl.signInWithGoogle(googleSignIn);
+                            lgincntrl.signInWithGoogle(context,googleSignIn);
                           }),
                           const SizedBox(width: 15),
                           buildCircleAvatar(AssetsPics.apple, () {}),

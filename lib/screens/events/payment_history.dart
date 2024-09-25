@@ -47,19 +47,21 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
   bool _hasNextPage = true;
 
   Future getPaymentHistory()async{
-    final url=ApiList.paymentHIstory+"${LocaleHandler.userId}?page=1&limit=5&filter=";
+    final url=ApiList.paymentHIstory+"${LocaleHandler.userId}?page=1&limit=15&filter=";
     print(url);
     var uri=Uri.parse(url);
     var response=await http.get(uri, headers: {'Content-Type': 'application/json', "Authorization": "Bearer ${LocaleHandler.accessToken}"});
     var i=jsonDecode(response.body)["data"];
     if(response.statusCode==200){
-      setState(() {
-        data=i["items"];
-        totallen=i["meta"]["totalItems"];
-        totalpages=i["meta"]["totalPages"];
-        currentpage=i["meta"]["currentPage"];
-        post=i["items"];
-      });
+      if(mounted){
+        setState(() {
+          data=i["items"];
+          totallen=i["meta"]["totalItems"];
+          totalpages=i["meta"]["totalPages"];
+          currentpage=i["meta"]["currentPage"];
+          post=i["items"];
+        });
+      }
     }
     else if(response.statusCode==401){showToastMsgTokenExpired();}
     else{}
@@ -70,7 +72,7 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
         _hasNextPage == true &&  _isLoadMoreRunning == false && currentpage<totalpages&& _controller!.position.extentAfter < 300) {
       setState(() {_isLoadMoreRunning=true;});
       _page=_page+1;
-      final url=ApiList.paymentHIstory+"${LocaleHandler.userId}?page=$_page&limit=5&filter=";
+      final url=ApiList.paymentHIstory+"${LocaleHandler.userId}?page=$_page&limit=15&filter=";
       print(url);
       var uri=Uri.parse(url);
       var response=await http.get(uri, headers: {'Content-Type':'application/json', 'Authorization':'Bearer ${LocaleHandler.accessToken}'});

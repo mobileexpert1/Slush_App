@@ -780,6 +780,12 @@ class ViewProfileScreen extends StatefulWidget {
   }
 }*/
 
+String capitalizeWords(String text) {
+  if (text == null || text.isEmpty || text == "") {
+    return text;
+  }
+  return text.split(' ').map((word) => word[0].toUpperCase() + word.substring(1).toLowerCase()).join(' ');
+}
 
 class _ViewProfileScreenState extends State<ViewProfileScreen> {
   PageController controller = PageController();
@@ -1120,7 +1126,7 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
                                   height: 15))
                               : const SizedBox(),
                           splitted.contains("sexuality")
-                              ? buildText(LocaleHandler.dataa["sexuality"], 15,
+                              ? buildText(capitalizeWords(LocaleHandler.dataa["sexuality"]), 15,
                               FontWeight.w500, color.txtgrey,
                               fontFamily: FontFamily.hellix)
                               : const SizedBox(),
@@ -1165,8 +1171,8 @@ class _ViewProfileScreenState extends State<ViewProfileScreen> {
                               child: SvgPicture.asset(
                                   AssetsPics.greyoutlineheart,
                                   height: 14)),
-                          buildText(
-                              LocaleHandler.dataa["lookingFor"] ?? '',
+                          buildText(capitalizeWords(LocaleHandler.dataa["lookingFor"] ?? ''),
+                              // LocaleHandler.dataa["lookingFor"] ?? '',
                               15,
                               FontWeight.w500,
                               color.txtgrey,

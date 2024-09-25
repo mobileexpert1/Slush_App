@@ -60,13 +60,15 @@ class _NotificationScreen1State extends State<NotificationScreen> {
     });
     var data = jsonDecode(response.body)["data"];
     if (response.statusCode == 200) {
-      setState(() {
-        totalitems = data["meta"]["totalItems"];
-        currentpage = data["meta"]["currentPage"];
-        totalPages = data["meta"]["totalPages"];
-        dataa = data["items"];
-        // dataa.sort((a, b) => b["createdAt"].compareTo(a["createdAt"]));
-      });
+     if(mounted){
+       setState(() {
+         totalitems = data["meta"]["totalItems"];
+         currentpage = data["meta"]["currentPage"];
+         totalPages = data["meta"]["totalPages"];
+         dataa = data["items"];
+         // dataa.sort((a, b) => b["createdAt"].compareTo(a["createdAt"]));
+       });
+     }
     } else if (response.statusCode == 401) {
       showToastMsgTokenExpired();
     } else {
@@ -331,10 +333,7 @@ class _NotificationScreen1State extends State<NotificationScreen> {
                                           dataa[index]["notification_type"] == "general"? GestureDetector(
                                             onTap: () {
                                               Get.to(()=> const UserProfileScreen());                                            },
-                                            child: Container(
-                                              alignment: Alignment.center,
-                                              height: 36,
-                                              width: 130,
+                                            child: Container(alignment: Alignment.center, height: 36, width: 130,
                                               padding: const EdgeInsets.symmetric(horizontal: 15),
                                               decoration: BoxDecoration(borderRadius: BorderRadius.circular(19),
                                                   gradient:  const LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter,

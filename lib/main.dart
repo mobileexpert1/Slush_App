@@ -34,16 +34,16 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {p
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(name: 'virtual-speed-date-325915', options: DefaultFirebaseOptions.currentPlatform);
-
+  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
   if(Platform.isAndroid){OneSignal.initialize("482a292e-4c3a-48f0-ad0b-8b0f4b653fd8");}else{OneSignal.initialize("4cee1d81-6350-4319-970d-3421754c0fa7");}
   OneSignal.Notifications.requestPermission(true);
   InAppPurchase.instance.restorePurchases();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   MobileAds.instance.initialize();
   WakelockPlus.enable();
   FirebaseLocalNotification.initMessaging();
+
   runApp(const MyApp());
 }
 

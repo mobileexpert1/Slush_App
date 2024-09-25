@@ -52,11 +52,13 @@ class _EventHistoryScreenState extends State<EventHistoryScreen> {
     headers: {'Content-Type': 'application/json', 'Authorization':'Bearer ${LocaleHandler.accessToken}'});
     var i=jsonDecode(response.body);
     if(response.statusCode==201){
-      setState(() {
-        data=i["items"];
-        itemlen=i["meta"]["totalItems"];
-        totalpages=i["meta"]["totalPages"];
-        currentpage=i["meta"]["currentPage"];});
+      if(mounted){
+        setState(() {
+          data=i["items"];
+          itemlen=i["meta"]["totalItems"];
+          totalpages=i["meta"]["totalPages"];
+          currentpage=i["meta"]["currentPage"];});
+      }
     }
   }
 

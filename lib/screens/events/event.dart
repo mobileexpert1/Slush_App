@@ -23,6 +23,7 @@ import 'package:slush/screens/events/eventhistory.dart';
 import 'package:slush/screens/events/free_event.dart';
 import 'package:slush/screens/events/you_ticket.dart';
 import 'package:slush/screens/notification/notification_screen.dart';
+import 'package:slush/screens/onboarding/introscreen.dart';
 import 'package:slush/screens/waiting_room/waiting_room_screen.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
 import 'package:slush/widgets/text_widget.dart';
@@ -311,8 +312,8 @@ class _EventScreenState extends State<EventScreen> {
         setState(() {
           Map<String, dynamic> data = jsonDecode(response.body);
           userData = data["data"];
-          // LocaleHandler.userId = userData["userId"].toString();
-          LocaleHandler.userId = userData["id"].toString();
+          LocaleHandler.userId = userData["userId"].toString();
+          // LocaleHandler.userId = userData["id"].toString();
           LocaleHandler.name = userData["firstName"]??userData["email"];
           LocaleHandler.avatar = userData["avatar"]??userData["profilePictures"][0]["key"]??"";
           age = calculateAge(data["data"]["dateOfBirth"].toString());
@@ -915,14 +916,17 @@ class _EventScreenState extends State<EventScreen> {
               width: 50,
               child: LocaleHandler.avatar == ""
                   ? Image.asset(AssetsPics.demouser, fit: BoxFit.fill)
-                  : ClipRRect(
-                      borderRadius: BorderRadius.circular(8),
-                      child: CachedNetworkImage(
-                        imageUrl: LocaleHandler.avatar,
-                        fit: BoxFit.fill,
-                        placeholder: (ctx, url) =>
-                            const Center(child: SizedBox()),
-                      )),
+                  : GestureDetector(
+                // onTap: (){Get.to(() => const IntroScreen());},
+                    child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: CachedNetworkImage(
+                          imageUrl: LocaleHandler.avatar,
+                          fit: BoxFit.fill,
+                          placeholder: (ctx, url) =>
+                              const Center(child: SizedBox()),
+                        )),
+                  ),
             ),
           ),
           Padding(

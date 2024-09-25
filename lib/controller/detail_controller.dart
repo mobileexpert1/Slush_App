@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-import 'package:agora_uikit/agora_uikit.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -110,9 +109,7 @@ class detailedController extends ChangeNotifier {
       File imageFile = File(LocaleHandler.introImage!.path);
       var stream = http.ByteStream(imageFile.openRead());
       var length = await imageFile.length();
-      var multipartFile = http.MultipartFile('avatar', stream, length,
-          filename: LocaleHandler.introImage.toString().split("/").last,
-          contentType: MediaType('image', 'jpeg'));
+      var multipartFile = http.MultipartFile('avatar', stream, length, filename: LocaleHandler.introImage.toString().split("/").last, contentType: MediaType('image', 'jpeg'));
       request.files.add(multipartFile);
     }
     // if (LocaleHandler.introVideo != null && action=="upload_video") {
@@ -160,13 +157,8 @@ class detailedController extends ChangeNotifier {
           LocaleHandler.showsexualOreintations.toString();
     }
 
-    if (LocaleHandler.entencity.length != 0 &&
-        LocaleHandler.entencity.isNotEmpty &&
-        action == "fill_ethnicity") {
-      List.generate(
-          LocaleHandler.entencity.length,
-          (i) => request.fields['ethnicity[$i]'] =
-              LocaleHandler.entencity[i].toString());
+    if (LocaleHandler.entencity.length != 0 && LocaleHandler.entencity.isNotEmpty && action == "fill_ethnicity") {
+      List.generate(LocaleHandler.entencity.length, (i) => request.fields['ethnicity[$i]'] = LocaleHandler.entencity[i].toString());
     }
 
     // Send the request
@@ -292,12 +284,8 @@ class detailedController extends ChangeNotifier {
           WebUiSettings(
             context: context,
             presentStyle: CropperPresentStyle.dialog,
-            boundary: const CroppieBoundary(
-              width: 520,
-              height: 520,
-            ),
-            viewPort:
-                const CroppieViewPort(width: 480, height: 480, type: 'circle'),
+            boundary: const CroppieBoundary(width: 520, height: 520),
+            viewPort: const CroppieViewPort(width: 480, height: 480, type: 'circle'),
             enableExif: true,
             enableZoom: true,
             showZoomer: true,

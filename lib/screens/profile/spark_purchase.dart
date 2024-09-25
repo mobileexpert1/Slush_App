@@ -1,6 +1,5 @@
 import 'dart:convert';
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
@@ -13,6 +12,7 @@ import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/loader.dart';
 import 'package:slush/controller/profile_controller.dart';
+import 'package:slush/widgets/alert_dialog.dart';
 import 'package:slush/widgets/blue_button.dart';
 import 'package:slush/widgets/text_widget.dart';
 import 'package:http/http.dart'as http;
@@ -85,7 +85,8 @@ class _SparkPurchaseScreenState extends State<SparkPurchaseScreen> {
           purchaseSpark(count);
         }
       } else if (purchaseDetails.status == PurchaseStatus.error) {
-        showToastMsg("Server error! please try again after few minutes");
+        // showToastMsg("Server error! please try again after few minutes");
+        showDialog(context: context, builder: (BuildContext context) => Faildialog());
         // Handle error
       }
       if (purchaseDetails.pendingCompletePurchase) {
@@ -100,10 +101,10 @@ class _SparkPurchaseScreenState extends State<SparkPurchaseScreen> {
   }
 
   void _deliverProduct(PurchaseDetails purchaseDetails) {
-    setState(() {
-      _purchases.add(purchaseDetails);
-    });
+    setState(() {_purchases.add(purchaseDetails);});
+    showDialog(context: context, builder: (BuildContext context) => Successdialog());
   }
+
 
   void _buyProduct(ProductDetails product) {
     final PurchaseParam purchaseParam = PurchaseParam(productDetails: product);
@@ -153,14 +154,13 @@ class _SparkPurchaseScreenState extends State<SparkPurchaseScreen> {
               white_button(context, sparktext,press: ()async{
                 int count=selectedIndex==1?1:selectedIndex==2?3:5;
                 if(Platform.isAndroid){
-                  // purchaseSpark(count);
                 final PurchaseParam purchaseParam = PurchaseParam(productDetails: _products[selectedIndex-1]);
                 await _inAppPurchase.buyConsumable(purchaseParam: purchaseParam);
                 }else{
+                  // setState(() {LoaderOverlay.show(context);});
                   int val=selectedIndex==1?2:selectedIndex==2?1:0;
                   final PurchaseParam purchaseParam = PurchaseParam(productDetails: _products[val]);
                   await _inAppPurchase.buyConsumable(purchaseParam: purchaseParam);
-                //  purchaseSpark(count);
                 }
               })
             ],),

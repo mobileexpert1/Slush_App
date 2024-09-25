@@ -32,9 +32,11 @@ class _ProfileVideoViewerState extends State<ProfileVideoViewer> {
     // Provider.of<profileController>(context,listen: false).initController(widget.url);
     controller = VideoPlayerController.networkUrl(Uri.parse(widget.url));
     await controller.initialize().then((value) {
-      controller.play();
-      controller.setLooping(true);
-      setState(() {});
+     if(mounted){
+       controller.play();
+       controller.setLooping(true);
+       setState(() {});
+     }
     });
   }
 

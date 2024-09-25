@@ -59,9 +59,11 @@ class _MyEventListScreenState extends State<MySavedEvent> {
     );
     print("Response ----------- -----------${response.statusCode}");
     if(response.statusCode==201){
-      data=jsonDecode(response.body);
-      setState((){});
-      return "Ok";
+     if(mounted){
+       data=jsonDecode(response.body);
+       setState((){});
+       return "Ok";
+     }
     } else if(response.statusCode==401){showToastMsgTokenExpired();}
     else {return  Error();}
   }

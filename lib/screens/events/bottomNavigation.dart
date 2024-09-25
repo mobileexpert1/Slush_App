@@ -1,13 +1,10 @@
 import 'dart:convert';
 
-import 'package:agora_uikit/controllers/rtc_token_handler.dart';
-import 'package:cached_network_image/cached_network_image.dart';
+// import 'package:agora_uikit/controllers/rtc_token_handler.dart';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:fluttertoast/fluttertoast.dart';
-import 'package:get/get.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/controller/controller.dart';
@@ -23,8 +20,6 @@ import 'package:slush/screens/splash/splash_controller.dart';
 import 'package:slush/screens/video_call/notification_serivce.dart';
 import 'package:slush/video_player/reel_screen.dart';
 import 'package:slush/widgets/alert_dialog.dart';
-import 'package:slush/widgets/blue_button.dart';
-import 'package:slush/widgets/text_widget.dart';
 
 import '../../constants/api.dart';
 import '../../widgets/toaster.dart';
