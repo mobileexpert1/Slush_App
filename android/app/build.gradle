@@ -27,7 +27,14 @@ android {
     namespace "com.slushdating.slush"
     compileSdkVersion 34
     ndkVersion flutter.ndkVersion
-
+//    splits {
+//        abi {
+//            enable true
+//            reset()
+//            include 'armeabi-v7a', 'arm64-v8a', 'x86', 'x86_64'
+//            universalApk false
+//        }
+//    }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
@@ -78,4 +85,5 @@ dependencies {
     implementation 'com.facebook.android:facebook-login:latest.release'
     implementation 'com.google.android.gms:play-services-ads:20.6.0'
     implementation 'com.android.billingclient:billing:5.0.0'
+//    implementation('com.google.android.exoplayer:exoplayer:2.19.1')
 }
