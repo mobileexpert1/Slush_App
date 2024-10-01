@@ -177,7 +177,7 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                           reelcntrol.playNextReel(index);
                           reelcntrol.reelInilizedstop();
                           isPLaying = !isPLaying;
-                          // reelcntrol.swippedVideo(context, widget.data[index]["id"]);
+                          reelcntrol.swippedVideo(context, widget.data[index]["id"]);
                         });
                       } else {
                         debounce.run(() async {
