@@ -100,6 +100,7 @@ class _EventScreenState extends State<EventScreen> {
     // });
 
     // KeepScreenOn.turnOn();
+    LocaleHandler.insideevent=false;
     super.initState();
   }
 
@@ -525,6 +526,8 @@ class _EventScreenState extends State<EventScreen> {
                     Get.back();
                     date1 = "Select Date ";
                     date2 = "Select Date ";
+                    LocaleHandler.miliseconds=0;
+                    getEvents();
                   }, blueTap: () {
                     Get.back();
                     setState(() {LoaderOverlay.show(context);});
@@ -905,30 +908,19 @@ class _EventScreenState extends State<EventScreen> {
   Widget buildProfileSection() {
     return Padding(
       padding: const EdgeInsets.only(left: 15, right: 15, top: 20),
-      child: Row(
+      child:
+      Row(
         children: [
-          GestureDetector(
-            onTap: (){
-           // Get.to(()=> ReadyToCallScreen(data: LocaleHandler.dataa));
-            },
-            child: SizedBox(
-              height: 50,
-              width: 50,
-              child: LocaleHandler.avatar == ""
-                  ? Image.asset(AssetsPics.demouser, fit: BoxFit.fill)
-                  : GestureDetector(
-                // onTap: (){Get.to(() => const IntroScreen());},
-                    child: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: CachedNetworkImage(
-                          imageUrl: LocaleHandler.avatar,
-                          fit: BoxFit.fill,
-                          placeholder: (ctx, url) =>
-                              const Center(child: SizedBox()),
-                        )),
-                  ),
-            ),
-          ),
+          LocaleHandler.avatar == ""
+              ? Image.asset(AssetsPics.demouser, fit: BoxFit.fill)
+              : ClipRRect(
+                  borderRadius: BorderRadius.circular(8),
+                  child: CachedNetworkImage(
+                    width: 50,height: 50,
+                    imageUrl: LocaleHandler.avatar,
+                    fit: BoxFit.fitWidth,
+                    placeholder: (ctx, url) => const Center(child: SizedBox()),
+                  )),
           Padding(
             padding: const EdgeInsets.only(left: 14),
             child: Column(

@@ -130,6 +130,7 @@ class _WaitingCompletedState extends State<WaitingCompleted> with SingleTickerPr
         if( widget.min<10&&widget.min>7 && fixtureEmpty){
           getFixtures();
         }} else {
+        LocaleHandler.insideevent=true;
         if (num == -1) {//Get.to(() => const DidnotFindAnyoneScreen());
         customDialogBoxx(context, "It looks like we’ve got an uneven number of participants this round, but don’t worry – your next date will be lined up shortly.",
             "Ok", AssetsPics.guide1,
@@ -151,9 +152,7 @@ class _WaitingCompletedState extends State<WaitingCompleted> with SingleTickerPr
     });
   }
 
-  void settimer() {
-    setState(() {startTimer();});
-  }
+  void settimer() {setState((){startTimer();});}
 
   @override
   void dispose() {

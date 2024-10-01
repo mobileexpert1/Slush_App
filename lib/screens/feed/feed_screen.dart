@@ -8,7 +8,6 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:get/get_core/src/get_main.dart';
 import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:slush/constants/api.dart';
 import 'package:slush/constants/prefs.dart';
 import 'package:slush/controller/controller.dart';
@@ -75,6 +74,7 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
   }
 
   void callFuntion() {
+    selectedGender=LocaleHandler.filtergender;
     if (LocaleHandler.reportedSuccesfuly) {
       setState(() {
         LocaleHandler.reportedSuccesfuly = false;
@@ -177,7 +177,7 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                           reelcntrol.playNextReel(index);
                           reelcntrol.reelInilizedstop();
                           isPLaying = !isPLaying;
-                          reelcntrol.swippedVideo(context, widget.data[index]["id"]);
+                          // reelcntrol.swippedVideo(context, widget.data[index]["id"]);
                         });
                       } else {
                         debounce.run(() async {
@@ -203,7 +203,8 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                 // VideoPlayerWidget(key: Key(val.videocntroller[index].dataSource), reelUrl: val.videocntroller[index].dataSource)
                             AspectRatio(
                                 aspectRatio: val.videoPlayerController[index].value.aspectRatio,
-                                child: ClipRRect(borderRadius: BorderRadius.circular(10), child: VideoPlayer(val.videocntroller[index]))
+                                child: ClipRRect(borderRadius: BorderRadius.circular(10),
+                                    child: VideoPlayer(val.videocntroller[index]))
                             )
                                 : const Center(child: CircularProgressIndicator(color: color.txtBlue)),
                             Padding(
@@ -679,13 +680,20 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                       onTap: () async {
                                         LocaleHandler.selectedIndexGender = -1;
                                         LocaleHandler.startage = 18;
-                                        LocaleHandler.endage = 90;
-                                        LocaleHandler.distancevalue = 250;
+                                        LocaleHandler.endage = 100;
+                                        LocaleHandler.distancevalue = 500;
                                         LocaleHandler.isChecked = false;
+                                        selectedGender="Everyone";
+                                        LocaleHandler.filtergender = selectedGender == "Everyone" ? "" : selectedGender.toLowerCase();
                                         Get.back();
                                         _items=[LocaleHandler.selectedIndexGender,LocaleHandler.startage,LocaleHandler.endage,LocaleHandler.distancevalue,LocaleHandler.isChecked];
                                         String jsonString = jsonEncode(_items);
                                         await Preferences.setValue('filterList', jsonString);
+                                        Provider.of<ReelController>(context, listen: false).videoPause(true, LocaleHandler.pageIndex);
+                                        Provider.of<ReelController>(context,listen: false).stopReels(context);
+                                        Provider.of<ReelController>(context, listen: false).getVidero(context, 1, LocaleHandler.startage, LocaleHandler.endage, distancevalue, LocaleHandler.latitude,
+                                            LocaleHandler.longitude, selectedGender == "Everyone" ? "" : selectedGender.toLowerCase(),filter: true);
+                                        Get.back();
                                       },
                                       child: Container(
                                         alignment: Alignment.center,
@@ -705,16 +713,17 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                       onTap: () {
                                         int min = _startValue.toInt();
                                         int max = _endValue.toInt();
-                                        setState(() async {
+                                        setState(() {
                                           LocaleHandler.selectedIndexGender = selectedIndex;
                                           LocaleHandler.startage = min;
                                           LocaleHandler.endage = max;
                                           LocaleHandler.distancevalue = distancevalue;
                                           LocaleHandler.isChecked = isChecked;
                                           LocaleHandler.pageIndex = 0;
+                                          LocaleHandler.filtergender = selectedGender == "Everyone" ? "" : selectedGender.toLowerCase();
                                           _items=[LocaleHandler.selectedIndexGender,LocaleHandler.startage,LocaleHandler.endage,LocaleHandler.distancevalue,LocaleHandler.isChecked];
                                           String jsonString = jsonEncode(_items);
-                                          await Preferences.setValue('filterList', jsonString);
+                                          Preferences.setValue('filterList', jsonString);
                                         });
                                         Provider.of<ReelController>(context, listen: false).videoPause(true, LocaleHandler.pageIndex);
                                         Provider.of<ReelController>(context,listen: false).stopReels(context);

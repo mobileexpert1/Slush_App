@@ -391,7 +391,6 @@ class editProfileController extends ChangeNotifier{
     } on CameraException catch (e) {
       return null;
     }
-    notifyListeners();
   }
 
   Future imgFromGallery(BuildContext context, ImageSource src) async {

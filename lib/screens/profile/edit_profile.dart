@@ -318,7 +318,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
       // Provider.of<profileController>(context,listen: false).profileData(context);
       showToastMsg("Updated succesfully");
       // setState(() {LocaleHandler.bottomindex=4;});
-        // Get.offAll(()=>BottomNavigationScreen());
+      // Get.offAll(()=>BottomNavigationScreen());
       // setState(() {LoaderOverlay.hide();});
       // Future.delayed(Duration(seconds: 2),(){Get.back();});
       // if(LocaleHandler.dataa["ethnicity"]!= LocaleHandler.entencity){

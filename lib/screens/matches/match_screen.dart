@@ -253,7 +253,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
                   decoration: BoxDecoration(color: color.purpleColor, borderRadius: BorderRadius.circular(12)),
                   child: Row(
                     children: [
-                      Expanded(child: buildText("Update to Slush Silver to see who has liked you!", 18, FontWeight.w500, color.txtWhite)),
+                      Expanded(child: buildText("Upgrade to Slush Silver to see who has liked you!", 18, FontWeight.w500, color.txtWhite)),
                       const SizedBox(width: 10),
                       SizedBox(height: 3.h, width: 3.h, child: SvgPicture.asset(AssetsPics.crownOn))
                     ],

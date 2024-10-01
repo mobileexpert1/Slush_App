@@ -277,8 +277,7 @@ class ReelController with ChangeNotifier {
       dataa = ii["data"]["items"];
       posts = dataa;
       for (var i = 0; i < posts.length; i++) {
-        videoPlayerController.add(VideoPlayerController.networkUrl(
-            Uri.parse(posts[i]["video"].toString())));
+        videoPlayerController.add(VideoPlayerController.networkUrl(Uri.parse(posts[i]["video"].toString())));
         reelcntrol.addReel(posts[i]["video"].toString());
       }
       playNextReel(LocaleHandler.pageIndex);
@@ -338,20 +337,16 @@ class ReelController with ChangeNotifier {
 
   void playNextReel(int index) {
     print("index;-;-;-;-$index");
-    // _indexid=index+1;
     /// Stop [index - 1] controller
     if (index > 0) {
       _stopControllerAtIndex(index - 1);
     }
-
     /// Dispose [index - 2,3] controller
     if (index > 1) {
       _disposeControllerAtIndex(index - 2);
     }
-
     /// Play current video (already initialized)
     playControllerAtIndex(index);
-
     /// Initialize [index + 1] controller
     _initializeControllerAtIndex(index + 1);
     LocaleHandler.pageIndex = index;
@@ -426,11 +421,18 @@ class ReelController with ChangeNotifier {
         }
       } else {
         _initializeControllerAtIndex(index).then((value) {
-          if (index != 0 || index == 0) {
+          if (index != 0) {
             videoPlayerController[index].play();
             videoPlayerController[index].setLooping(true);
             print("aspect---${videoPlayerController[index].value.aspectRatio}");
+          }else{
+            Future.delayed(const Duration(seconds: 6));
+            if(index == 0){
+              videoPlayerController[index].play();
+              videoPlayerController[index].setLooping(true);
+            }
           }
+
           if (videoPlayerController[index].value.isPlaying) {
             videoPlayerController[index].setVolume(isMuted ? 0.0 : 1.0);
           } else {
@@ -448,8 +450,7 @@ class ReelController with ChangeNotifier {
   Future _initializeControllerAtIndex(int index) async {
     if (videoPlayerController.length > index && index >= 0) {
       /// Create new controller
-      var controller = VideoPlayerController.networkUrl(
-          Uri.parse(videoPlayerController[index].dataSource));
+      var controller = VideoPlayerController.networkUrl(Uri.parse(videoPlayerController[index].dataSource));
       // final controller = VideoPlayerController.network(videoUrls[index]);
       /// Add to [controllers] list
       videoPlayerController[index] = controller;

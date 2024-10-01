@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -268,8 +270,8 @@ class _CreateNewAccountState extends State<CreateNewAccount> {
                       buildCircleAvatar(AssetsPics.facebook,(){acccntrl.loginWithFacebook(context);}),
                       const SizedBox(width: 15),
                       buildCircleAvatar(AssetsPics.google,(){acccntrl.signInWithGoogle(context,googleSignIn);}),
-                      const SizedBox(width: 15),
-                      buildCircleAvatar(AssetsPics.apple,(){}),
+                      Platform.isAndroid?const SizedBox(): const SizedBox(width: 15),
+                      Platform.isAndroid?const SizedBox(): buildCircleAvatar(AssetsPics.apple,(){acccntrl.signInWithApple(context);}),
                     ],
                   ),
                   const SizedBox(height: 10),

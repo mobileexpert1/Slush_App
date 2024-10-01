@@ -15,7 +15,9 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart'as http;
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
@@ -132,14 +134,23 @@ class loginControllerr with ChangeNotifier{
   }
 
   Future hitFCMTOken(String id,String name)async{
-    String playerId=generateUuidV4();
+    OneSignal.User.pushSubscription.addObserver((state)async {
+      print(";-;-;-;-");
+      print(OneSignal.User.pushSubscription.optedIn);
+      print(OneSignal.User.pushSubscription.id);
+      print(OneSignal.User.pushSubscription.token);
+      print(state.current.jsonRepresentation());
+    });
+    // String playerId=generateUuidV4();
+    String playerId=OneSignal.User.pushSubscription.id.toString();
     String devicetype=Platform.isAndroid?"android":Platform.isIOS?"ios":"";
     const url=ApiList.fcmToken;
     print(url);
     var uri=Uri.parse(url);
     var response=await http.post(uri,headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${LocaleHandler.accessToken}'},
     body: jsonEncode({
-    "token": LocaleHandler.fcmToken,
+    // "token": LocaleHandler.fcmToken,
+    "token": OneSignal.User.pushSubscription.token,
     "deviceId": id,
     "deviceName": name,
     "playerId":playerId,
@@ -147,7 +158,11 @@ class loginControllerr with ChangeNotifier{
     }));
     print(response.statusCode);
     print(jsonDecode(response.body));
-    if(response.statusCode==201){}
+    if(response.statusCode==201){
+
+      print(OneSignal.User.pushSubscription.token);
+      print(OneSignal.User.pushSubscription.id);
+    print(";-----palash");}
     else if(response.statusCode==401){}
     else{}
     notifyListeners();
@@ -329,6 +344,25 @@ class loginControllerr with ChangeNotifier{
       print(e.toString());
     }
     notifyListeners();
+  }
+
+  Future<void> signInWithApple(BuildContext context) async {
+    try {
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      // Use the credential to authenticate with your backend.
+      print("===================");
+      print(credential.identityToken);
+      print(credential.authorizationCode);
+      socialLoginUser(context, "APPLE", socialToken: credential.authorizationCode);
+    } catch (e) {
+      print('Error signing in with Apple: $e');
+    }
   }
 
   static final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();

@@ -13,6 +13,7 @@ import 'package:http/http.dart'as http;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:slush/constants/LocalHandler.dart';
@@ -77,6 +78,7 @@ class _TextChatScreenState extends State<TextChatScreen> {
   }
 
   Future getChat()async{
+    await OneSignal.User.pushSubscription.optOut();
     final url="${ApiList.getSingleChat}${widget.id}/conversation?page=1&limit=25";
     print(url);
     var uri =Uri.parse(url);
@@ -188,10 +190,11 @@ class _TextChatScreenState extends State<TextChatScreen> {
   }
 
   @override
-  void dispose() {
+  void dispose()async {
     socket!.disconnect();
     socket!.dispose();
     messageController.dispose();
+   await OneSignal.User.pushSubscription.optIn();
     super.dispose();
   }
 
@@ -626,7 +629,6 @@ class _TextChatScreenState extends State<TextChatScreen> {
     }
   }
 }
-
 
 
 

@@ -68,7 +68,8 @@ class _Subscription1State extends State<Subscription1> {
     final bool isAvailable = await _iap.isAvailable();
     setState(() {_available = isAvailable;});
     if (_available) {
-      const Set<String> _kIds = {'silversubscription','goldsubscription','platinumsubscription'};
+      // const Set<String> _kIds = {'silversubscription','goldsubscription','platinumsubscription'};
+      const Set<String> _kIds = {'silversubscription'};
       final ProductDetailsResponse response = await _iap.queryProductDetails(_kIds);
       setState(() {_products = response.productDetails;});
     }
@@ -538,9 +539,12 @@ class _Subscription1State extends State<Subscription1> {
                   blue_button(context, "Continue",press: (){
                     int num=selectedIndex==1?2:selectedIndex==2?0:1;
                     if(LocaleHandler.subscriptionPurchase=="no" && selectedIndex == 1){
-                      if(Platform.isAndroid){_buySubscription(_products[2]);}
-                      else{
+                      if (Platform.isAndroid) {
+                        customDialogBoxx(context);
+                        _buySubscription(_products[2]);
+                        } else {
                         // setState(() {LoaderOverlay.show(context);});
+                        customDialogBoxx(context);
                         _buySubscription(_products[0]);
                       }
                     }else if(selectedIndex != 1){showToastMsg("Coming soon...");}
@@ -641,4 +645,120 @@ String capitalize(String input) {
     }
     return '';
   }).join(' ');
+}
+
+customDialogBoxx(BuildContext context) {
+  return showGeneralDialog(
+      barrierLabel: "Label",
+      barrierDismissible: true,
+      transitionDuration: const Duration(milliseconds: 500),
+      context: context,
+      pageBuilder: (context, anim1, anim2) {
+        return LoadingDialog();
+        return Scaffold(
+          backgroundColor: Colors.transparent,
+          body: Align(
+            alignment: Alignment.bottomCenter,
+            child: Container(
+              height: MediaQuery.of(context).size.height/2.5,
+                width: MediaQuery.of(context).size.width ,
+                padding: const EdgeInsets.all(20),
+                decoration: const BoxDecoration(
+                  color: color.txtWhite,
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Container(
+                      alignment: Alignment.center,
+                      height: 80,
+                      width: 80
+                    ),
+                    SizedBox(height: 1.h),
+                    const SizedBox(height: 15),
+                  ],
+                )),
+          ),
+        );
+      },
+      transitionBuilder: (context, anim1, anim2, child) {
+        return SlideTransition(
+          position: Tween(begin: const Offset(0, 1), end: const Offset(0, 0))
+              .animate(anim1),
+          child: child,
+        );
+      });
+}
+
+class LoadingDialog extends StatefulWidget {
+  @override
+  _LoadingDialogState createState() => _LoadingDialogState();
+}
+
+class _LoadingDialogState extends State<LoadingDialog> {
+  bool isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    // Simulate a network request or loading process
+    Future.delayed(const Duration(seconds: 5), () {
+      setState(() {
+        isLoading = false; // Stop loading
+      });
+
+      // Close the dialog after loading is complete
+      Navigator.of(context).pop();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: Align(
+        alignment: Alignment.bottomCenter,
+        child: Container(
+            height: MediaQuery.of(context).size.height/2.5,
+            width: MediaQuery.of(context).size.width ,
+            padding: const EdgeInsets.all(20),
+            decoration: const BoxDecoration(
+              color: color.txtWhite,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(30)),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                if (isLoading) const CircularProgressIndicator(),
+                if (!isLoading) const Icon(Icons.check, color: Colors.green),
+                const SizedBox(width: 20),
+                Text(isLoading ? 'Please wait...' : 'Loading complete!'),
+                Container(
+                    alignment: Alignment.center,
+                    height: 80,
+                    width: 80
+                ),
+                SizedBox(height: 1.h),
+                const SizedBox(height: 15),
+              ],
+            )),
+      ),
+    );
+    return AlertDialog(
+      title: const Text('Loading'),
+      content: Row(
+        children: [
+          if (isLoading) const CircularProgressIndicator(),
+          if (!isLoading) const Icon(Icons.check, color: Colors.green),
+          const SizedBox(width: 20),
+          Text(isLoading ? 'Please wait...' : 'Loading complete!'),
+        ],
+      ),
+    );
+  }
 }

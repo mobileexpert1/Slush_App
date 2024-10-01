@@ -153,7 +153,7 @@ class _EventHistoryScreenState extends State<EventHistoryScreen> {
                                 child: SvgPicture.asset(AssetsPics.threeDotsLeft),),
                             ),
                             Container(
-                                margin: EdgeInsets.only(top: 20,left: 20),
+                                margin: const EdgeInsets.only(top: 20,left: 20),
                                 alignment: Alignment.center,
                               child:Image.asset(AssetsPics.noevent)),
                           ],
@@ -177,8 +177,6 @@ class _EventHistoryScreenState extends State<EventHistoryScreen> {
                     itemCount: data.length,
                     padding: const EdgeInsets.only(top: 10,bottom: 10),
                     itemBuilder: (context,index){
-                    // final LastElement= historyItem.lastWhere((e) =>  e.status == selectedCat);
-                    // final LastElement= historyItem.lastIndexWhere((e) =>  e.status == selectedCat);
                     String dateString = data[index]["e_starts_at"];
                     DateTime dateTime = DateTime.parse(dateString);
                     formattedDate = DateFormat('dd').format(dateTime);
@@ -210,7 +208,7 @@ class _EventHistoryScreenState extends State<EventHistoryScreen> {
                       ):const SizedBox();
                 }),
               ),
-              _isLoadMoreRunning? const Center(child: CircularProgressIndicator(color: color.txtBlue)):SizedBox(),
+              _isLoadMoreRunning? const Center(child: CircularProgressIndicator(color: color.txtBlue)):const SizedBox(),
             ],),
             ),
           ),
@@ -241,7 +239,7 @@ class _EventHistoryScreenState extends State<EventHistoryScreen> {
          border: Border.all(
            width: 1,color: color.disableButton
          ),
-        color: Color.fromRGBO(242, 247, 255, 1)
+        color: const Color.fromRGBO(242, 247, 255, 1)
       ),
       child: buildText(btntxt, 16, FontWeight.w600, color.txtBlack),
     );

@@ -8,7 +8,6 @@ import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/loader.dart';
-import 'package:slush/constants/localkeys.dart';
 import 'package:slush/widgets/app_bar.dart';
 import 'package:slush/widgets/blue_button.dart';
 import 'package:slush/widgets/text_widget.dart';
@@ -206,3 +205,4 @@ class _ChangeEmailScreenState extends State<ChangeEmailScreen> {
     );
   }
 }
+

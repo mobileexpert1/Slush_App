@@ -10,6 +10,7 @@ import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:open_mail_app/open_mail_app.dart';
 import 'package:provider/provider.dart';
+import 'package:sign_in_with_apple/sign_in_with_apple.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
@@ -224,6 +225,25 @@ class createAccountController extends ChangeNotifier {
       print(e.toString());
     }
     notifyListeners();
+  }
+
+  Future<void> signInWithApple(BuildContext context) async {
+    try {
+      final credential = await SignInWithApple.getAppleIDCredential(
+        scopes: [
+          AppleIDAuthorizationScopes.email,
+          AppleIDAuthorizationScopes.fullName,
+        ],
+      );
+
+      // Use the credential to authenticate with your backend.
+      print("===================");
+      print(credential.identityToken);
+      print(credential.authorizationCode);
+      socialLoginUser(context, "APPLE", socialToken: credential.authorizationCode);
+    } catch (e) {
+      print('Error signing in with Apple: $e');
+    }
   }
 
   Future socialLoginUser(BuildContext context, String type, {required String socialToken, providerName}) async {

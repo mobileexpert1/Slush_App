@@ -4,6 +4,7 @@ class LocaleHandler {
   static bool bioAuth=false;
   static bool speeddatePermission=false;
   static bool liked=false;
+  static bool insideevent=false;
   static bool lateEntry=false;
   static String bioAuth2="false";
   static bool noInternet=false;

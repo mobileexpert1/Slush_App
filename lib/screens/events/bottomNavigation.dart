@@ -1,9 +1,11 @@
 import 'dart:convert';
+import 'dart:io';
 
 // import 'package:agora_uikit/controllers/rtc_token_handler.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/color.dart';
@@ -72,6 +74,11 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
     Provider.of<SplashController>(context, listen: false).checkInterenetConnection();
     // removeFeedList();
     callFunction();
+    OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+    if(Platform.isAndroid){OneSignal.initialize("482a292e-4c3a-48f0-ad0b-8b0f4b653fd8");}
+    else{OneSignal.initialize("4cee1d81-6350-4319-970d-3421754c0fa7");}
+    OneSignal.Notifications.requestPermission(true);
+    OneSignal.User.pushSubscription.optIn();
     super.initState();
   }
 

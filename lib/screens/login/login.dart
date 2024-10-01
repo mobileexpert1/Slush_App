@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 // import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -221,8 +222,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           buildCircleAvatar(AssetsPics.google, () {
                             lgincntrl.signInWithGoogle(context,googleSignIn);
                           }),
-                          const SizedBox(width: 15),
-                          buildCircleAvatar(AssetsPics.apple, () {}),
+                          Platform.isAndroid?SizedBox(): const SizedBox(width: 15),
+                          Platform.isAndroid?SizedBox(): buildCircleAvatar(AssetsPics.apple, () {lgincntrl.signInWithApple(context);}),
                         ],
                       ),
                       SizedBox(height: 5.h),

@@ -5,6 +5,7 @@ import 'package:get/get.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/screens/feed/profile.dart';
+import 'package:slush/widgets/customtoptoaster.dart';
 import 'package:slush/widgets/text_widget.dart';
 
 PreferredSizeWidget commonBar(BuildContext context,Color bg,{VoidCallback? press=onPress}) {
@@ -90,9 +91,13 @@ PreferredSizeWidget commonBarWithTextleft(BuildContext context,Color bg,String t
       surfaceTintColor: Colors.transparent,
       // backgroundColor: bg,
       backgroundColor: Colors.transparent,
-      flexibleSpace:txt=="Ticket Details"?null: const Image(image: AssetImage(AssetsPics.appBarbg),
-          fit: BoxFit.fitWidth,
-          alignment: Alignment.topCenter,
+      flexibleSpace:txt=="Ticket Details"?null: const Stack(
+        children: [
+          Image(image: AssetImage(AssetsPics.appBarbg),
+              fit: BoxFit.fitWidth,
+              alignment: Alignment.topCenter),
+          // CustomTopToaster()
+        ],
       ),
       centerTitle: true,
       leadingWidth: 50,

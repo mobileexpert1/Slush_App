@@ -1,7 +1,5 @@
 import 'dart:convert';
 import 'package:slush/constants/prefs.dart';
-import 'package:slush/video_player//config/cache_config.dart';
-import 'package:flutter_cache_manager/flutter_cache_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
@@ -147,6 +145,7 @@ class profileController extends ChangeNotifier {
     LocaleHandler.role = "";
     LocaleHandler.subscriptionPurchase = "";
     LocaleHandler.bottomSheetIndex=0;
+    LocaleHandler.socialLogin="no";
     Preferences.setValue("token",LocaleHandler.accessToken);
     Preferences.setrefreshToken(LocaleHandler.refreshToken);
     Preferences.setNextAction("");
@@ -157,7 +156,8 @@ class profileController extends ChangeNotifier {
     Preferences.setValue("userId", LocaleHandler.userId);
     Preferences.setValue("role", LocaleHandler.role);
     Preferences.setValue("subscriptionPurchase", LocaleHandler.subscriptionPurchase);
-
+    Preferences.setValue('filterList', "");
+    Preferences.setValue("socialLogin", LocaleHandler.socialLogin);
     notifyListeners();
   }
 

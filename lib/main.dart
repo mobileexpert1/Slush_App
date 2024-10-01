@@ -30,14 +30,19 @@ import 'notification.dart';
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {print("Handling a background message: ${message.messageId}");}
 
-
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(name: 'virtual-speed-date-325915', options: DefaultFirebaseOptions.currentPlatform);
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+
+
   OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
-  if(Platform.isAndroid){OneSignal.initialize("482a292e-4c3a-48f0-ad0b-8b0f4b653fd8");}else{OneSignal.initialize("4cee1d81-6350-4319-970d-3421754c0fa7");}
+  if(Platform.isAndroid){OneSignal.initialize("482a292e-4c3a-48f0-ad0b-8b0f4b653fd8");}
+  else{OneSignal.initialize("4cee1d81-6350-4319-970d-3421754c0fa7");}
   OneSignal.Notifications.requestPermission(true);
+  OneSignal.User.pushSubscription.optIn();
+
+
   InAppPurchase.instance.restorePurchases();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   MobileAds.instance.initialize();
@@ -49,6 +54,7 @@ Future<void> main() async {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
 
   @override
   Widget build(BuildContext context) {

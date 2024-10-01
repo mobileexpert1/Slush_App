@@ -14,7 +14,6 @@ import 'package:slush/controller/event_controller.dart';
 import 'package:slush/controller/profile_controller.dart';
 import 'package:slush/controller/spark_Liked_controler.dart';
 import 'package:slush/screens/events/payment_history.dart';
-import 'package:slush/screens/getstarted/slider_scree.dart';
 import 'package:slush/screens/setting/account_settings.dart';
 import 'package:slush/screens/setting/device_management.dart';
 import 'package:slush/screens/setting/discovery_settings.dart';
@@ -23,6 +22,7 @@ import 'package:slush/screens/setting/notification_settings.dart';
 import 'package:slush/screens/setting/saved_event.dart';
 import 'package:slush/widgets/app_bar.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
+import 'package:slush/widgets/customtoptoaster.dart';
 import 'package:slush/widgets/text_widget.dart';
 import 'package:slush/widgets/toaster.dart';
 import 'package:http/http.dart'as http;
@@ -96,12 +96,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     onTap: () {
                       customDialogBoxWithtwobutton(context, "Are you sure you want to logout?", "",img: AssetsPics.logoutpng,isPng: true,
                           btnTxt1: "Cancel",btnTxt2: "Yes, logout",onTap2: (){
-                            logout();
-                            removeData();
-                            Provider.of<ReelController>(context,listen: false).removeVideoLimit(context);
-                            // Get.offAll(()=>const SliderScreen());
-                          }
-                          );
+                            logout();removeData();Provider.of<ReelController>(context,listen: false).removeVideoLimit(context);});
                     },
                     child: Container(
                       padding:  const EdgeInsets.only(left: 25),
@@ -126,7 +121,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -141,21 +136,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
     else if(i==5){Get.to(()=>MySavedEvent());}
     else if(i==6){Get.to(()=>const PaymentHistoryScreen());}
     else if(i==7){
-      // showCustomSnackBar(context, AssetsPics.redbanner,false);
-      // snackBaar(context, AssetsPics.verifyinprocess,true);
-      // showToastMsg("Coming soon...");
-           const url = 'https://www.slushdating.com/';
-           if (await canLaunch(url)) {
-             await launch(url, forceWebView: true, enableJavaScript: true);}
-           else {throw 'Could not launch $url';}
-    }
+           var url = Uri.parse('https://www.slushdating.com/');
+           if (await canLaunchUrl(url)) {await launchUrl(url, mode: LaunchMode.inAppWebView);}
+           else {throw 'Could not launch $url';}}
     else if(i==8){Get.to(()=>const AboutSlush());}
     else if(i==9){
-           const url = 'https://www.slushdating.com/terms-of-use';
-           if (await canLaunch(url)) {
-             await launch(url, forceWebView: true, enableJavaScript: true);}
+           var url = Uri.parse('https://www.slushdating.com/terms-of-use');
+           // if (await canLaunch(url)) {await launch(url, forceWebView: true, enableJavaScript: true);}
+           if (await canLaunchUrl(url)) {await launchUrl(url, mode: LaunchMode.inAppWebView);}
            else {throw 'Could not launch $url';}
-      //showToastMsg("Coming soon...");
       // snackBaar(context,AssetsPics.redbanner,false);
            // snackBaarblue(context,AssetsPics.banner,"Event starting in 15 minutes, Click Hereto join the waiting room!");
            // snackBaar(context, AssetsPics.verifyinprocesssvg,false);
@@ -164,12 +153,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
            // snackBaar(context, AssetsPics.unMatchedbgsvg,false);
          }
     else if(i==10){
-      const url = 'https://www.slushdating.com/contact';
-      if (await canLaunch(url)) {
-        await launch(url, forceWebView: true, enableJavaScript: true);}
-      else {throw 'Could not launch $url';}
-
-    }
+           var url = Uri.parse('https://www.slushdating.com/contact');
+           if (await canLaunchUrl(url)) {await launchUrl(url, mode: LaunchMode.inAppWebView);}
+           else {throw 'Could not launch $url';}}
     else {}
   }
 

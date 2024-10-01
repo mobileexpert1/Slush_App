@@ -406,7 +406,6 @@ Widget seventh(BuildContext context){
                _endValue = LocaleHandler.endage.toDouble();
                distancevalue = LocaleHandler.distancevalue;
                isChecked = LocaleHandler.isChecked;
-               print("LocaleHandler.startage;-;-;-${LocaleHandler.endage}");
                customReelBoxFilte(context);
                },
               child: Container(alignment: Alignment.topRight, child: SvgPicture.asset(AssetsPics.reelFilterIcon,fit: BoxFit.cover,height: 48))),
