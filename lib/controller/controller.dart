@@ -427,7 +427,7 @@ class ReelController with ChangeNotifier {
             print("aspect---${videoPlayerController[index].value.aspectRatio}");
           }else{
             Future.delayed(const Duration(seconds: 6));
-            if(index == 0){
+            if(index == LocaleHandler.pageIndex){
               videoPlayerController[index].play();
               videoPlayerController[index].setLooping(true);
             }

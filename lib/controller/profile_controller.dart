@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:slush/constants/prefs.dart';
 import 'package:flutter/cupertino.dart';
@@ -33,9 +34,12 @@ class profileController extends ChangeNotifier {
         var data = jsonDecode(response.body);
         dataa = data["data"];
         LocaleHandler.dataa = dataa;
+        LocaleHandler.isVerified=LocaleHandler.dataa["isVerified"]??false;
         // percantage();
         value= dataa["profileCompletion"] / 100.0;
         getTotalSparks();
+        LocaleHandler.isLikedTabUpdate=data["data"]["isLikedTabUpdate"];
+        LocaleHandler.isUnreadMessage=data["data"]["unreadMsgCount"]=="0"?false:true;
       } else if (response.statusCode == 401) {
         showToastMsgTokenExpired();
         print('Token Expire:::::::::::::');
@@ -161,4 +165,36 @@ class profileController extends ChangeNotifier {
     notifyListeners();
   }
 
+  bool _unmatched=false;
+  bool get unmatched=> _unmatched;
+  void showunmatched(){
+    _unmatched = true;
+    Timer(const Duration(seconds: 7), () {_unmatched = false;});
+    notifyListeners();
+  }
+
+  bool _feedReport=false;
+  bool get feedReport=> _feedReport;
+  void showFeedReportBnr(){
+    _feedReport = true;
+    Timer(const Duration(seconds: 7), () {_feedReport = false;});
+    notifyListeners();
+  }
+
+  bool _mtchReport=false;
+  bool get mtchReport=> _mtchReport;
+  void showMtchReportBnr(){
+    _mtchReport = true;
+    Timer(const Duration(seconds: 7), () {_mtchReport = false;});
+    notifyListeners();
+  }
+
+
+  bool _accVerfy=false;
+  bool get accVerfy=> _accVerfy;
+  void showaccVerfyBnr(){
+    _accVerfy = true;
+    Timer(const Duration(seconds: 7), () {_accVerfy = false;});
+    notifyListeners();
+  }
 }

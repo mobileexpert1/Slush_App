@@ -97,6 +97,7 @@ class LocaleHandler {
   static bool isThereCancelEvent = false;
   static bool unMatchedEvent = false;
   static bool isBanner = false;
+  static bool isBanner2 = false;
   static bool bannerInReel = false;
   static bool isProtected = false;
   static bool subScribtioonOffer = false;
@@ -112,6 +113,7 @@ class LocaleHandler {
   static bool feedTutorials = true;
   // static bool scrollLimitreached = false;
   static bool isLikedTabUpdate = false;
+  static bool isUnreadMessage = false;
 
   //Int
   static int curentIndexNum = 0;

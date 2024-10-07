@@ -58,9 +58,8 @@ class _NotificationSettingsState extends State<NotificationSettings> {
                       padding: EdgeInsets.all(0.0),
                       itemCount: notificationSetting.length,
                       itemBuilder: (context,index){
-                      if(LocaleHandler.switchitem.contains(notificationSetting[index].Id.toString())){
-                        notificationSetting[index].val=true;
-                      }else{notificationSetting[index].val=false;}
+                      if(LocaleHandler.switchitem.contains(notificationSetting[index].Id.toString())){notificationSetting[index].val=true;}
+                      else{notificationSetting[index].val=false;}
                         return Column(
                           children: [
                             GestureDetector(

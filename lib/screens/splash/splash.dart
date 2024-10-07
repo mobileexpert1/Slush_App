@@ -101,7 +101,7 @@ class _SplashScreenState extends State<SplashScreen> {
     _register();
     // firebaseNotificationHandling();
     auth.isDeviceSupported().then((bool isSupported) => _supportState = isSupported ? _SupportState.supported : _SupportState.unsupported);
-    initPlatformState();
+    // initPlatformState();
     super.initState();
   }
 
@@ -148,7 +148,7 @@ class _SplashScreenState extends State<SplashScreen> {
               Get.offAll(() => BottomNavigationScreen());
               jsonString = await Preferences.getValue('filterList')??"";
               getFeedFilter();
-              // initPlatformState();
+              initPlatformState();
             } else {
               Get.offAll(() => const SliderScreen());
             }

@@ -331,10 +331,7 @@ class detailedController extends ChangeNotifier {
     final allowedTimeLimit = Duration(seconds: 16);
     // final allowedTimeLimit = Duration(seconds: 4);
     final allowedTimeLimit2 = Duration(minutes: 15);
-    final pickedFile = await picker.pickVideo(
-        source: img,
-        preferredCameraDevice: CameraDevice.front,
-        maxDuration: const Duration(seconds: 15));
+    final pickedFile = await picker.pickVideo(source: img, preferredCameraDevice: CameraDevice.front, maxDuration: const Duration(seconds: 15));
     XFile? xfilePick = pickedFile;
     if (xfilePick != null) {
       showToastMsg("Please wait...");

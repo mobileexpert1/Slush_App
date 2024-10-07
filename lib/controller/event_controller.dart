@@ -494,4 +494,13 @@ class eventController extends ChangeNotifier {
       countdownTimer!.cancel();
     }
   }
+
+  bool _bookiingCancelled=false;
+  bool get bookiingCancelled=> _bookiingCancelled;
+  void showBanner(){
+    _bookiingCancelled = true;LocaleHandler.isBanner2=true;
+    // setState(() {_bookiingCancelled = true;LocaleHandler.isBanner2=true;});
+    // Timer(const Duration(seconds: 10), () {setState(() {_bookiingCancelled = false;});});
+    Timer(const Duration(seconds: 10), () {_bookiingCancelled = false;});
+  }
 }

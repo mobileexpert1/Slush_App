@@ -93,7 +93,7 @@ class ChatController extends ChangeNotifier{
       'Authorization': 'Bearer ${LocaleHandler.accessToken}'
     });
     if (response.statusCode == 200) {
-      snackBaar(context, AssetsPics.removed, false);
+      // snackBaar(context, AssetsPics.removed, false);
       getChat();
     } else {}
     notifyListeners();

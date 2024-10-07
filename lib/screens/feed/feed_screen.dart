@@ -22,6 +22,7 @@ import 'package:slush/constants/color.dart';
 import 'package:slush/screens/feed/profile.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
+import 'package:slush/widgets/customtoptoaster.dart';
 import 'package:slush/widgets/text_widget.dart';
 import 'package:slush/widgets/toaster.dart';
 import 'package:video_player/video_player.dart';
@@ -430,7 +431,11 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
             child: FittedBox(
                 fit: BoxFit.fill,
                 child: Image.asset(AssetsPics.reportbanner, fit: BoxFit.fill)),
-          ),],
+          ),
+         Consumer<profileController>(builder: (context,val,child){
+           return val.feedReport ? CustomTopToaster(textt: "Reported successfully"):const SizedBox.shrink();
+         })
+        ],
       ),
     );
   }

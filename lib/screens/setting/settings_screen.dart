@@ -139,10 +139,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
            var url = Uri.parse('https://www.slushdating.com/');
            if (await canLaunchUrl(url)) {await launchUrl(url, mode: LaunchMode.inAppWebView);}
            else {throw 'Could not launch $url';}}
-    else if(i==8){Get.to(()=>const AboutSlush());}
+    else if(i==8){//Get.to(()=>const AboutSlush());
+
+    }
     else if(i==9){
-           var url = Uri.parse('https://www.slushdating.com/terms-of-use');
            // if (await canLaunch(url)) {await launch(url, forceWebView: true, enableJavaScript: true);}
+           var url = Uri.parse('https://www.slushdating.com/terms-of-use');
            if (await canLaunchUrl(url)) {await launchUrl(url, mode: LaunchMode.inAppWebView);}
            else {throw 'Could not launch $url';}
       // snackBaar(context,AssetsPics.redbanner,false);

@@ -15,6 +15,7 @@ import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/localkeys.dart';
 import 'package:slush/controller/profile_controller.dart';
+import 'package:slush/screens/events/bottomNavigation.dart';
 import 'package:slush/screens/profile/basic_info/profile_video_view.dart';
 import 'package:slush/screens/profile/profile_img_view.dart';
 import 'package:slush/screens/profile/profile_video_screen.dart';
@@ -188,15 +189,16 @@ class _UnMatchedPersonProfileScreenState extends State<UnMatchedPersonProfileScr
         print('User Reported Successfully:::::::::::::::::::::;');
         Fluttertoast.showToast(msg: 'User Reported');
         setState(() {
-          Get.back(result: true);
-          snackBaar(context, AssetsPics.reportbannerSvg,false);
+          // Get.back(result: true);
+          // snackBaar(context, AssetsPics.reportbannerSvg,false);
+          Provider.of<profileController>(context,listen: false).showMtchReportBnr();
           // LocaleHandler.reportedSuccesfuly=true;
-          LocaleHandler.curentIndexNum=2;
+          LocaleHandler.curentIndexNum=3;
           LocaleHandler.isThereAnyEvent=false;
           LocaleHandler.isThereCancelEvent=false;
           LocaleHandler.unMatchedEvent=false;
           LocaleHandler.subScribtioonOffer=false;
-          // Get.offAll(()=>BottomNavigationScreen());
+          Get.offAll(()=>BottomNavigationScreen());
         });
       }
       else if(response.statusCode==401){

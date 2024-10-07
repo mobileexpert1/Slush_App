@@ -23,6 +23,7 @@ Future showToastMsg(String msg,{Color clrbg=Colors.grey,Color clrtxt=Colors.whit
     fontSize: 15.0,
   );
 }
+
 Future showToastMsgTokenExpired({String msg="Token Expired"}) {
   return Fluttertoast.showToast(
     msg: msg,
@@ -95,7 +96,7 @@ SnackbarController snackBaar(BuildContext context,String img,bool isPng){
     borderWidth: 0.0,
     overlayBlur: 0.0,
     barBlur: 0.0,
-    isDismissible: true);
+    isDismissible: true,);
 }
 
 SnackbarController snackBaarblue(BuildContext context,String img,String txt){

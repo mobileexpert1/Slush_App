@@ -12,6 +12,7 @@ import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/loader.dart';
 import 'package:slush/controller/profile_controller.dart';
+import 'package:slush/screens/subscritption/subscription_screen1%203.dart';
 import 'package:slush/widgets/alert_dialog.dart';
 import 'package:slush/widgets/blue_button.dart';
 import 'package:slush/widgets/text_widget.dart';
@@ -67,7 +68,6 @@ class _SparkPurchaseScreenState extends State<SparkPurchaseScreen> {
       setState(() {
         _available = available;
         _products = response.productDetails;
-        print(";-;-;-;-$_products");
       });
     }
   }
@@ -157,8 +157,9 @@ class _SparkPurchaseScreenState extends State<SparkPurchaseScreen> {
                 final PurchaseParam purchaseParam = PurchaseParam(productDetails: _products[selectedIndex-1]);
                 await _inAppPurchase.buyConsumable(purchaseParam: purchaseParam);
                 }else{
+                  customDialogBoxx(context);
                   // setState(() {LoaderOverlay.show(context);});
-                  int val=selectedIndex==1?2:selectedIndex==2?1:0;
+                  int val=selectedIndex==1?1:selectedIndex==2?2:0;
                   final PurchaseParam purchaseParam = PurchaseParam(productDetails: _products[val]);
                   await _inAppPurchase.buyConsumable(purchaseParam: purchaseParam);
                 }
@@ -301,5 +302,23 @@ class _SparkPurchaseScreenState extends State<SparkPurchaseScreen> {
         ],
       ),
     );
+  }
+
+  customDialogBoxx(BuildContext context) {
+    return showGeneralDialog(
+        barrierLabel: "Label",
+        barrierDismissible: true,
+        transitionDuration: const Duration(milliseconds: 500),
+        context: context,
+        pageBuilder: (context, anim1, anim2) {
+          return LoadingDialog();
+        },
+        transitionBuilder: (context, anim1, anim2, child) {
+          return SlideTransition(
+            position: Tween(begin: const Offset(0, 1), end: const Offset(0, 0))
+                .animate(anim1),
+            child: child,
+          );
+        });
   }
 }

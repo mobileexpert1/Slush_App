@@ -16,6 +16,7 @@ import 'package:slush/constants/image.dart';
 import 'package:slush/constants/loader.dart';
 import 'package:slush/constants/localkeys.dart';
 import 'package:slush/controller/profile_controller.dart';
+import 'package:slush/controller/spark_Liked_controler.dart';
 import 'package:slush/screens/chat/text_chat_screen.dart';
 import 'package:slush/screens/events/bottomNavigation.dart';
 import 'package:slush/screens/profile/basic_info/profile_video_view.dart';
@@ -93,7 +94,12 @@ class _MatchedPersonProfileScreenState
         },
         body: jsonEncode({"action": action}));
     print(response.statusCode);
+    setState(() {LoaderOverlay.hide();});
     if (response.statusCode == 201) {
+      LocaleHandler.bottomSheetIndex=0;
+      Get.offAll(()=>BottomNavigationScreen());
+      // snackBaar(context, AssetsPics.unMatchedbg,true);
+      Provider.of<profileController>(context,listen: false).showunmatched();
       // getListData();
     } else if (response.statusCode == 401) {
       showToastMsgTokenExpired();
@@ -202,15 +208,17 @@ class _MatchedPersonProfileScreenState
         print('User Reported Successfully:::::::::::::::::::::;');
         Fluttertoast.showToast(msg: 'User Reported');
         setState(() {
-          Get.back(result: true);
-          snackBaar(context, AssetsPics.reportbannerSvg,false);
+          // Get.back(result: true);
+          // snackBaar(context, AssetsPics.reportbannerSvg,false);
+          Provider.of<profileController>(context,listen: false).showMtchReportBnr();
           // LocaleHandler.reportedSuccesfuly=true;
-          LocaleHandler.curentIndexNum=2;
+          LocaleHandler.curentIndexNum=3;
           LocaleHandler.isThereAnyEvent=false;
           LocaleHandler.isThereCancelEvent=false;
           LocaleHandler.unMatchedEvent=false;
           LocaleHandler.subScribtioonOffer=false;
-          // Get.offAll(()=>BottomNavigationScreen());
+          LocaleHandler.bottomSheetIndex=3;
+          Get.offAll(()=>BottomNavigationScreen());
         });
       }
       else if(response.statusCode==401){
@@ -314,9 +322,8 @@ class _MatchedPersonProfileScreenState
                          onTap: (){
                            customUnmatchBoxWithtwobutton(context, "Are you sure you want to\n unmatch?", " ",img: AssetsPics.logoutpng,isPng: true,
                                btnTxt1: "No",btnTxt2: "Unmatch",onTap2: (){
+                                 setState(() {LoaderOverlay.show(context);});
                                  actionForHItLike("DISLIKED", dataa["userId"].toString());
-                                 Get.offAll(()=>BottomNavigationScreen());
-                                 snackBaar(context, AssetsPics.unMatchedbg,true);
                                }
                            );
                          },
@@ -364,7 +371,7 @@ class _MatchedPersonProfileScreenState
                                ],),
                              ),
                              const Spacer(),
-                             InkWell(
+                             GestureDetector(
                                onTap: () {
                                  customBuilderSheet(context, 'Report User',"Submit",reportingMatter,onTap: (){
                                    setState(() {
@@ -651,6 +658,7 @@ class _MatchedPersonProfileScreenState
         label: Row(
           children: [Image.asset(AssetsPics.floatiActionp,height: 22), buildText('  Tap to chat',15,FontWeight.w600,color.txtWhite)],
         ), onPressed: () {
+        Provider.of<CamController>(context, listen: false).clearimg();
           Get.to(()=>TextChatScreen(name: dataa['firstName']??"", id: dataa['userId']??dataa['id']));
       },
       )

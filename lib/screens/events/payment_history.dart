@@ -144,7 +144,7 @@ class _PaymentHistoryScreenState extends State<PaymentHistoryScreen> {
                             DateTime dateTime = DateTime.parse(dateString);
                             formattedDate = DateFormat('MMM dd, yyyy').format(dateTime);
                             status=post[index]["p_payment_status"]=="cancelled"?"Cancelled":"Completed";
-                            final LastElement= post.lastIndexWhere((e) =>  e["p_payment_status"] == selectedCat.toLowerCase());
+                            final LastElement= post.lastIndexWhere((e) =>  e["p_payment_status"] == selectedCat);
                             return selectedCat=="All"?  Column(children: [Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [imagewithdate(index),

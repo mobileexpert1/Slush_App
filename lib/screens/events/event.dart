@@ -26,6 +26,7 @@ import 'package:slush/screens/notification/notification_screen.dart';
 import 'package:slush/screens/onboarding/introscreen.dart';
 import 'package:slush/screens/waiting_room/waiting_room_screen.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
+import 'package:slush/widgets/customtoptoaster.dart';
 import 'package:slush/widgets/text_widget.dart';
 import 'package:slush/widgets/toaster.dart';
 import 'package:intl/intl.dart';
@@ -325,6 +326,7 @@ class _EventScreenState extends State<EventScreen> {
           LocaleHandler.subscriptionPurchase=data["data"]["isSubscriptionPurchased"]??"no";
           LocaleHandler.isVerified=data["data"]["isVerified"]??false;
           LocaleHandler.isLikedTabUpdate=data["data"]["isLikedTabUpdate"];
+          LocaleHandler.isUnreadMessage=data["data"]["unreadMsgCount"]=="0"?false:true;
         });
       } else if (response.statusCode == 401) {
         showToastMsgTokenExpired();
@@ -362,7 +364,8 @@ class _EventScreenState extends State<EventScreen> {
         getEvents();
         Provider.of<eventController>(context, listen: false).getmeEvent(context,"me");
         Provider.of<eventController>(context, listen: false).timerCancel();
-        snackBaar(context,AssetsPics.redbanner,false);
+        // snackBaar(context,AssetsPics.redbanner,false);
+        Provider.of<eventController>(context, listen: false).showBanner();
       });
     }
     else if(response.statusCode==401){showToastMsgTokenExpired();}
@@ -370,6 +373,8 @@ class _EventScreenState extends State<EventScreen> {
     Get.back();
     }
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -386,124 +391,132 @@ class _EventScreenState extends State<EventScreen> {
         Provider.of<eventController>(context, listen: false).getmeEvent(context,"me");
         getEvents();
       },
-      child: Scaffold(
-          body: Stack(
+      child: Stack(
         children: [
-          GestureDetector(
-            onTap: () {_searchQuery = "";},
-            child: Stack(
-              children: [
-                SizedBox(height: size.height, width: size.width,
-                  child: Image.asset(AssetsPics.background, fit: BoxFit.cover),
-                ),
-                SafeArea(
-                  child: userData == null
-                      ? const Center(child: CircularProgressIndicator(color: color.txtBlue))
-                      : Stack(
-                          children: [
-                            SingleChildScrollView(
-                              physics: const ClampingScrollPhysics(),
-                              controller: _controller,
-                              child: Center(
-                                  child: Column(
-                                children: [
-                                  Stack(
+          Scaffold(
+              body: Stack(
+            children: [
+              GestureDetector(
+                onTap: () {_searchQuery = "";},
+                child: Stack(
+                  children: [
+                    SizedBox(height: size.height, width: size.width,
+                      child: Image.asset(AssetsPics.background, fit: BoxFit.cover),
+                    ),
+                    SafeArea(
+                      child: userData == null
+                          ? const Center(child: CircularProgressIndicator(color: color.txtBlue))
+                          : Stack(
+                              children: [
+                                SingleChildScrollView(
+                                  physics: const ClampingScrollPhysics(),
+                                  controller: _controller,
+                                  child: Center(
+                                      child: Column(
                                     children: [
-                                      buildProfileSection(),
-                                      // animatedBanner(context)
-                                    ],
-                                  ),
-                                  searchContainer(),
-                                  isThereEvent(),
-                                  // LocaleHandler.isThereAnyEvent? myEventlist():const SizedBox(),
-                                  myEventlist(),
-                                  categoryList(context),
-                                  buildColumn(),
-                                  SizedBox(height: 5.h)
-                                ],
-                              )),
-                            ),
-                            if (_isLoadMoreRunning == true)
-                              const Column(
-                                children: [
-                                  Spacer(),
-                                  Padding(
-                                    padding: EdgeInsets.only(top: 10, bottom: 40),
-                                    child: Center(
-                                      child: CircularProgressIndicator(color: color.txtBlue),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                          ],
-                        ),
-                ),
-                Positioned(top: -6, child: animatedBanner(context)),
-              ],
-            ),
-          ),
-          _searchQuery == ""
-              ? const SizedBox()
-              : Container(
-                  margin: const EdgeInsets.only(top: 200),
-                  padding: const EdgeInsets.only(bottom: 10, top: 5),
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      color: color.txtWhite),
-                  child: ListView.builder(
-                      shrinkWrap: true,
-                      padding: EdgeInsets.zero,
-                      itemCount: _placeList.length,
-                      itemBuilder: (context, index) {
-                        return Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  locationController.text = _placeList[index]["description"];
-                                  getCoordinates(locationController.text.trim());
-                                  LocaleHandler.location = _placeList[index]["description"];
-                                  _searchQuery = "";
-                                  statesList.clear();
-                                  FocusManager.instance.primaryFocus?.unfocus();
-                                });
-                              },
-                              child: Container(
-                                  alignment: Alignment.topLeft,
-                                  color: Colors.transparent,
-                                  margin: const EdgeInsets.only(left: 10, right: 10, top: 10),
-                                  padding: const EdgeInsets.only(left: 8, right: 8, top: 0),
-                                  // decoration:  BoxDecoration(border: Border(bottom: BorderSide(width: 0.5,color:index==statesList.length-1?color.txtWhite: color.txtBlue))),
-                                  child: Row(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                          padding: const EdgeInsets.only(top: 5),
-                                          child: SvgPicture.asset(
-                                            AssetsPics.locationIcon,
-                                            width: 14,
-                                          )),
-                                      const SizedBox(width: 12),
-                                      Flexible(
-                                          child: buildText(
-                                              _placeList[index]["description"],
-                                              18,
-                                              FontWeight.w500,
-                                              color.txtgrey))
+                                      Stack(
+                                        children: [
+                                          buildProfileSection(),
+                                          // animatedBanner(context)
+                                        ],
+                                      ),
+                                      searchContainer(),
+                                      isThereEvent(),
+                                      // LocaleHandler.isThereAnyEvent? myEventlist():const SizedBox(),
+                                      myEventlist(),
+                                      categoryList(context),
+                                      buildColumn(),
+                                      SizedBox(height: 5.h)
                                     ],
                                   )),
+                                ),
+                                if (_isLoadMoreRunning == true)
+                                  const Column(
+                                    children: [
+                                      Spacer(),
+                                      Padding(
+                                        padding: EdgeInsets.only(top: 10, bottom: 40),
+                                        child: Center(
+                                          child: CircularProgressIndicator(color: color.txtBlue),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                              ],
                             ),
-                            index == _placeList.length - 1
-                                ? const SizedBox()
-                                : const Divider(thickness: 0.2)
-                          ],
-                        );
-                      }),
+                    ),
+                    Positioned(top: -6, child: animatedBanner(context)),
+                  ],
                 ),
+              ),
+              _searchQuery == ""
+                  ? const SizedBox()
+                  : Container(
+                      margin: const EdgeInsets.only(top: 200),
+                      padding: const EdgeInsets.only(bottom: 10, top: 5),
+                      decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          color: color.txtWhite),
+                      child: ListView.builder(
+                          shrinkWrap: true,
+                          padding: EdgeInsets.zero,
+                          itemCount: _placeList.length,
+                          itemBuilder: (context, index) {
+                            return Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      locationController.text = _placeList[index]["description"];
+                                      getCoordinates(locationController.text.trim());
+                                      LocaleHandler.location = _placeList[index]["description"];
+                                      _searchQuery = "";
+                                      statesList.clear();
+                                      FocusManager.instance.primaryFocus?.unfocus();
+                                    });
+                                  },
+                                  child: Container(
+                                      alignment: Alignment.topLeft,
+                                      color: Colors.transparent,
+                                      margin: const EdgeInsets.only(left: 10, right: 10, top: 10),
+                                      padding: const EdgeInsets.only(left: 8, right: 8, top: 0),
+                                      // decoration:  BoxDecoration(border: Border(bottom: BorderSide(width: 0.5,color:index==statesList.length-1?color.txtWhite: color.txtBlue))),
+                                      child: Row(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                              padding: const EdgeInsets.only(top: 5),
+                                              child: SvgPicture.asset(
+                                                AssetsPics.locationIcon,
+                                                width: 14,
+                                              )),
+                                          const SizedBox(width: 12),
+                                          Flexible(
+                                              child: buildText(
+                                                  _placeList[index]["description"],
+                                                  18,
+                                                  FontWeight.w500,
+                                                  color.txtgrey))
+                                        ],
+                                      )),
+                                ),
+                                index == _placeList.length - 1
+                                    ? const SizedBox()
+                                    : const Divider(thickness: 0.2)
+                              ],
+                            );
+                          }),
+                    ),
+            ],
+          )),
+          // const CustomTopToaster(),
+          Consumer<eventController>(builder: (context,val,child){
+            return val.bookiingCancelled?  CustomredTopToaster(textt: "Booking cancelled"):const SizedBox.shrink();
+          })
         ],
-      )),
+      ),
     );
   }
 

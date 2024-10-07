@@ -72,6 +72,9 @@ class _Subscription1State extends State<Subscription1> {
       const Set<String> _kIds = {'silversubscription'};
       final ProductDetailsResponse response = await _iap.queryProductDetails(_kIds);
       setState(() {_products = response.productDetails;});
+      if (response.notFoundIDs.isNotEmpty) {
+        print('Products not found: ${response.notFoundIDs}');
+      }
     }
   }
 
@@ -329,7 +332,7 @@ class _Subscription1State extends State<Subscription1> {
                 ),
                 child: Column(children: [
                   SizedBox(
-                    height:defaultTargetPlatform==TargetPlatform.iOS? size.height*0.20:size.height*0.19,
+                    height:defaultTargetPlatform==TargetPlatform.iOS? size.height*0.20:size.height*0.21,
                     child:
                     selectedIndex ==1 ?
                     PageView(
@@ -337,7 +340,7 @@ class _Subscription1State extends State<Subscription1> {
                       children: [
                         customScroller(text1: 'See who has Liked you', text2: 'See everyone that likes you', iconName: AssetsPics.like),
                         // customScroller(text1: 'Sparks', text2: '3 sparks', iconName: AssetsPics.shock),
-                        customScroller(text1: 'More Sparks', text2: 'Get 3 Sparks now + 1 daily for 30 days', iconName: AssetsPics.shock),
+                        customScroller(text1: 'More Sparks', text2: 'Get 3 Sparks now + 1 daily for 30 days.\n Boost your connection!', iconName: AssetsPics.shock),
                         customScroller(text1: 'Unlimited Swipes', text2: 'Endless swiping', iconName: AssetsPics.watch),
                       ],
                     ) : selectedIndex ==2 ?  PageView(
@@ -541,7 +544,8 @@ class _Subscription1State extends State<Subscription1> {
                     if(LocaleHandler.subscriptionPurchase=="no" && selectedIndex == 1){
                       if (Platform.isAndroid) {
                         customDialogBoxx(context);
-                        _buySubscription(_products[2]);
+                        // _buySubscription(_products[2]);
+                        _buySubscription(_products[0]);
                         } else {
                         // setState(() {LoaderOverlay.show(context);});
                         customDialogBoxx(context);
@@ -595,7 +599,7 @@ class _Subscription1State extends State<Subscription1> {
           ),
         ),
         buildText(text1, 19.sp, FontWeight.w600, color.txtBlack),
-        buildText(text2, 16.sp, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix),
+        buildText2(text2, 16.sp, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix),
       ],
     );
   }

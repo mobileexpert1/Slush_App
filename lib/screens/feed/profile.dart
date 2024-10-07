@@ -87,7 +87,8 @@ class _FeedPersonProfileScreenState extends State<FeedPersonProfileScreen> {
         Fluttertoast.showToast(msg: 'User Reported');
         setState(() {
           Get.back(result: true);
-          snackBaar(context, AssetsPics.reportbannerSvg,false);
+          // snackBaar(context, AssetsPics.reportbannerSvg,false);
+          Provider.of<profileController>(context,listen: false).showFeedReportBnr();
           // LocaleHandler.reportedSuccesfuly=true;
           LocaleHandler.curentIndexNum=2;
           LocaleHandler.isThereAnyEvent=false;
@@ -108,7 +109,7 @@ class _FeedPersonProfileScreenState extends State<FeedPersonProfileScreen> {
     catch(error)
     {
       print('Error ::::::::::::::::::: ${error.toString()}');
-      Fluttertoast.showToast(msg: 'Something Went Wrong::');
+      Fluttertoast.showToast(msg: 'Something Went Wrong!');
     }
   }
 

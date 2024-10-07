@@ -6,17 +6,20 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/loader.dart';
+import 'package:slush/controller/profile_controller.dart';
 import 'package:slush/screens/matches/matched_person_profile.dart';
 import 'package:slush/screens/matches/unMacthed_person_profile.dart';
 import 'package:slush/screens/subscritption/subscription_screen1%203.dart';
 import 'package:slush/screens/video_call/congo_match_screen.dart';
 import 'package:slush/widgets/blue_button.dart';
+import 'package:slush/widgets/customtoptoaster.dart';
 import 'package:slush/widgets/text_widget.dart';
 import 'package:http/http.dart' as http;
 import 'package:slush/widgets/toaster.dart';
@@ -232,8 +235,7 @@ class _MatchesScreenState extends State<MatchesScreen> {
               ),
             ),
           ),
-          isLiked
-              ? Positioned(
+          isLiked ? Positioned(
             bottom: 90.0,
             child: LocaleHandler.subscriptionPurchase == "yes" ? const SizedBox() :
             ShakeMe(
@@ -261,7 +263,13 @@ class _MatchesScreenState extends State<MatchesScreen> {
                 ),
               ),
             ),
-          ) : const SizedBox()
+          ) : const SizedBox(),
+          // Consumer<profileController>(builder: (context,val,child){
+          //   return val.unmatched? CustomTopToaster(textt: "Unmatched successfully"):const SizedBox.shrink();
+          // }),
+          Consumer<profileController>(builder: (context,val,child){
+            return val.mtchReport ? CustomTopToaster(textt: "Reported successfully") : const SizedBox.shrink();
+          }),
         ],
       ),
     ),);

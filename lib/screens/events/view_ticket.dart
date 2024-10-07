@@ -269,7 +269,8 @@ class _EventViewTicketScreenState extends State<EventViewTicketScreen> {
     if(response.statusCode==201){print("testtest");
     setState(() {
       Provider.of<eventController>(context, listen: false).getmeEvent(context,"me");
-      snackBaar(context,AssetsPics.redbanner,false);
+      // snackBaar(context,AssetsPics.redbanner,false);
+      Provider.of<eventController>(context, listen: false).showBanner();
       LocaleHandler.isThereAnyEvent=false;
       // LocaleHandler.isThereCancelEvent=false;
       LocaleHandler.unMatchedEvent=false;

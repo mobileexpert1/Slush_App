@@ -57,7 +57,7 @@ class _TextChatScreenState extends State<TextChatScreen> {
     "Harassment","Other"
   ];
 
-  List data=[];
+  List dataa=[];
   int totalpages=0;
   int currentpage=0;
   int totalItems=-1;
@@ -78,31 +78,35 @@ class _TextChatScreenState extends State<TextChatScreen> {
   }
 
   Future getChat()async{
-    await OneSignal.User.pushSubscription.optOut();
-    final url="${ApiList.getSingleChat}${widget.id}/conversation?page=1&limit=25";
-    print(url);
-    var uri =Uri.parse(url);
-    var response=await http.get(uri,
-        headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${LocaleHandler.accessToken}'});
-    var i =jsonDecode(response.body)["data"];
-    if(response.statusCode==200){
-     // if(mounted){
-       setState(() {data=i["items"];});
-       for (var item in data)
-       {var ii={
-         "content":item["content"],
-         "sender":item["sender"]["userId"].toString(),
-         'createdAt': item["createdAt"].toString()};
-       messages.add(ii);
-       }
-       print(";-;-;-${messages.toString()}");
-       totalpages=i["meta"]["totalPages"];
-       totalItems=i["meta"]["totalItems"];
-       currentpage=i["meta"]["currentPage"];
-     // }
+    try{
+      await OneSignal.User.pushSubscription.optOut();
+      final url="${ApiList.getSingleChat}${widget.id}/conversation?page=1&limit=25";
+      print(url);
+      var uri =Uri.parse(url);
+      var response=await http.get(uri,
+          headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${LocaleHandler.accessToken}'});
+      var i =jsonDecode(response.body)["data"];
+      if(response.statusCode==200){
+        // if(mounted){
+        setState(() {dataa=i["items"];});
+        for (var item in dataa)
+        {var ii={
+          "content":item["content"],
+          "sender":item["sender"]["userId"].toString(),
+          'createdAt': item["createdAt"].toString()};
+        messages.add(ii);
+        }
+        totalpages=i["meta"]["totalPages"];
+        totalItems=i["meta"]["totalItems"];
+        currentpage=i["meta"]["currentPage"];
+        // }
+      }
+      else if(response.statusCode==401){showToastMsgTokenExpired();}
+      else{}
     }
-    else if(response.statusCode==401){showToastMsgTokenExpired();}
-    else{}}
+    on SocketException catch (e){print(";-;-internet issue");}
+    catch(e){}
+  }
 
   Future loadmore()async{
     if (_page<totalpages&& _isLoadMoreRunning == false && currentpage<totalpages&& _scrollController.position.extentAfter < 300) {
@@ -126,7 +130,6 @@ class _TextChatScreenState extends State<TextChatScreen> {
             'createdAt': item["createdAt"].toString()};
           messages.add(ii);
           }
-          print(";-;-;-${messages.toString()}");
           });}
         });
       }}
@@ -185,8 +188,7 @@ class _TextChatScreenState extends State<TextChatScreen> {
       var ii={"content":data["content"],
         "sender":data["sender"]["userId"].toString(),
         "createdAt": data["createdAt"].toString()};
-      setState(() {messages.insert(0, ii);});
-      print(messages);
+      if((widget.id==data["sender"]["userId"])||(LocaleHandler.userId==data["sender"]["userId"].toString())){setState(() {messages.insert(0, ii);});}
   }
 
   @override
@@ -194,7 +196,7 @@ class _TextChatScreenState extends State<TextChatScreen> {
     socket!.disconnect();
     socket!.dispose();
     messageController.dispose();
-   await OneSignal.User.pushSubscription.optIn();
+    await OneSignal.User.pushSubscription.optIn();
     super.dispose();
   }
 
@@ -219,7 +221,7 @@ class _TextChatScreenState extends State<TextChatScreen> {
   List<dynamic> dataList=[];
   Future sendImagee(File fileimage)async{
     // https://localhost:3000/api/v1/profile-pictures/batch/file-upload
-    const url = 'https://dev-api.slushdating.com/api/v1/profile-pictures/batch/file-upload';
+    const url = ApiList.fileuploadinchat;
     var uri=Uri.parse(url);
     var request = http.MultipartRequest('POST', uri);
     request.headers['Authorization'] = "Bearer ${LocaleHandler.accessToken}";
@@ -260,8 +262,7 @@ class _TextChatScreenState extends State<TextChatScreen> {
       if(response.statusCode==201)
       {chatDelete(widget.id);
         Fluttertoast.showToast(msg: 'User Reported Successfully');
-      Get.back(result: true);
-        setState(() {});
+      // Get.back(result: true);
       }
       else if(response.statusCode==401){
         showToastMsgTokenExpired();
@@ -284,28 +285,33 @@ class _TextChatScreenState extends State<TextChatScreen> {
     var uri =Uri.parse(url);
     var response=await http.get(uri,
         headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${LocaleHandler.accessToken}'});
-    if(response.statusCode==200){}
+    // setState(() {LoaderOverlay.hide});
+    if(response.statusCode==200){
+      Get.back(result: true);
+    }
     else{}
   }
 
   void _scrollToEnd() {
+    if(messages.isNotEmpty){
     _scrollController.animateTo(
       _scrollController.position.minScrollExtent,
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeOut,
-    );
+    );}
   }
 
   String formatTimestamp(int timestamp) {
     DateTime dateTime =DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
     DateTime now = DateTime.now();
     DateTime yesterday = now.subtract(const Duration(days: 1));
-
     if (dateTime.year == now.year && dateTime.month == now.month && dateTime.day == now.day)
-    {return DateFormat.jm().format(dateTime.add(const Duration(minutes: 2)));}
+    {return DateFormat.jm().format(dateTime.add(const Duration(seconds: 157)));}
     else if (dateTime.year == yesterday.year && dateTime.month == yesterday.month && dateTime.day == yesterday.day)
     {return "Yesterday ${DateFormat.jm().format(dateTime)}";}
     else {return DateFormat('dd/MM/yy, hh:mm a').format(dateTime);}
+
+
   }
 
 
@@ -354,7 +360,7 @@ class _TextChatScreenState extends State<TextChatScreen> {
   }
   String lastdatetime="";
   String time="";
-  bool sameTime=false;
+  String time2="";
   @override
   Widget build(BuildContext context) {
     final size=MediaQuery.of(context).size;
@@ -370,7 +376,7 @@ class _TextChatScreenState extends State<TextChatScreen> {
         Get.to(() => MatchedPersonProfileScreen(id: widget.id.toString()));
       }
       ),
-      body:data==null ? const Center(child: CircularProgressIndicator(color: color.txtBlue)) : SizedBox(
+      body:dataa==null ? const Center(child: CircularProgressIndicator(color: color.txtBlue)) : SizedBox(
         height: size.height,
         width: size.width,
         child: Stack(
@@ -391,15 +397,13 @@ class _TextChatScreenState extends State<TextChatScreen> {
                       padding:  EdgeInsets.only(top: 10,bottom:atachement||isEmojiPickerVisible?290: 90),
                       itemBuilder: (context, index){
                         time=formatTimestamp(int.parse(messages[index]["createdAt"]));
+                        if(index<messages.length-1){time2=formatTimestamp(int.parse(messages[index+1]["createdAt"]));}
                         return Column(
-                          children: [ sameTime ? const SizedBox():
-                          Align(
-                                alignment: Alignment.topCenter,
+                          children: [ time2==time && index<messages.length-1 ? const SizedBox():
+                          Align(alignment: Alignment.topCenter,
                                 child: Padding(
                                   padding: const EdgeInsets.only(top: 20),
-                                  child: buildText(
-                                      time, 13, FontWeight.w500, color.dropDowngreytxt,fontFamily: FontFamily.hellix),
-                                )),
+                                  child: buildText(time, 13, FontWeight.w500, color.dropDowngreytxt,fontFamily: FontFamily.hellix))),
                             Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 8),
                                 child:
@@ -537,12 +541,17 @@ class _TextChatScreenState extends State<TextChatScreen> {
 
                           GestureDetector(
                             onTap: (){
-                              if(Provider.of<CamController>(context,listen: false).image==null){
-                                sendMessage(messageController.text.trim());}
+                              if(Provider.of<CamController>(context,listen: false).image==null) {
+                                final text = messageController.text.trim();
+                                if(text.isNotEmpty){
+                                final capitalizedText = text[0].toUpperCase() + text.substring(1);
+                                sendMessage(capitalizedText);}
+                              }
                               else {
-                                if(Provider.of<CamController>(context,listen: false).dataList.isNotEmpty){
-                                  sendMessage(Provider.of<CamController>(context,listen: false).dataList[0]);}
-                                Provider.of<CamController>(context,listen: false).clearimg();
+                                if(Provider.of<CamController>(context,listen: false).dataList.isNotEmpty && !Provider.of<CamController>(context,listen: false).load){
+                                  sendMessage(Provider.of<CamController>(context,listen: false).dataList[0]);
+                                  Provider.of<CamController>(context,listen: false).clearimg();}
+                                else { showToastMsg("please wait..."); }
                               }
                             },
                             child: Container(

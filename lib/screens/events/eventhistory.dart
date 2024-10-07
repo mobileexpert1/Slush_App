@@ -182,7 +182,8 @@ class _EventHistoryScreenState extends State<EventHistoryScreen> {
                     formattedDate = DateFormat('dd').format(dateTime);
                     formattedmon = DateFormat('MMM').format(dateTime);
                     status=data[index]["p_status"]=="cancelled"?"Cancelled":"Completed";
-                    final LastElement= data.lastIndexWhere((e) =>  e["p_status"] == selectedCat.toLowerCase());
+                    String selected=selectedCat=="Completed"?"booked":"cancelled";
+                    final LastElement= data.lastIndexWhere((e) =>  e["p_status"] == selected);
                     return selectedCat=="All" ?  Container(
                         // color: Colors.red,
                         padding: const EdgeInsets.only(top: 3),
@@ -281,7 +282,7 @@ class _EventHistoryScreenState extends State<EventHistoryScreen> {
                           height: 84,
                           width: 118,
                           // child: Image.asset(historyItem[index].img,fit: BoxFit.fill)
-                          child: CachedNetworkImage(imageUrl: "https://virtual-speed-date.s3.eu-west-2.amazonaws.com/"+data[index]["e_cover_image"],fit: BoxFit.fill)
+                          child: CachedNetworkImage(imageUrl: ApiList.imgbaseUrl+data[index]["e_cover_image"],fit: BoxFit.fill)
                       ),
                     ),
                     Column(

@@ -25,6 +25,7 @@ import 'package:slush/screens/setting/settings_screen.dart';
 import 'package:slush/screens/subscritption/subscription_screen1%203.dart';
 import 'package:slush/widgets/blue_button.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
+import 'package:slush/widgets/customtoptoaster.dart';
 import 'package:slush/widgets/text_widget.dart';
 import 'package:slush/widgets/toaster.dart';
 import 'package:video_player/video_player.dart';
@@ -75,7 +76,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     final size=MediaQuery.of(context).size;
     return Scaffold(
       body:Consumer<profileController>(builder: (ctx,val,child){
-        return val.dataa.length==0 ?const Center(child: CircularProgressIndicator(color: color.txtBlue)): Stack(children: [
+        return val.dataa.isEmpty ?const Center(child: CircularProgressIndicator(color: color.txtBlue)): Stack(children: [
           SizedBox(height: size.height, width: size.width, child: Image.asset(AssetsPics.background,fit: BoxFit.cover)),
           SingleChildScrollView(
             physics: const ClampingScrollPhysics(),
@@ -93,6 +94,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             GestureDetector(
                                 onTap: ()async{
                                   LocaleHandler.switchitem=await Preferences.getList();
+                                  print(";-;-;-${LocaleHandler.switchitem}");
+                                  if(LocaleHandler.switchitem.isEmpty){
+                                    LocaleHandler.switchitem=["1","2","3","4"];
+                                  }
                                   Get.to(()=>const SettingsScreen());
                                 }
                                 ,child: SvgPicture.asset(AssetsPics.setting))
@@ -123,7 +128,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 buildText("${val.sparks} Sparks", 15, FontWeight.w500, color.txtBlack,fontFamily: FontFamily.hellix)
                               ]),
                             )//:const SizedBox()
-                            ,SizedBox(width: 14),
+                            ,const SizedBox(width: 14),
                             GestureDetector(
                                 onTap: (){
                                   Get.to(()=>const ViewProfileScreen());
@@ -135,7 +140,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         )
                       ],),),
                     SizedBox(height: 3.h),
-                    LocaleHandler.sparkAndVerification?const SizedBox(): SizedBox(
+                    LocaleHandler.sparkAndVerification || LocaleHandler.isVerified ?const SizedBox(): SizedBox(
                       // height: 12.h,
                       height:MediaQuery.of(context).size.height/8,
                       child: ListView.builder(
@@ -169,7 +174,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 }},
                               child: !LocaleHandler.isVerified && item[index].Id==1?
                               buildContainerverifiedspark(size, context, 0):
-                              val.sparks==0 && item[index].Id==2?buildContainerverifiedspark(size, context, 1): SizedBox(),);}),
+                              val.sparks==0 && item[index].Id==2?buildContainerverifiedspark(size, context, 1): const SizedBox(),);}),
                     ),
                     Container(
                         padding: const EdgeInsets.only(left: 15,right: 15,bottom: 15,top: 8),
@@ -181,7 +186,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             SizedBox(height: 2.h),
                             subScriptionOption(context,val),
                             SizedBox(height: 2.h+2),
-                            white_button_woBorder(context, "View more",press: (){Get.to(()=>Subscription1());}),
+                            white_button_woBorder(context, "View more",press: (){Get.to(()=>const Subscription1());}),
                           ],
                         )),
                   ],),
@@ -196,9 +201,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                 ),
               ],
             ),
-          )
+          ),
+         val.accVerfy? CustomBlueTopToaster(textt: "Account verification under review"):const SizedBox.shrink()
         ],);
-      })
+      }),
     );
   }
 
@@ -547,7 +553,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     print("response.statusCode==${response.statusCode}");
     if (response.statusCode == 201) {
       LocaleHandler.isVerified=true;
-      snackBaar(context, AssetsPics.verifyinprocess,true);
+      // snackBaar(context, AssetsPics.verifyinprocess,true);
+      Provider.of<profileController>(context,listen: false).showaccVerfyBnr();
       Provider.of<profileController>(context,listen: false).profileData(context);
     } else if (response.statusCode == 401) {
       showToastMsgTokenExpired();

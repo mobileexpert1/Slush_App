@@ -135,10 +135,7 @@ class loginControllerr with ChangeNotifier{
 
   Future hitFCMTOken(String id,String name)async{
     OneSignal.User.pushSubscription.addObserver((state)async {
-      print(";-;-;-;-");
       print(OneSignal.User.pushSubscription.optedIn);
-      print(OneSignal.User.pushSubscription.id);
-      print(OneSignal.User.pushSubscription.token);
       print(state.current.jsonRepresentation());
     });
     // String playerId=generateUuidV4();
@@ -156,13 +153,12 @@ class loginControllerr with ChangeNotifier{
     "playerId":playerId,
     "deviceType":devicetype
     }));
-    print(response.statusCode);
+    print("response.statusCode--${response.statusCode}");
     print(jsonDecode(response.body));
     if(response.statusCode==201){
 
       print(OneSignal.User.pushSubscription.token);
-      print(OneSignal.User.pushSubscription.id);
-    print(";-----palash");}
+      print(OneSignal.User.pushSubscription.id);}
     else if(response.statusCode==401){}
     else{}
     notifyListeners();
@@ -387,7 +383,7 @@ class loginControllerr with ChangeNotifier{
 
     _deviceData = deviceData;
     print('Devices:---$deviceData');
-    String id=_deviceData['id'];
+    String id=Platform.isAndroid?_deviceData['id']:Platform.isIOS? _deviceData['identifierForVendor']:"";
     String name =Platform.isAndroid? "${_deviceData['brand']} (${_deviceData['model']})":_deviceData['model'];
     hitFCMTOken(id,name);
     notifyListeners();

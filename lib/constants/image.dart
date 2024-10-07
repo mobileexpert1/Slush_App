@@ -55,6 +55,7 @@ class AssetsPics{
            static const selectedevnetIcon = "assets/icons/bottomnavigationIcon/selctedevent1.svg";
            static const selectedheartIcon = "assets/icons/bottomnavigationIcon/selctedheart.svg";
            static const selectedmsgIcon = "assets/icons/bottomnavigationIcon/selctedmessage.svg";
+           static const selctedredmessage = "assets/icons/bottomnavigationIcon/selctedredmessage.svg";
            static const selectedprofileIcon = "assets/icons/bottomnavigationIcon/selctedprofile.svg";
            static const selectedredheartIcon = "assets/icons/bottomnavigationIcon/selctedredheart.svg";
            // static const selectedheartIcon = "assets/icons/bottomnavigationIcon/selectedheart.svg";
@@ -215,7 +216,8 @@ class AssetsPics{
   static const demouser = "assets/icons/user.png";
   static const userIcon = "assets/icons/User.svg";
   static const verificationComplete = "assets/icons/verificationComplete.png";
-  static const verify = "assets/icons/verify.svg";
+  // static const verify = "assets/icons/verify.svg";
+  static const verify = "assets/icons/verifywithborder.svg";
   static const verifygrey = "assets/icons/verifygrey.svg";
   static const verifyWhite = "assets/icons/verifyWhite.svg";
   static const verifywithborder = "assets/icons/verifywithborder.svg";

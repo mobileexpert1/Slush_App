@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:http_parser/http_parser.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:slush/constants/LocalHandler.dart';
+import 'package:slush/constants/api.dart';
 import 'package:slush/controller/camera_screen.dart';
 import 'package:http/http.dart'as http;
 import 'package:slush/widgets/toaster.dart';
@@ -106,7 +107,7 @@ class CamController extends ChangeNotifier{
   }
 
   Future sendImagee(File fileimage)async{
-    const url = 'https://dev-api.slushdating.com/api/v1/profile-pictures/batch/file-upload';
+    const url = ApiList.fileuploadinchat;
     var uri=Uri.parse(url);
     var request = http.MultipartRequest('POST', uri);
     request.headers['Authorization'] = "Bearer ${LocaleHandler.accessToken}";
