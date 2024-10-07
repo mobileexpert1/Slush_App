@@ -25,16 +25,20 @@
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>fb653216759403293</string>
+				<string>fb175424641387291</string>
+				<string>slushdating.page.link</string>
+				<string>com.mobile.app.virtualspeeddate</string>
 			</array>
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>33</string>
+	<string>44</string>
 	<key>FacebookAppID</key>
-	<string>653216759403293</string>
+	<string>175424641387291</string>
 	<key>FacebookDisplayName</key>
 	<string>com.slushdating.slush</string>
 	<key>GADApplicationIdentifier</key>
@@ -58,6 +62,8 @@
 		<key>NSAllowsArbitraryLoads</key>
 		<true/>
 	</dict>
+	<key>NSAppleMusicUsageDescription</key>
+	<string>We need access to Apple ID for authentication.</string>
 	<key>NSCameraUsageDescription</key>
 	<string>Camera access is required for video calls and video record.</string>
 	<key>NSFaceIDUsageDescription</key>
