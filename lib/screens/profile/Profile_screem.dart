@@ -140,7 +140,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         )
                       ],),),
                     SizedBox(height: 3.h),
-                    LocaleHandler.sparkAndVerification || LocaleHandler.isVerified ?const SizedBox(): SizedBox(
+                    LocaleHandler.sparkAndVerification || LocaleHandler.isVerified ? const SizedBox() : SizedBox(
                       // height: 12.h,
                       height:MediaQuery.of(context).size.height/8,
                       child: ListView.builder(
@@ -462,9 +462,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                              aspectRatio: _controller.value.aspectRatio,
                              child: Stack(
                                children: [
-                                 SizedBox(
-                                     width: double.infinity,
-                                     height: double.infinity,
+                                 SizedBox(width: double.infinity, height: double.infinity,
                                      child: CameraPreview(_controller)),
                                 value.recordingOff?const SizedBox(): Container(
                                     alignment: Alignment.center,

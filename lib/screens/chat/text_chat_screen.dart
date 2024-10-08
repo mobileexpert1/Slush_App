@@ -63,6 +63,12 @@ class _TextChatScreenState extends State<TextChatScreen> {
   int totalItems=-1;
   int _page=1;
   bool _isLoadMoreRunning=false;
+  bool isEmojiPickerVisible = false;
+  String? imageBase64;
+
+  File? _image;
+  var apidata;
+  List<dynamic> dataList=[];
 
   var formattedTime;
   IO.Socket? socket;
@@ -195,14 +201,11 @@ class _TextChatScreenState extends State<TextChatScreen> {
   void dispose()async {
     socket!.disconnect();
     socket!.dispose();
-    messageController.dispose();
+    socket = null;
+    // messageController.dispose();
     await OneSignal.User.pushSubscription.optIn();
     super.dispose();
   }
-
-  String? imageBase64;
-
-  File? _image;
 
   Future imgFromGallery(ImageSource src) async {
     try{
@@ -217,8 +220,6 @@ class _TextChatScreenState extends State<TextChatScreen> {
     catch(error) {print("error: $error");}
   }
 
-  var apidata;
-  List<dynamic> dataList=[];
   Future sendImagee(File fileimage)async{
     // https://localhost:3000/api/v1/profile-pictures/batch/file-upload
     const url = ApiList.fileuploadinchat;
@@ -313,9 +314,6 @@ class _TextChatScreenState extends State<TextChatScreen> {
 
 
   }
-
-
-  bool isEmojiPickerVisible = false;
 
   void toggleEmojiPicker() {
     setState(() {

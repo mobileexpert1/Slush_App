@@ -1029,11 +1029,13 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           if(video == "video"){
                             final camStatus = await Permission.camera.status;
                             final micStatus = await Permission.microphone.status;
-                            if (camStatus.isGranted && micStatus.isGranted) { editCntrler.getVideo(context,ImageSource.camera);}
+                            // if (camStatus.isGranted && micStatus.isGranted) { editCntrler.getVideo(context,ImageSource.camera);}
+                            if (camStatus.isGranted && micStatus.isGranted) { editCntrler.callVideoRecordFunction(context,ImageSource.camera);}
                             else if (camStatus.isDenied || micStatus.isDenied){
                               var newcamStatus = await Permission.camera.request();
                               var newmicStatus = await Permission.microphone.request();
-                              if (newcamStatus.isGranted && newmicStatus.isGranted){  editCntrler.getVideo(context,ImageSource.camera);}
+                              // if (newcamStatus.isGranted && newmicStatus.isGranted){  editCntrler.getVideo(context,ImageSource.camera);}
+                              if (newcamStatus.isGranted && newmicStatus.isGranted){  editCntrler.callVideoRecordFunction(context,ImageSource.camera);}
                               else if (newcamStatus.isPermanentlyDenied || newmicStatus.isPermanentlyDenied){openAppSettings();}}
                             else if (camStatus.isPermanentlyDenied || micStatus.isPermanentlyDenied){openAppSettings();}
                           }

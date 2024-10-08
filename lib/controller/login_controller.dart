@@ -74,7 +74,7 @@ class loginControllerr with ChangeNotifier{
     print(url);
     var uri=Uri.parse(url);
     try {
-      final result = await InternetAddress.lookup('example.com');
+      final result = await InternetAddress.lookup('www.google.com');
       if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
         var response = await http.post(uri,
             headers: {'Content-Type': 'application/json'},

@@ -198,6 +198,7 @@ class editProfileController extends ChangeNotifier{
 }*/
 
 
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:camera/camera.dart';
@@ -345,7 +346,9 @@ class editProfileController extends ChangeNotifier{
     final cameras = await availableCameras();
     final front = cameras.firstWhere((camera) => camera.lensDirection == lens);
     camcontroller = CameraController(front, ResolutionPreset.medium);
+    _camcontrollerr = CameraController(front, ResolutionPreset.medium);
     await camcontroller!.initialize();
+    await _camcontrollerr.initialize();
     // customDialogBoxVideo(context,"I’m ready");
     // if (!mounted) {return;}setState(() {});
     notifyListeners();
@@ -429,9 +432,7 @@ class editProfileController extends ChangeNotifier{
               toolbarWidgetColor: Colors.white,
               initAspectRatio: CropAspectRatioPreset.original,
               lockAspectRatio: false),
-          IOSUiSettings(
-            title: 'Cropper',
-          ),
+          IOSUiSettings(title: 'Cropper'),
           WebUiSettings(
             context: context,
             presentStyle: CropperPresentStyle.dialog,
@@ -565,6 +566,111 @@ class editProfileController extends ChangeNotifier{
     notifyListeners();
   }
 
+  late CameraController _camcontrollerr;
+  CameraController get cam=>_camcontrollerr;
+  int _secondsLeft = 0;
+  int get secondsLeft=>_secondsLeft;
+  XFile? file;
+  late Timer _timer;
+
+  void _initializeCamera(BuildContext context) async {
+    _secondsLeft=0;
+    _videoFinished=0;
+    _running=false;
+    final cameras = await availableCameras();
+    final front = cameras.firstWhere((camera) => camera.lensDirection == CameraLensDirection.back);
+    _camcontrollerr = CameraController(front, ResolutionPreset.veryHigh);
+    Get.back();
+    await _camcontrollerr.initialize().then((onValue)=> Get.to(()=>const RecordVideoScreeb()));;
+    // customDialogBoxVideo(context,"I’m ready",getControl);
+    if (!context.mounted) {return;}
+    notifyListeners();
+  }
+
+  void startvideorecording(BuildContext context)async{
+    await _camcontrollerr.prepareForVideoRecording();
+    await _camcontrollerr.startVideoRecording();
+    startTimer();
+    // Future.delayed(const Duration(seconds: 10));
+    // file=  await _camcontrollerr.stopVideoRecording();
+    // print("picture.path==="+file!.path);
+    // controller = VideoPlayerController.file(File(file!.path));
+    notifyListeners();
+  }
+
+  int _videoFinished=0; //0-not started yet , 1-pause, 2-finished
+  int get videoFinished=>_videoFinished;
+
+  void startTimer() {
+    _secondsLeft=0;
+    _running=false;
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+      if (_secondsLeft <15) {_secondsLeft++;notifyListeners();}
+      else {pauseresumetimer(true);}
+    });
+    notifyListeners();
+  }
+
+  bool _running=false;
+  bool get running=>_running;
+
+  void pauseresumetimer(bool val) async {
+    _running=val;
+    if(_running){_timer.cancel();
+    if(_secondsLeft==15){_videoFinished=2;
+    finishedRecording();
+    }else{_videoFinished=1;
+    await _camcontrollerr.pauseVideoRecording();
+    }}
+    else{ _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_secondsLeft <15) {_secondsLeft++;notifyListeners();}
+      else {pauseresumetimer(true);}
+    });}
+    notifyListeners();
+  }
+
+  VideoPlayerController? controllerr;
+  Future<void>? _initializeVideoPlayerFuture;
+  void finishedRecording()async{
+    _videoFinished=2;
+    file = await _camcontrollerr.stopVideoRecording();
+    controllerr = VideoPlayerController.file(File(file!.path));
+    _initializeVideoPlayerFuture = controllerr!.initialize().then((value)async {
+      controllerr!.setVolume(0.0);
+      controllerr!.play();
+    });
+    notifyListeners();
+  }
+
+  void storeRecord(BuildContext context){
+    showToastMsg("Please wait...");
+    galleryFile = File(file!.path);
+    UploadVideo( context,galleryFile!);
+  }
+
+  void cancelrecording()async{
+    Get.back();
+    _running=false;
+    _videoFinished=0;
+    _secondsLeft=0;
+    await _camcontrollerr.pauseVideoRecording();
+    _camcontrollerr.dispose();
+    controllerr!.dispose();
+    notifyListeners();
+  }
+
+  String formatTime(int seconds) {
+    final minutes = seconds ~/ 60;
+    final remainingSeconds = seconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+  }
+
+  void callVideoRecordFunction(BuildContext context, ImageSource img){
+    if(Platform.isAndroid){_initializeCamera(context);
+    // getVideo(context,ImageSource.camera);
+    } else{ getVideo(context,ImageSource.camera); }
+  }
+
   Future getVideo(BuildContext context, ImageSource img) async {
     print(trimmer);
     if(galleryFile!=null){controller!.pause();   notifyListeners();}
@@ -645,6 +751,7 @@ class editProfileController extends ChangeNotifier{
     print(respStr);
     if (response.statusCode == 201) {
       _trimmerstrt=false;
+      Get.back();
       profileData(context);
     } else if (response.statusCode == 401) {
       showToastMsgTokenExpired();
@@ -664,6 +771,7 @@ class editProfileController extends ChangeNotifier{
   }
 
   void cancelSelectedTrimVideo()async{
+    isPlaying=false;
     _trimmerstrt=false;
     galleryFile=null;
     _controller4!.dispose();

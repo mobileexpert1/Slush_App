@@ -303,19 +303,13 @@ class detailedController extends ChangeNotifier {
 
   void tappedOPtion(BuildContext context, ImageSource src, String index) {
     selcetedIndex = index;
-    if (src == ImageSource.camera && Platform.isAndroid) {
-      pickImageFromCamera(CameraLensDirection.front);
-    }
+    if (src == ImageSource.camera && Platform.isAndroid) {pickImageFromCamera(CameraLensDirection.front);}
     notifyListeners();
     Future.delayed(const Duration(seconds: 1), () {
       Get.back();
-      if (Platform.isIOS) {
-        imgFromGallery(context, src);
-      } else if (src == ImageSource.gallery && Platform.isAndroid) {
-        imgFromGallery(context, src);
-      } else if (src == ImageSource.camera && Platform.isAndroid) {
-        Get.to(() => const CameraScreen());
-      }
+      if (Platform.isIOS) {imgFromGallery(context, src);}
+      else if (src == ImageSource.gallery && Platform.isAndroid) {imgFromGallery(context, src);}
+      else if (src == ImageSource.camera && Platform.isAndroid) {Get.to(() => const CameraScreen());}
       selcetedIndex = "";
       notifyListeners();
     });
