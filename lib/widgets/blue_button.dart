@@ -121,3 +121,26 @@ Widget blue_buttonwidehi(BuildContext context,String name,{bool validation=true,
     ),
   );
 }
+
+Widget clrchangeBUtton(BuildContext context,String name,{bool validation=true,VoidCallback? press,Color clr=color.darkcrossgrey}) {
+  return GestureDetector(
+    onTap: press,
+    child: Container(
+      alignment: Alignment.center,
+      height: 56,
+      // height: MediaQuery.of(context).size.height*0.07,
+      width: MediaQuery.of(context).size.width,
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12),
+          gradient:  LinearGradient(
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+            colors:validation==false?[clr,clr]: [
+              color.gradientLightBlue,
+              color.txtBlue
+            ],
+          )
+      ),
+      child: buildText(name,18,FontWeight.w600,color.txtWhite),
+    ),
+  );
+}

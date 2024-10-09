@@ -539,7 +539,8 @@ class _Subscription1State extends State<Subscription1> {
                     ),
                   ),
                   const SizedBox(height: 18),
-                  blue_button(context, "Continue",press: (){
+                  clrchangeBUtton(context,selectedIndex==1? "Continue":"Coming soon",press: (){
+                    if(selectedIndex==1){
                     int num=selectedIndex==1?2:selectedIndex==2?0:1;
                     if(LocaleHandler.subscriptionPurchase=="no" && selectedIndex == 1){
                       if (Platform.isAndroid) {
@@ -551,9 +552,10 @@ class _Subscription1State extends State<Subscription1> {
                         customDialogBoxx(context);
                         _buySubscription(_products[0]);
                       }
-                    }else if(selectedIndex != 1){showToastMsg("Coming soon...");}
-                    else{}
-                  }),
+                    }else if(selectedIndex != 1){showToastMsg("Coming soon...");}}
+                  },
+                  validation: selectedIndex==1
+                  ),
                   SizedBox(height:defaultTargetPlatform==TargetPlatform.iOS?25: 10)
                 ],),
               )

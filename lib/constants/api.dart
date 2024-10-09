@@ -4,12 +4,18 @@
 // API
 // https://api.slushdating.com/
 class ApiList {
+  // -----old url
   static const String baseUrl = 'https://dev-api.slushdating.com/api/v1/';
-  // static const String baseUrl = 'https://api.slushdating.com/api/v1/';
   static const String baseUrl1 = 'https://dev-api.slushdating.com/';
+
+  //-----new url
+  // static const String baseUrl = 'https://api.slushdating.com/api/v1/';
+  // static const String baseUrl1 = 'https://api.slushdating.com/';
+
+
+
   static const String imgbaseUrl = 'https://virtual-speed-date.s3.eu-west-2.amazonaws.com/';
   // static const String imageBaseUrl = 'https://dev81.csdevhub.com/gaurdemand/storage/profileImages/';
-
 
   //--- Events Todo
   static const String getEvent= '${baseUrl}events?date=';

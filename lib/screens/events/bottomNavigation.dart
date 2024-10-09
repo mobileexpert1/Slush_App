@@ -14,6 +14,7 @@ import 'package:slush/constants/image.dart';
 import 'package:slush/constants/prefs.dart';
 import 'package:slush/controller/event_controller.dart';
 import 'package:slush/controller/profile_controller.dart';
+import 'package:slush/notification.dart';
 import 'package:slush/screens/chat/chat_screen.dart';
 import 'package:slush/screens/events/event.dart';
 import 'package:slush/screens/events/transparentcongo.dart';
@@ -69,6 +70,7 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
   }
 
   final NotificationService _notificationService = NotificationService();
+  final OnesignalNotificationNavigation _onesignal = OnesignalNotificationNavigation();
 
   @override
   void initState() {
@@ -76,11 +78,13 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
     Provider.of<SplashController>(context, listen: false).checkInterenetConnection();
     // removeFeedList();
     callFunction();
-    OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
-    if(Platform.isAndroid){OneSignal.initialize("482a292e-4c3a-48f0-ad0b-8b0f4b653fd8");}
-    else{OneSignal.initialize("4cee1d81-6350-4319-970d-3421754c0fa7");}
-    OneSignal.Notifications.requestPermission(true);
-    OneSignal.User.pushSubscription.optIn();
+
+    // OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+    // if(Platform.isAndroid){OneSignal.initialize("482a292e-4c3a-48f0-ad0b-8b0f4b653fd8");}
+    // else{OneSignal.initialize("4cee1d81-6350-4319-970d-3421754c0fa7");}
+    // OneSignal.Notifications.requestPermission(true);
+    // OneSignal.User.pushSubscription.optIn();
+    _onesignal.initPlatformState();
     super.initState();
   }
 

@@ -531,6 +531,7 @@ class _TextChatScreenState extends State<TextChatScreen> {
                                         hintStyle: TextStyle(color: color.example9,fontSize: 14,fontWeight: FontWeight.w400,),
                                         border: InputBorder.none
                                     ),
+                                    textCapitalization: TextCapitalization.sentences,
                                   ),
                                 ),
                               ),
@@ -542,7 +543,8 @@ class _TextChatScreenState extends State<TextChatScreen> {
                               if(Provider.of<CamController>(context,listen: false).image==null) {
                                 final text = messageController.text.trim();
                                 if(text.isNotEmpty){
-                                final capitalizedText = text[0].toUpperCase() + text.substring(1);
+                                // final capitalizedText = text[0].toUpperCase() + text.substring(1);  // todo it is used to capitalized the first letter of sentence
+                                final capitalizedText = text;
                                 sendMessage(capitalizedText);}
                               }
                               else {

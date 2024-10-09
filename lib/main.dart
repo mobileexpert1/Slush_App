@@ -25,6 +25,7 @@ import 'package:slush/screens/splash/splash.dart';
 import 'package:slush/screens/splash/splash_controller.dart';
 import 'package:slush/screens/video_call/notification_serivce.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:slush/services/uniservice.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 import 'notification.dart';
 
@@ -34,13 +35,14 @@ Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(name: 'virtual-speed-date-325915', options: DefaultFirebaseOptions.currentPlatform);
   await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+  await UniServices.init();
 
 
   OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
   if(Platform.isAndroid){OneSignal.initialize("482a292e-4c3a-48f0-ad0b-8b0f4b653fd8");}
   else{OneSignal.initialize("4cee1d81-6350-4319-970d-3421754c0fa7");}
-  OneSignal.Notifications.requestPermission(true);
-  OneSignal.User.pushSubscription.optIn();
+  // OneSignal.Notifications.requestPermission(true);
+  // OneSignal.User.pushSubscription.optIn();
 
 
   InAppPurchase.instance.restorePurchases();

@@ -35,64 +35,9 @@ class _SplashScreenState extends State<SplashScreen> {
   _SupportState _supportState = _SupportState.unknown;
 
 
-  String _debugLabelString = "";
-  bool _enableConsentButton = false;
-  // CHANGE THIS parameter to true if you want to test GDPR privacy consent
-  bool _requireConsent = false;
 
-  Future<void> initPlatformState() async {
-    if (!mounted) return;
-    OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
-    OneSignal.Debug.setAlertLevel(OSLogLevel.none);
-    OneSignal.consentRequired(_requireConsent);
-    OneSignal.initialize("482a292e-4c3a-48f0-ad0b-8b0f4b653fd8");
 
-    OneSignal.LiveActivities.setupDefault();
-    // OneSignal.LiveActivities.setupDefault(options: new LiveActivitySetupOptions(enablePushToStart: false, enablePushToUpdate: true));
 
-    OneSignal.Notifications.clearAll();
-    OneSignal.User.pushSubscription.addObserver((state) {
-      print(OneSignal.User.pushSubscription.optedIn);
-      print(OneSignal.User.pushSubscription.id);
-      print(OneSignal.User.pushSubscription.token);
-      print(state.current.jsonRepresentation());
-    });
-    OneSignal.User.addObserver((state) {var userState = state.jsonRepresentation();});
-    OneSignal.Notifications.addPermissionObserver((state) {print("Has permission " + state.toString());});
-
-    OneSignal.Notifications.addClickListener((event) {
-      print('NOTIFICATION CLICK LISTENER CALLED WITH EVENT: $event');
-      setState(() {
-        _debugLabelString = "Clicked notification: \n${event.notification.jsonRepresentation().replaceAll("\\n", "\n")}";
-      });
-    });
-
-    OneSignal.Notifications.addForegroundWillDisplayListener((event) {
-      print('NOTIFICATION WILL DISPLAY LISTENER CALLED WITH: ${event.notification.jsonRepresentation()}');
-      /// Display Notification, preventDefault to not display
-      event.preventDefault();
-      /// Do async work
-      /// notification.display() to display after preventing default
-      event.notification.display();
-      setState(() {
-        _debugLabelString = "Notification received in foreground notification: \n${event.notification.jsonRepresentation().replaceAll("\\n", "\n")}";
-      });
-    });
-
-    OneSignal.InAppMessages.addClickListener((event) {setState(() {_debugLabelString = "In App Message Clicked: \n${event.result.jsonRepresentation().replaceAll("\\n", "\n")}";});});
-    OneSignal.InAppMessages.addWillDisplayListener((event) {print("ON WILL DISPLAY IN APP MESSAGE ${event.message.messageId}");});
-    OneSignal.InAppMessages.addDidDisplayListener((event) {print("ON DID DISPLAY IN APP MESSAGE ${event.message.messageId}");});
-    OneSignal.InAppMessages.addWillDismissListener((event) {print("ON WILL DISMISS IN APP MESSAGE ${event.message.messageId}");});
-    OneSignal.InAppMessages.addDidDismissListener((event) {print("ON DID DISMISS IN APP MESSAGE ${event.message.messageId}");});
-
-    setState(() {_enableConsentButton = _requireConsent;});
-
-    // Some examples of how to use In App Messaging public methods with OneSignal SDK
-    // oneSignalInAppMessagingTriggerExamples();
-    // Some examples of how to use Outcome Events public methods with OneSignal SDK
-    // oneSignalOutcomeExamples();
-    OneSignal.InAppMessages.paused(true);
-  }
 
   @override
   void initState() {
@@ -148,7 +93,7 @@ class _SplashScreenState extends State<SplashScreen> {
               Get.offAll(() => BottomNavigationScreen());
               jsonString = await Preferences.getValue('filterList')??"";
               getFeedFilter();
-              initPlatformState();
+              // initPlatformState();
             } else {
               Get.offAll(() => const SliderScreen());
             }

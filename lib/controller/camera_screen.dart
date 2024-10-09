@@ -177,7 +177,7 @@ class _CameraChatScreenState extends State<CameraChatScreen> {
   bool front=true;
   @override
   Widget build(BuildContext context) {
-    final pr=Provider.of<editProfileController>(context,listen: false);
+    final pr=Provider.of<CamController>(context,listen: false);
     final size=MediaQuery.of(context).size;
     return Scaffold(
         backgroundColor: Colors.black,
