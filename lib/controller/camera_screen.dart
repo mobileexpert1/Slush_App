@@ -320,8 +320,8 @@ class _RecordVideoScreebState extends State<RecordVideoScreeb> {
                 GestureDetector(
                   onTap: () {
                     front=!front;
-                    if(front){pr.pickImageFromCamera(CameraLensDirection.front);}
-                    else{pr.pickImageFromCamera(CameraLensDirection.back);}
+                    if(front){pr.pickVideoFromCamera(CameraLensDirection.front);}
+                    else{pr.pickVideoFromCamera(CameraLensDirection.back);}
                   },
                   child: SvgPicture.asset(AssetsPics.camrotate,height: 40),
                 ):

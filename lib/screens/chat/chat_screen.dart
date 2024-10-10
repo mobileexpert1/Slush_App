@@ -11,6 +11,7 @@ import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/loader.dart';
+import 'package:slush/controller/chat_controller.dart';
 import 'package:slush/controller/event_controller.dart';
 import 'package:slush/controller/spark_Liked_controler.dart';
 import 'package:slush/screens/chat/text_chat_screen.dart';
@@ -69,7 +70,9 @@ class _ChatScreenState extends State<ChatScreen> {
          if (i["meta"]["totalItems"] == 0) {
            isListEmpty = true;
          } else {
-           LocaleHandler.isUnreadMessage = data[0]["unreadCount"]!="0"?true:false;
+           print(";-;-;-${data[0]["unreadCount"]}");
+           // LocaleHandler.isUnreadMessage = data[0]["unreadCount"]!="0"?true:false;
+           Provider.of<ChatController>(context,listen: false).getUnreadChat(false);
            isListEmpty = false;
          }
          totalpages = i["meta"]["totalPages"];

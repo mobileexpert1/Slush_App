@@ -9,6 +9,7 @@ import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/color.dart';
+import 'package:slush/controller/chat_controller.dart';
 import 'package:slush/controller/controller.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/prefs.dart';
@@ -74,16 +75,8 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
 
   @override
   void initState() {
-    // _notificationService.initialize();
     Provider.of<SplashController>(context, listen: false).checkInterenetConnection();
-    // removeFeedList();
     callFunction();
-
-    // OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
-    // if(Platform.isAndroid){OneSignal.initialize("482a292e-4c3a-48f0-ad0b-8b0f4b653fd8");}
-    // else{OneSignal.initialize("4cee1d81-6350-4319-970d-3421754c0fa7");}
-    // OneSignal.Notifications.requestPermission(true);
-    // OneSignal.User.pushSubscription.optIn();
     _onesignal.initPlatformState();
     super.initState();
   }
@@ -91,15 +84,9 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
   void callFunction() async {
     _selectedIndex.value=LocaleHandler.bottomSheetIndex;
     alreadySeenReelTutorials = await Preferences.getReelAlreadySeen() ?? "";
-    if (alreadySeenReelTutorials == "true") {
-      LocaleHandler.feedTutorials = false;
-    }
-      if (LocaleHandler.curentIndexNum == 2) {
-        // LocaleHandler.curentIndexNum = 0;
-        _selectedIndex.value = 2;
-      } else {
-        // _selectedIndex.value = 0;
-      }
+    if (alreadySeenReelTutorials == "true") {LocaleHandler.feedTutorials = false;}
+      if (LocaleHandler.curentIndexNum == 2) {_selectedIndex.value = 2;}
+      else {}
     LocaleHandler.curentIndexNum=0;
   }
 
@@ -124,7 +111,6 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
                   }
                   ),
                   // child: _widgetOptions.elementAt(widget.i!=null?widget.i:_selectedIndex),
-
                 ),
                 // Consumer<reelController>(builder: (ctx,val,child){return isCongo?const SizedBox(): stackbuild(context, "asasas");}),
                 bioAlert(context),
@@ -148,10 +134,18 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
                           label: 'Event',
                           backgroundColor: color.txtBlue),
                       BottomNavigationBarItem(
-                          icon: SvgPicture.asset(_selectedIndex.value == 1 && LocaleHandler.isUnreadMessage ? AssetsPics.selctedredmessage
-                          :_selectedIndex.value == 1
-                              ? AssetsPics.selectedmsgIcon
-                              : AssetsPics.msgIcon),
+                          icon: Stack(
+                            children: [
+                              SvgPicture.asset(_selectedIndex.value == 1 && Provider.of<ChatController>(context,listen: false).unreadMsg ? AssetsPics.selctedredmessage
+                              :_selectedIndex.value == 1
+                                  ? AssetsPics.selectedmsgIcon
+                                  : AssetsPics.msgIcon),
+                               Positioned(
+                                  right: 10.0,
+                                  top: 10.0,
+                                  child:_selectedIndex.value != 1 && Provider.of<ChatController>(context,listen: false).unreadMsg? const CircleAvatar(radius: 3,backgroundColor: Colors.red):const SizedBox())
+                            ],
+                          ),
                           label: 'Message'),
                       BottomNavigationBarItem(
                         icon: SvgPicture.asset(_selectedIndex.value == 2

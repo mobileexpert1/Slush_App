@@ -4,13 +4,13 @@
 // API
 // https://api.slushdating.com/
 class ApiList {
-  // -----old url
-  static const String baseUrl = 'https://dev-api.slushdating.com/api/v1/';
-  static const String baseUrl1 = 'https://dev-api.slushdating.com/';
+  //-----old url
+  // static const String baseUrl = 'https://dev-api.slushdating.com/api/v1/';
+  // static const String baseUrl1 = 'https://dev-api.slushdating.com/';
 
   //-----new url
-  // static const String baseUrl = 'https://api.slushdating.com/api/v1/';
-  // static const String baseUrl1 = 'https://api.slushdating.com/';
+  static const String baseUrl = 'https://api.slushdating.com/api/v1/';
+  static const String baseUrl1 = 'https://api.slushdating.com/';
 
 
 

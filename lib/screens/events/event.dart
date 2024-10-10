@@ -14,6 +14,7 @@ import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/loader.dart';
 import 'package:slush/constants/prefs.dart';
+import 'package:slush/controller/chat_controller.dart';
 import 'package:slush/controller/controller.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/controller/event_controller.dart';
@@ -94,13 +95,6 @@ class _EventScreenState extends State<EventScreen> {
     getEvents();
     checkBannerStatus();
     _controller = ScrollController()..addListener(loadmore);
-
-    // Timer.periodic(Duration(seconds: 60), (timer) {
-    //   Provider.of<eventController>(context ,listen: false).setDateFormat(
-    //   Provider.of<eventController>(context, listen: false).timeRemain, context);
-    // });
-
-    // KeepScreenOn.turnOn();
     LocaleHandler.insideevent=false;
     super.initState();
   }
@@ -326,7 +320,8 @@ class _EventScreenState extends State<EventScreen> {
           LocaleHandler.subscriptionPurchase=data["data"]["isSubscriptionPurchased"]??"no";
           LocaleHandler.isVerified=data["data"]["isVerified"]??false;
           LocaleHandler.isLikedTabUpdate=data["data"]["isLikedTabUpdate"];
-          LocaleHandler.isUnreadMessage=data["data"]["unreadMsgCount"]=="0"?false:true;
+          Provider.of<ChatController>(context,listen: false).getUnreadChat(data["data"]["unreadMsgCount"]!="0");
+          // LocaleHandler.isUnreadMessage=data["data"]["unreadMsgCount"]=="0"?false:true;
         });
       } else if (response.statusCode == 401) {
         showToastMsgTokenExpired();
@@ -928,12 +923,10 @@ class _EventScreenState extends State<EventScreen> {
               ? Image.asset(AssetsPics.demouser, fit: BoxFit.fill)
               : ClipRRect(
                   borderRadius: BorderRadius.circular(8),
-                  child: CachedNetworkImage(
-                    width: 50,height: 50,
-                    imageUrl: LocaleHandler.avatar,
-                    fit: BoxFit.fitWidth,
-                    placeholder: (ctx, url) => const Center(child: SizedBox()),
+                  child: CachedNetworkImage(width: 50,height: 50, imageUrl: LocaleHandler.avatar, fit: BoxFit.fitWidth, placeholder: (ctx, url) => const Center(child: SizedBox()),
                   )),
+
+
           Padding(
             padding: const EdgeInsets.only(left: 14),
             child: Column(

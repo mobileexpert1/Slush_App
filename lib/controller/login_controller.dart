@@ -90,6 +90,7 @@ class loginControllerr with ChangeNotifier{
           LoaderOverlay.hide();
           if(data["data"]["emailVerifiedAt"]==true){
             if(data["data"]["nextAction"]=="none"){
+              Preferences.setReelAlreadySeen("true");
               Get.offAll(()=>BottomNavigationScreen());
             }
             else{

@@ -16,7 +16,6 @@ class UniServices{
 
     print(recievecode);
     print(param);
-    print('param;-;-;-');
   }
 
   static init()async{

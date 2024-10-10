@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:provider/provider.dart';
+import 'package:slush/controller/chat_controller.dart';
 import 'package:slush/controller/controller.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
@@ -75,6 +76,7 @@ class MyApp extends StatelessWidget {
               ChangeNotifierProvider<eventController>(create: (_)=>eventController()),
               // Update profile
               ChangeNotifierProvider<editProfileController>(create: (_)=>editProfileController()),
+              ChangeNotifierProvider<ChatController>(create: (_)=>ChatController()),
               // match
               // ChangeNotifierProvider<matchController>(create: (_)=>matchController()),
               ChangeNotifierProvider<reelTutorialController>(create: (_)=>reelTutorialController()),

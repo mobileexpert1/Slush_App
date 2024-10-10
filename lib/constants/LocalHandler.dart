@@ -113,7 +113,6 @@ class LocaleHandler {
   static bool feedTutorials = true;
   // static bool scrollLimitreached = false;
   static bool isLikedTabUpdate = false;
-  static bool isUnreadMessage = false;
 
   //Int
   static int curentIndexNum = 0;

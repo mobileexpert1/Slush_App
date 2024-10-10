@@ -21,6 +21,8 @@ class ChatController extends ChangeNotifier{
   ScrollController? _controller;
   Timer? _timer;
   SlidableController _slidableController = SlidableController();
+  bool _unreadMsg=false;
+  bool get unreadMsg=>_unreadMsg;
 
 
   Future getChat() async {
@@ -96,6 +98,12 @@ class ChatController extends ChangeNotifier{
       // snackBaar(context, AssetsPics.removed, false);
       getChat();
     } else {}
+    notifyListeners();
+  }
+
+  void getUnreadChat(bool val){
+    print(";-;-;-;-$val");
+    _unreadMsg=val;
     notifyListeners();
   }
 

@@ -11,6 +11,7 @@ import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/loader.dart';
+import 'package:slush/controller/chat_controller.dart';
 import 'package:slush/screens/feed/tutorials/controller_class.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
 import 'package:video_player/video_player.dart';
@@ -53,7 +54,7 @@ class nameControllerr with ChangeNotifier {
     if (response.statusCode == 200) {
       // Fluttertoast.showToast(msg: "Internal Server error");
     } else if (response.statusCode == 401) {
-      showToastMsgTokenExpired();
+      // showToastMsgTokenExpired();
     } else {
       Fluttertoast.showToast(msg: "Internal Server error");
     }
@@ -471,6 +472,7 @@ class ReelController with ChangeNotifier {
   }
 
   void removeVideoLimit(BuildContext context) {
+    Provider.of<ChatController>(context,listen: false).getUnreadChat(false);
     _count = -1;
     // Provider.of<reelTutorialController>(context,listen: false).setScrollLimit(false);
     _stopReelScroll = false;

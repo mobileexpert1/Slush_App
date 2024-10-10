@@ -42,6 +42,7 @@ class AssetsPics{
   static const Videocallthumb="assets/bg/Videocallthumb.png";
   static const videodemo='assets/bg/videodemo.png';
   static const viewProfile = "assets/bg/viewProfile.svg";
+  static const viewProfileplain = "assets/bg/viewProfile2.svg";
 
 
 //TODO===========> icons

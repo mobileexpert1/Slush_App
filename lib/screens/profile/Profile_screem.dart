@@ -135,7 +135,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   // for(var i=0;i<LocaleHandler.dataa["profileVideos"].length;i++){
                                   //   Provider.of<profileController>(context,listen: false).cacheVideos(LocaleHandler.dataa["profileVideos"][i]["key"]);
                                   // }
-                                },child: SvgPicture.asset(AssetsPics.viewProfile,height: 37)),
+                                },child: SvgPicture.asset(LocaleHandler.isVerified?AssetsPics.viewProfileplain:AssetsPics.viewProfile,height: 37)),
                           ],
                         )
                       ],),),

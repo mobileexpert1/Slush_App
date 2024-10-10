@@ -1,10 +1,12 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:provider/provider.dart';
 import 'package:slush/constants/prefs.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
 import 'package:http/http.dart' as http;
+import 'package:slush/controller/chat_controller.dart';
 import 'package:slush/widgets/toaster.dart';
 import 'package:video_player/video_player.dart';
 
@@ -39,7 +41,7 @@ class profileController extends ChangeNotifier {
         value= dataa["profileCompletion"] / 100.0;
         getTotalSparks();
         LocaleHandler.isLikedTabUpdate=data["data"]["isLikedTabUpdate"];
-        LocaleHandler.isUnreadMessage=data["data"]["unreadMsgCount"]=="0"?false:true;
+        Provider.of<ChatController>(context,listen: false).getUnreadChat(data["data"]["unreadMsgCount"]!="0");
       } else if (response.statusCode == 401) {
         showToastMsgTokenExpired();
         print('Token Expire:::::::::::::');

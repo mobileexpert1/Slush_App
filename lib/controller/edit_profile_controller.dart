@@ -346,8 +346,14 @@ class editProfileController extends ChangeNotifier{
     final cameras = await availableCameras();
     final front = cameras.firstWhere((camera) => camera.lensDirection == lens);
     camcontroller = CameraController(front, ResolutionPreset.medium);
-    _camcontrollerr = CameraController(front, ResolutionPreset.medium);
     await camcontroller!.initialize();
+    notifyListeners();
+  }
+
+  void pickVideoFromCamera(CameraLensDirection lens) async {
+    final cameras = await availableCameras();
+    final front = cameras.firstWhere((camera) => camera.lensDirection == lens);
+    _camcontrollerr = CameraController(front, ResolutionPreset.medium);
     await _camcontrollerr.initialize();
     // customDialogBoxVideo(context,"I’m ready");
     // if (!mounted) {return;}setState(() {});
