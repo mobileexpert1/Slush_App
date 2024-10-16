@@ -25,18 +25,19 @@
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>fb175424641387291</string>
 				<string>slushdating.page.link</string>
 				<string>com.mobile.app.virtualspeeddate</string>
+				<string>com.googleusercontent.apps.422898489031-r79nump83gqn306o49d0v8544kbu9750</string>
 			</array>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>44</string>
+	<string>52</string>
 	<key>FacebookAppID</key>
 	<string>175424641387291</string>
 	<key>FacebookDisplayName</key>
@@ -45,6 +46,8 @@
 	<string>ca-app-pub-6208492962560091~3147238905</string>
 	<key>LSApplicationQueriesSchemes</key>
 	<array>
+		<string>google</string>
+		<string>422898489031-r79nump83gqn306o49d0v8544kbu9750.apps.googleusercontent.com</string>
 		<string>googlegmail</string>
 		<string>x-dispatch</string>
 		<string>readdle-spark</string>
@@ -69,18 +72,18 @@
 	<key>NSFaceIDUsageDescription</key>
 	<string>We need to use Face ID to authenticate you securely.</string>
 	<key>NSLocationAlwaysUsageDescription</key>
-	<string>We need to access your location to provide personalized content and features while you use the app.</string>
+	<string>We need access to your location at all times to show you nearby events and improve your dating experience.</string>
 	<key>NSLocationTemporaryUsageDescriptionDictionary</key>
 	<dict>
 		<key>TemporaryPreciseAccuracy</key>
-		<string>Allow access to Location</string>
+		<string>We require precise location temporarily to find the closest events near you.</string>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>Allow access to Device Location</string>
+	<string>We need access to your location to show you nearby events while you&apos;re using the app.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Microphone access is required for video calls and video record.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>Allow access to photo library</string>
+	<string>Allow access to your photo library to add and update profile pictures.</string>
 	<key>SKAdNetworkItems</key>
 	<array>
 		<dict>

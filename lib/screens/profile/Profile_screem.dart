@@ -245,11 +245,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           Row(children: [
                             GestureDetector(
                               onTap: (){prfileControl.setSelectedIndex(1);},
-                              child: buildContainer(context, "Silver", "£9.99"),
+                              child: buildContainer(context,"Gold", "£19.99"),
                             ),
                             GestureDetector(
                               onTap: (){prfileControl.setSelectedIndex(2);},
-                              child: buildContainer(context, "Gold", "£19.99"),
+                              child: buildContainer(context, "Silver", "£9.99"),
                             ),
                             GestureDetector(
                               onTap: (){prfileControl.setSelectedIndex(3);},
@@ -273,9 +273,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 children: [
                                   SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
                                   buildText("Slush", 20, FontWeight.w600, color.txtWhite ),
-                                  buildText("Gold", 20, FontWeight.w600,color.txtWhite ),
+                                  // buildText("Gold", 20, FontWeight.w600,color.txtWhite ),
+                                  buildText("Silver", 20, FontWeight.w600,color.txtWhite ),
                                   const SizedBox(height: 10,),
-                                  buildText("£19.99", 20, FontWeight.w600, color.txtWhite ),
+                                  // buildText("£19.99", 20, FontWeight.w600, color.txtWhite ),
+                                  buildText("£9.99", 20, FontWeight.w600, color.txtWhite ),
                                 ],
                               ),
                             ),
@@ -302,9 +304,11 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 children: [
                                   SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
                                   buildText("Slush", 20, FontWeight.w600, color.txtWhite ),
-                                  buildText("Silver", 20, FontWeight.w600,color.txtWhite ),
+                                  // buildText("Silver", 20, FontWeight.w600,color.txtWhite ),
+                                  buildText("Gold", 20, FontWeight.w600,color.txtWhite ),
                                   const SizedBox(height: 10,),
-                                  buildText("£9.99", 20, FontWeight.w600, color.txtWhite ),
+                                  // buildText("£9.99", 20, FontWeight.w600, color.txtWhite ),
+                                  buildText("£19.99", 20, FontWeight.w600, color.txtWhite ),
                                 ],
                               ),
                             ),

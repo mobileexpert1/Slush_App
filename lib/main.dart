@@ -50,7 +50,7 @@ Future<void> main() async {
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
   MobileAds.instance.initialize();
   WakelockPlus.enable();
-  FirebaseLocalNotification.initMessaging();
+  // FirebaseLocalNotification.initMessaging();
 
   runApp(const MyApp());
 }

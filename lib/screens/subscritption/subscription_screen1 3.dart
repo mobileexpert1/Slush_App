@@ -83,7 +83,7 @@ class _Subscription1State extends State<Subscription1> {
       if (purchase.status == PurchaseStatus.purchased) {
         bool valid = await _verifyPurchase(purchase);
         if (valid) {
-         selectedIndex == 1 ? subscribeApi(selectedIndex = 1) : showToastMsg("Coming soon...");
+         selectedIndex == 2 ? subscribeApi(selectedIndex = 2) : showToastMsg("Coming soon...");
           _deliverProduct(purchase);
         } else {
           _handleInvalidPurchase(purchase);
@@ -102,10 +102,12 @@ class _Subscription1State extends State<Subscription1> {
     return true; // assuming the purchase is valid
   }
 
+  bool hasPurchased=false;
   void _deliverProduct(PurchaseDetails purchase) {
     // Deliver the product to the user
     setState(() {_purchases.add(purchase);});
-    showDialog(context: context, builder: (BuildContext context) => Successdialog());
+    if(hasPurchased){
+    showDialog(context: context, builder: (BuildContext context) => Successdialog());}
   }
 
   void _handleInvalidPurchase(PurchaseDetails purchase) {
@@ -114,12 +116,14 @@ class _Subscription1State extends State<Subscription1> {
   }
 
   void _buySubscription(ProductDetails product) {
+    hasPurchased=true;
     final PurchaseParam purchaseParam = PurchaseParam(productDetails: product);
     _iap.buyNonConsumable(purchaseParam: purchaseParam);
   }
 
   Future purchaseSpark(int sparkCount)async{
     const url=ApiList.sparkPurchase;
+    print(url);
     var uri=Uri.parse(url);
     var response=await http.post(uri,
         headers: {'Content-Type': 'application/json', "Authorization": "Bearer ${LocaleHandler.accessToken}"},
@@ -133,6 +137,7 @@ class _Subscription1State extends State<Subscription1> {
   Future subscribeApi(int num)async{
     setState(() {LoaderOverlay.show(context);});
     const url=ApiList.subscribe;
+    print(url);
     var uri=Uri.parse(url);
     var response=await http.post(uri,
         headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${LocaleHandler.accessToken}'},
@@ -140,9 +145,11 @@ class _Subscription1State extends State<Subscription1> {
     );
     var i =jsonDecode(response.body);
     setState(() {LoaderOverlay.hide();});
+    print(response.statusCode);
+    print(jsonDecode(response.body));
     if(response.statusCode==201){
       Fluttertoast.showToast(msg: i["message"]);
-      int count=selectedIndex==1?1:selectedIndex==2?3:5;
+      int count=selectedIndex==2?1:selectedIndex==1?3:5;
       if(count==5){
         purchaseSpark(5);
         purchaseSpark(5);}
@@ -158,6 +165,7 @@ class _Subscription1State extends State<Subscription1> {
   Future upgradePlanApi(int num)async{
     setState(() {LoaderOverlay.show(context);});
     const url=ApiList.updateSubscription;
+    print(url);
     var uri=Uri.parse(url);
     var response=await http.post(uri,
         headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${LocaleHandler.accessToken}'},
@@ -176,6 +184,7 @@ class _Subscription1State extends State<Subscription1> {
   Future cancelPlanApi()async{
     setState(() {LoaderOverlay.show(context);});
     const url=ApiList.cancelSubscription;
+    print(url);
     var uri=Uri.parse(url);
     var response=await http.post(uri,
         headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${LocaleHandler.accessToken}'},
@@ -295,7 +304,7 @@ class _Subscription1State extends State<Subscription1> {
                               ),
                               data==null?const SizedBox(): GestureDetector(
                                 onTap: (){setState(() {upgradepressed=true;
-                               selectedIndex == 1 ? upgradePlanApi(selectedIndex=1): showToastMsg("Coming soon...");
+                               selectedIndex == 2 ? upgradePlanApi(selectedIndex=2): showToastMsg("Coming soon...");
                                 });
                                 },
                                 child: Container(
@@ -334,16 +343,17 @@ class _Subscription1State extends State<Subscription1> {
                   SizedBox(
                     height:defaultTargetPlatform==TargetPlatform.iOS? size.height*0.20:size.height*0.21,
                     child:
-                    selectedIndex ==1 ?
+                    selectedIndex ==2 ?
                     PageView(
                       controller: _pageController,
                       children: [
                         customScroller(text1: 'See who has Liked you', text2: 'See everyone that likes you', iconName: AssetsPics.like),
                         // customScroller(text1: 'Sparks', text2: '3 sparks', iconName: AssetsPics.shock),
-                        customScroller(text1: 'More Sparks', text2: 'Get 3 Sparks now + 1 daily for 30 days.\n Boost your connection!', iconName: AssetsPics.shock),
+                        customScroller(text1: 'More Sparks', text2: 'Get 3 Sparks now' //+ 1 daily for 30 days.\n Boost your connection!'
+                            , iconName: AssetsPics.shock),
                         customScroller(text1: 'Unlimited Swipes', text2: 'Endless swiping', iconName: AssetsPics.watch),
                       ],
-                    ) : selectedIndex ==2 ?  PageView(
+                    ) : selectedIndex ==1 ?  PageView(
                       controller: _pageController,
                       children: [
                         customScroller(text1: 'See who has Liked you', text2: 'See everyone that likes you', iconName: AssetsPics.like),
@@ -367,7 +377,7 @@ class _Subscription1State extends State<Subscription1> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children:
-                    List<Widget>.generate( selectedIndex == 1 ? 3 : 5, (int index) {
+                    List<Widget>.generate( selectedIndex == 2 ? 3 : 5, (int index) {
                       return Container(
                         margin: const EdgeInsets.only(left: 2.5,right: 2.5,bottom: 12.0),
                         width: currentIndex == index?14: 12.0,
@@ -405,9 +415,11 @@ class _Subscription1State extends State<Subscription1> {
                                 children: [
                                   SvgPicture.asset( AssetsPics.crownOff,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
                                   buildText("Slush", 20, FontWeight.w600, color.txtBlack,),
-                                  buildText("Silver", 20, FontWeight.w600, color.txtBlack,),
+                                  // buildText("Silver", 20, FontWeight.w600, color.txtBlack,),
+                                  buildText("Gold", 20, FontWeight.w600, color.txtBlack,),
                                   const SizedBox(height: 10,),
-                                  buildText("£9.99", 20, FontWeight.w600, color.txtBlack,),
+                                  // buildText("£9.99", 20, FontWeight.w600, color.txtBlack,),
+                                  buildText("£19.99", 20, FontWeight.w600, color.txtBlack,),
                                 ],
                               ),
                             ),
@@ -427,9 +439,11 @@ class _Subscription1State extends State<Subscription1> {
                                 children: [
                                   SvgPicture.asset( AssetsPics.crownOff,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
                                   buildText("Slush", 20, FontWeight.w600, color.txtBlack,),
-                                  buildText("Gold", 20, FontWeight.w600, color.txtBlack,),
+                                  // buildText("Gold", 20, FontWeight.w600, color.txtBlack,),
+                                  buildText("Silver", 20, FontWeight.w600, color.txtBlack,),
                                   const SizedBox(height: 10,),
-                                  buildText("£19.99", 20, FontWeight.w600, color.txtBlack,),
+                                  // buildText("£19.99", 20, FontWeight.w600, color.txtBlack,),
+                                  buildText("£9.99", 20, FontWeight.w600, color.txtBlack,),
                                 ],
                               ),
                             ),
@@ -475,9 +489,11 @@ class _Subscription1State extends State<Subscription1> {
                               children: [
                                 SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
                                 buildText("Slush", 20, FontWeight.w600, color.txtWhite ),
-                                buildText("Gold", 20, FontWeight.w600,color.txtWhite ),
+                                // buildText("Gold", 20, FontWeight.w600,color.txtWhite ),
+                                buildText("Silver", 20, FontWeight.w600,color.txtWhite ),
                                 const SizedBox(height: 10,),
-                                buildText("£19.99", 20, FontWeight.w600, color.txtWhite ),
+                                // buildText("£19.99", 20, FontWeight.w600, color.txtWhite ),
+                                buildText("£9.99", 20, FontWeight.w600, color.txtWhite ),
                               ],
                             ),
                           ),
@@ -507,9 +523,11 @@ class _Subscription1State extends State<Subscription1> {
                               children: [
                                 SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
                                 buildText("Slush", 20, FontWeight.w600, color.txtWhite ),
-                                buildText("Silver", 20, FontWeight.w600,color.txtWhite ),
+                                // buildText("Silver", 20, FontWeight.w600,color.txtWhite ),
+                                buildText("Gold", 20, FontWeight.w600,color.txtWhite ),
                                 const SizedBox(height: 10,),
-                                buildText("£9.99", 20, FontWeight.w600, color.txtWhite ),
+                                // buildText("£9.99", 20, FontWeight.w600, color.txtWhite ),
+                                buildText("£19.99", 20, FontWeight.w600, color.txtWhite ),
                               ],
                             ),
                           ),
@@ -539,10 +557,10 @@ class _Subscription1State extends State<Subscription1> {
                     ),
                   ),
                   const SizedBox(height: 18),
-                  clrchangeBUtton(context,selectedIndex==1? "Continue":"Coming soon",press: (){
-                    if(selectedIndex==1){
+                  clrchangeBUtton(context,selectedIndex==2? "Continue":"Coming soon",press: (){
+                    if(selectedIndex==2){
                     int num=selectedIndex==1?2:selectedIndex==2?0:1;
-                    if(LocaleHandler.subscriptionPurchase=="no" && selectedIndex == 1){
+                    if(LocaleHandler.subscriptionPurchase=="no" && selectedIndex == 2){
                       if (Platform.isAndroid) {
                         customDialogBoxx(context);
                         // _buySubscription(_products[2]);
@@ -552,9 +570,9 @@ class _Subscription1State extends State<Subscription1> {
                         customDialogBoxx(context);
                         _buySubscription(_products[0]);
                       }
-                    }else if(selectedIndex != 1){showToastMsg("Coming soon...");}}
+                    }else if(selectedIndex != 2){showToastMsg("Coming soon...");}}
                   },
-                  validation: selectedIndex==1
+                  validation: selectedIndex==2
                   ),
                   SizedBox(height:defaultTargetPlatform==TargetPlatform.iOS?25: 10)
                 ],),

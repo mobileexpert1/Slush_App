@@ -975,8 +975,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                           buildShowModalBottomSheet("image");
                         });
                       },
-                      child: Container(
-                          alignment: Alignment.bottomRight,
+                      child: Container(alignment: Alignment.bottomRight,
                           child: SvgPicture.asset(imgdata["profilePictures"].length >= 3?AssetsPics.profileEdit1:AssetsPics.addImage, width: 35, height: 35)),
                     ),
                   )

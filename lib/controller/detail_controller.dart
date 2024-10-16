@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+// import 'dart:nativewrappers/_internal/vm/lib/async_patch.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -330,8 +332,7 @@ class detailedController extends ChangeNotifier {
     if (xfilePick != null) {
       showToastMsg("Please wait...");
       if (Platform.isAndroid) {
-        _controller =
-            VideoPlayerController.networkUrl(Uri.parse(pickedFile!.path));
+        _controller = VideoPlayerController.networkUrl(Uri.parse(pickedFile!.path));
       } else {
         _controller = VideoPlayerController.file(File(pickedFile!.path));
       }
@@ -368,9 +369,7 @@ class detailedController extends ChangeNotifier {
     galleryFile = file;
     LocaleHandler.introVideo = galleryFile;
     if (_controller.value.isInitialized) {
-      if (Platform.isAndroid) {
-        _controller.play();
-      }
+      if (Platform.isAndroid) {_controller.play();}
       // _controller.setPlaybackSpeed(0.8);
     }
     notifyListeners();
@@ -402,6 +401,116 @@ class detailedController extends ChangeNotifier {
         notifyListeners();
       },
     );
+    notifyListeners();
+  }
+
+  void callVideoRecordFunction(BuildContext context, ImageSource img,String index){
+    if(Platform.isAndroid){_initializeCamera(context);}
+    else{ tappedOption(context,ImageSource.camera,index);}
+  }
+
+  late CameraController _camcontrollerr;
+  CameraController get cam=>_camcontrollerr;
+  int _secondsLeft = 0;
+  int get secondsLeft=>_secondsLeft;
+  XFile? file;
+  late Timer _timer;
+  bool _running=false;
+  bool get running=>_running;
+  int _videoFinished=0; //0-not started yet , 1-pause, 2-finished
+  int get videoFinished=>_videoFinished;
+  VideoPlayerController? controllerr;
+  Future<void>? _initializeVideoPlayerFuture;
+
+  void _initializeCamera(BuildContext context) async {
+    _secondsLeft=0;
+    _videoFinished=0;
+    _running=false;
+    final cameras = await availableCameras();
+    final front = cameras.firstWhere((camera) => camera.lensDirection == CameraLensDirection.back);
+    _camcontrollerr = CameraController(front, ResolutionPreset.veryHigh);
+    Get.back();
+    await _camcontrollerr.initialize().then((onValue)=> Get.to(()=>const AddVideoScreen()));;
+    // customDialogBoxVideo(context,"I’m ready",getControl);
+    if (!context.mounted) {return;}
+    notifyListeners();
+  }
+
+  void pickVideoFromCamera(CameraLensDirection lens) async {
+    final cameras = await availableCameras();
+    final front = cameras.firstWhere((camera) => camera.lensDirection == lens);
+    _camcontrollerr = CameraController(front, ResolutionPreset.medium);
+    await _camcontrollerr.initialize();
+    // customDialogBoxVideo(context,"I’m ready");
+    // if (!mounted) {return;}setState(() {});
+    notifyListeners();
+  }
+
+  String formatTime(int seconds) {
+    final minutes = seconds ~/ 60;
+    final remainingSeconds = seconds % 60;
+    return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
+  }
+
+  void cancelrecording()async{
+    Get.back();
+    _running=false;
+    _videoFinished=0;
+    _secondsLeft=0;
+    await _camcontrollerr.pauseVideoRecording();
+    _camcontrollerr.dispose();
+    controllerr!.dispose();
+    notifyListeners();
+  }
+
+  void startvideorecording(BuildContext context)async{
+    await _camcontrollerr.prepareForVideoRecording();
+    await _camcontrollerr.startVideoRecording();
+    startTimer();
+    notifyListeners();
+  }
+
+  void storeRecord(BuildContext context){
+    showToastMsg("Please wait...");
+    // _controller = VideoPlayerController.file(File(file!.path))..initialize().then((_) {palyVideo(File(galleryFile!.path));});
+    _controller= VideoPlayerController.networkUrl(Uri.parse(file!.path))..initialize().then((_) {palyVideo(File(file!.path));});
+    Get.back();
+    // UploadVideo( context,galleryFile!);
+  }
+
+  void startTimer() {
+    _secondsLeft=0;
+    _running=false;
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) async {
+      if (_secondsLeft <15) {_secondsLeft++;notifyListeners();}
+      else {pauseresumetimer(true);}
+    });
+    notifyListeners();
+  }
+
+  void finishedRecording()async{
+    _videoFinished=2;
+    file = await _camcontrollerr.stopVideoRecording();
+    controllerr = VideoPlayerController.file(File(file!.path));
+    _initializeVideoPlayerFuture = controllerr!.initialize().then((value)async {
+      controllerr!.setVolume(0.0);
+      controllerr!.play();
+    });
+    notifyListeners();
+  }
+
+  void pauseresumetimer(bool val) async {
+    _running=val;
+    if(_running){_timer.cancel();
+    if(_secondsLeft==15){_videoFinished=2;
+    finishedRecording();
+    }else{_videoFinished=1;
+    await _camcontrollerr.pauseVideoRecording();
+    }}
+    else{ _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (_secondsLeft <15) {_secondsLeft++;notifyListeners();}
+      else {pauseresumetimer(true);}
+    });}
     notifyListeners();
   }
 

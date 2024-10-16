@@ -335,7 +335,10 @@ class loginControllerr with ChangeNotifier{
       // loginUser();
       print("User -- -> ${user.toString()}");
       print("\nUser Credentials -- -> ${userCredential}");
-      socialLoginUser( context,"GOOGLE", socialToken: credential.accessToken.toString());
+      print("\nUser Id -- -> ${googleSignInAuthentication.idToken}");
+      print("\nUser Id2 -- -> ${googleSignInAuthentication.accessToken}");
+      socialLoginUser(context,"GOOGLE", socialToken: googleSignInAuthentication.idToken.toString());
+      final String? idToken = googleSignInAuthentication.idToken;
       // Use the user object for further operations or navigate to a new screen.
     } catch (e) {
       print(e.toString());

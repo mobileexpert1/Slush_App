@@ -219,7 +219,7 @@ class createAccountController extends ChangeNotifier {
       print("User -- -> ${user.toString()}");
       // print("User Credentials -- -> ${user}");
       print("User Credentials -- -> ${userCredential}");
-      socialLoginUser(context,"GOOGLE", socialToken: credential.accessToken.toString());
+      socialLoginUser(context,"GOOGLE", socialToken: googleSignInAuthentication.idToken.toString());
       // Use the user object for further operations or navigate to a new screen.
     } catch (e) {
       print(e.toString());

@@ -69,11 +69,17 @@ class _DeatilProfileVideoScreenState extends State<DeatilProfileVideoScreen> {
                                 onTap: ()async{
                                   var camstatus = await Permission.camera.status;
                                   var micstatus = await Permission.microphone.status;
-                                  if (camstatus.isGranted && micstatus.isGranted) {detailcntrl.tappedOption(context, ImageSource.camera, "0");}
+                                  if (camstatus.isGranted && micstatus.isGranted) {
+                                    // detailcntrl.tappedOption(context, ImageSource.camera, "0");
+                                    detailcntrl.callVideoRecordFunction(context, ImageSource.camera, "0");
+                                  }
                                   else if (camstatus.isDenied || micstatus.isDenied){
                                     var newStatus = await Permission.camera.request();
                                     var newmStatus = await Permission.microphone.request();
-                                    if (newStatus.isGranted && newmStatus.isGranted){detailcntrl.tappedOption(context, ImageSource.camera, "0");}
+                                    if (newStatus.isGranted && newmStatus.isGranted){
+                                      // detailcntrl.tappedOption(context, ImageSource.camera, "0");
+                                      detailcntrl.callVideoRecordFunction(context, ImageSource.camera, "0");
+                                    }
                                     else if (newStatus.isPermanentlyDenied || newmStatus.isPermanentlyDenied){openAppSettings();}
                                   }
                                   else if (camstatus.isPermanentlyDenied || micstatus.isPermanentlyDenied){openAppSettings();}
@@ -145,16 +151,16 @@ class _DeatilProfileVideoScreenState extends State<DeatilProfileVideoScreen> {
                       return val.galleryFile != null ? ClipRRect(
                         borderRadius: BorderRadius.circular(12),
                         child: AspectRatio(
-                          aspectRatio: val.controller!.value.aspectRatio,
+                          aspectRatio: val.controller.value.aspectRatio,
                           child: Stack(
                             alignment: Alignment.center,
                             children: [
                               AspectRatio(
-                                  aspectRatio: val.controller!.value.aspectRatio,
-                                  child: VideoPlayer(val.controller!)),
+                                  aspectRatio: val.controller.value.aspectRatio,
+                                  child: VideoPlayer(val.controller)),
                               GestureDetector(
                                   onTap: (){
-                                    val.controller?.play();
+                                    val.controller.play();
                                   },
                                   // child:val.controller.value.isPlaying?SizedBox(): SvgPicture.asset(AssetsPics.videoplayicon)),
                                   child: SvgPicture.asset(AssetsPics.videoplayicon)),

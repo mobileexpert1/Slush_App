@@ -360,3 +360,138 @@ class _RecordVideoScreebState extends State<RecordVideoScreeb> {
     );
   }
 }
+
+
+//--------------------- add profile camera
+class AddVideoScreen extends StatefulWidget {
+  const AddVideoScreen({Key? key}) : super(key: key);
+  @override
+  State<AddVideoScreen> createState() => _AddVideoScreenState();
+}
+
+class _AddVideoScreenState extends State<AddVideoScreen> {
+  @override
+  void initState() {
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: []);
+    // TODO: implement initState
+    super.initState();
+  }
+
+  bool front=true;
+  @override
+  Widget build(BuildContext context) {
+    final pr=Provider.of<detailedController>(context,listen: false);
+    final size=MediaQuery.of(context).size;
+    return Scaffold(
+        backgroundColor: Colors.black,
+        body: Consumer<detailedController>(builder: (ctx,val,child){
+          return val.videoFinished==2?
+          Stack(
+            children: [
+              Positioned(
+                top: 50,
+                child: Container(
+                  height: size.height/1.5,
+                  width: size.width,
+                  color: Colors.grey,
+                  child:VideoPlayer(val.controllerr!),
+                ),
+              ),
+              Positioned(
+                  left: 50.0,
+                  right: 50.0,
+                  bottom: 40.0,
+                  child: GestureDetector(
+                    onTap: (){pr.storeRecord(ctx);},
+                    child: const SizedBox(
+                        width: 50,
+                        // color: Colors.red,
+                        child: Icon(Icons.check,color: Colors.white,size: 80)),
+                  )),
+              Positioned(left: 30.0,
+                  top: 11.0,
+                  child:val.running && val.secondsLeft!=0? GestureDetector(
+                    onTap: (){pr.cancelrecording();},
+                    child: Container(
+                        width: 45,height: 45,
+                        color: Colors.transparent,
+                        child: const Icon(Icons.clear,color: Colors.white,size: 30)),
+                  ):const SizedBox()),
+            ],
+          ) : Stack(
+            children: [
+              Positioned(
+                top: 50,
+                child: Container(
+                  // height: size.height/1.5,
+                  width: size.width,
+                  color: Colors.grey,
+                  child: CameraPreview(val.cam),
+                ),
+              ),
+              Positioned(
+                left: 50.0,
+                right: 50.0,
+                bottom: 40.0,
+                child: GestureDetector(
+                    onTap: (){if(val.secondsLeft==0){pr.startvideorecording(context);}
+                    else{if(val.running){pr.pauseresumetimer(false);}
+                    else{pr.pauseresumetimer(true);}}},
+                    child: Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        val.secondsLeft<15? const Icon(Icons.circle,color: Colors.white70,size: 100):const SizedBox(),
+                        val.secondsLeft==0?const Icon(Icons.circle,color: Colors.white,size: 80):
+                        val.running && val.secondsLeft<15? const Icon(Icons.play_arrow,color: Colors.white,size: 80):
+                        val.secondsLeft<15? const Icon(Icons.pause,color: Colors.white,size: 80):const SizedBox(),
+                      ],
+                    )),
+              ),
+              Positioned(
+                // left: 0.0,
+                right: 60.0,
+                bottom: 70.0,
+                child:val.secondsLeft==0?
+                GestureDetector(
+                  onTap: () {
+                    front=!front;
+                    if(front){pr.pickVideoFromCamera(CameraLensDirection.front);}
+                    else{pr.pickVideoFromCamera(CameraLensDirection.back);}
+                  },
+                  child: SvgPicture.asset(AssetsPics.camrotate,height: 40),
+                ):
+                const SizedBox(),
+              ),
+              Positioned(top: 18,
+                  left: MediaQuery.of(context).size.width*0.4,
+                  child: Container(width: MediaQuery.of(context).size.width*0.2,height: 30,
+                    decoration: BoxDecoration(color: Colors.white70,
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    alignment: Alignment.center,
+                    child: buildText(pr.formatTime(val.secondsLeft),18,FontWeight.w500,color.txtBlack),
+                  )),
+              Positioned(left: 40.0,
+                  bottom: 70.0,
+                  child: val.running && val.secondsLeft!=0? GestureDetector(
+                    onTap: (){pr.finishedRecording();},
+                    child: Container(
+                        width: 45,height: 45,
+                        color: Colors.transparent,
+                        child: const Icon(Icons.check,color: Colors.white,size: 40)),
+                  ):const SizedBox()),
+              Positioned(left: 30.0,
+                  top: 11.0,
+                  child:val.running && val.secondsLeft!=0? GestureDetector(
+                    onTap: (){pr.cancelrecording();},
+                    child: Container(
+                        width: 45,height: 45,
+                        color: Colors.transparent,
+                        child: const Icon(Icons.clear,color: Colors.white,size: 30)),
+                  ):const SizedBox()),
+            ],
+          );
+        })
+    );
+  }
+}
