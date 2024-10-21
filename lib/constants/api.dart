@@ -14,7 +14,8 @@ class ApiList {
 
 
 
-  static const String imgbaseUrl = 'https://virtual-speed-date.s3.eu-west-2.amazonaws.com/';
+  // static const String imgbaseUrl = 'https://virtual-speed-date.s3.eu-west-2.amazonaws.com/';
+  static const String imgbaseUrl = 'https://slush-prod.s3.eu-west-2.amazonaws.com/';
   // static const String imageBaseUrl = 'https://dev81.csdevhub.com/gaurdemand/storage/profileImages/';
 
   //--- Events Todo

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cached_video_player_plus/cached_video_player_plus.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -21,8 +22,8 @@ class CreateNewAccount extends StatefulWidget {
   @override
   State<CreateNewAccount> createState() => _CreateNewAccountState();
 }
-
-class _CreateNewAccountState extends State<CreateNewAccount> {
+//---- Todo old
+/*class _CreateNewAccountState extends State<CreateNewAccount> {
   TextEditingController emailController = TextEditingController();
   FocusNode emailNode = FocusNode();
   String enableField = "";
@@ -427,15 +428,18 @@ class _CreateNewAccountState extends State<CreateNewAccount> {
       ),
     );
   }
-}
+}*/
 
-//-----
-/*class _CreateNewAccountState extends State<CreateNewAccount> {
+
+
+// ---  todo new
+class _CreateNewAccountState extends State<CreateNewAccount> {
   TextEditingController emailController = TextEditingController();
   FocusNode emailNode = FocusNode();
   // String enableField = "";
-  final ValueNotifier<String> enableField = ValueNotifier<String>("");
-  bool button = false;
+  ValueNotifier<String> enableField=ValueNotifier<String>("");
+  // bool button = false;
+  ValueNotifier<bool> button=ValueNotifier<bool>(false);
 
   TextEditingController passwordController = TextEditingController();
   TextEditingController confPasswordController = TextEditingController();
@@ -443,9 +447,13 @@ class _CreateNewAccountState extends State<CreateNewAccount> {
   FocusNode confirmPassFocus = FocusNode();
 
   // bool password = true;
-  bool cnfrmpassword = true;
-  String passwordErrorText = "";
-  String cpasswordErrorText = "";
+  // bool cnfrmpassword = true;
+  ValueNotifier<bool> password=ValueNotifier<bool>(true);
+  ValueNotifier<bool> cnfrmpassword=ValueNotifier<bool>(true);
+  // String passwordErrorText = "";
+  ValueNotifier<String> passwordErrorText=ValueNotifier<String>("");
+  // String cpasswordErrorText = "";
+  ValueNotifier<String> cpasswordErrorText=ValueNotifier<String>("");
   bool _keyboardvisible = false;
   final GoogleSignIn googleSignIn = GoogleSignIn();
 
@@ -488,23 +496,21 @@ class _CreateNewAccountState extends State<CreateNewAccount> {
                   const SizedBox(height: 29),
                   Padding(
                     padding: const EdgeInsets.only(left: 4, bottom: 2),
-                    child: ValueListenableBuilder<String>(
-                        valueListenable: enableField,
-                        builder: (context, value, child) {return buildText(
-                        "Email", 16,
-                        FontWeight.w500,
-                        enableField.value == "Enter email" ? color.txtBlue : color.txtgrey,
-                        fontFamily: FontFamily.hellix);}),
+                    child: ValueListenableBuilder(
+                      valueListenable: enableField,
+                      builder: (context,value,child){
+                        return buildText("Email", 16, FontWeight.w500,
+                            enableField.value == "Enter email" ? color.txtBlue : color.txtgrey,
+                            fontFamily: FontFamily.hellix);
+                      },
+                    ),
                   ),
-                ValueListenableBuilder<String>(
-                    valueListenable: enableField,
-                    builder: (context, value, child) {return buildContainer(
+                  buildContainer(
                     "Enter email",
                     emailController,
                     AutovalidateMode.onUserInteraction,
                     emailNode,
                     press: () {
-                      // acccntrl.emailFieldText("Enter email");
                       enableField.value = "Enter email";
                     },
                     gesture: GestureDetector(
@@ -514,137 +520,147 @@ class _CreateNewAccountState extends State<CreateNewAccount> {
                             width: 30,
                             alignment: Alignment.center,
                             child: SvgPicture.asset(AssetsPics.mailIcon))),
-                  );}),
+                  ),
                   Padding(
                     padding: const EdgeInsets.only(left: 4, bottom: 2, top: 15),
-                    child:ValueListenableBuilder<String>(
-                        valueListenable: enableField,
-                        builder: (context, value, child) {return buildText("Password", 16, FontWeight.w500,
-                        enableField.value == "Enter password" ? color.txtBlue : color.txtgrey,
-                        fontFamily: FontFamily.hellix);}),
+                    child: ValueListenableBuilder(
+                       valueListenable: enableField,
+                      builder: (context,value,child) {
+                         return buildText("Password", 16, FontWeight.w500,
+                    enableField.value == "Enter password" ? color.txtBlue : color.txtgrey,
+                    fontFamily: FontFamily.hellix);
+                    }
+                    ),
                   ),
-                ValueListenableBuilder<String>(
-                    valueListenable: enableField,
-                    builder: (context, value, child) {return  buildContainerPass(
-                    "Enter password",
-                    "Enter password",
-                    passwordController,
-                    AutovalidateMode.onUserInteraction,
-                    passwordFocus,
-                    validation: (val) {
-                      if (val == "") {
-                        passwordErrorText = "";
-                      } else if (passwordController.text.length < 8) {
-                          button = false;
-                          passwordErrorText = "Password length should be 8 Characters";
-                      } else if (!RegExp(LocaleKeysValidation.password).hasMatch(passwordController.text)) {
-                          button = false;
-                          passwordErrorText = "Your password must include at least one uppercase letter, one lowercase letter, one number, and one special character.";
-                      } else if (passwordController.text == confPasswordController.text &&
-                          !RegExp(LocaleKeysValidation.email).hasMatch(emailController.text) == false &&
-                          emailController.text != "" &&
-                          !RegExp(LocaleKeysValidation.password).hasMatch(passwordController.text) == false) {
-                          button = true;
-                          passwordErrorText = "";
-                      } else {
-                          button = false;
-                          passwordErrorText = "";
-                      }
-                      return null;
-                    },
-                    obs: password,
-                    press: () {
-                      enableField.value = "Enter password";
-                    },
-                    gesture: GestureDetector(
-                        onTap: () {
-                            password = !password;
-                        },
-                        child: Container(
-                            padding: const EdgeInsets.only(top: 5),
-                            height: 20,
-                            width: 30,
-                            alignment: Alignment.center,
-                            child: SvgPicture.asset(password ? AssetsPics.eyeOff : AssetsPics.eyeOn))),
-                  );}),
-                  const SizedBox(height: 5),
-                  passwordErrorText == "" ? const SizedBox()
-                      : Padding(
-                      padding: const EdgeInsets.only(left: 10),
-                      child: buildText(passwordErrorText, 12.8, FontWeight.w500, Colors.red)),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 4, bottom: 2, top: 15),
-                    child:ValueListenableBuilder<String>(
-                        valueListenable: enableField,
-                        builder: (context, value, child) {return buildText("Confirm Password", 16, FontWeight.w500,
-                        enableField.value == "Enter cpassword" ? color.txtBlue : color.txtgrey,
-                        fontFamily: FontFamily.hellix);}),
-                  ),
-                ValueListenableBuilder<String>(
-                    valueListenable: enableField,
-                    builder: (context, value, child) {return   buildContainerPass(
-                    "Enter password",
-                    "Enter cpassword",
-                    confPasswordController,
-                    AutovalidateMode.onUserInteraction,
-                    confirmPassFocus,
-                    obs: cnfrmpassword,
-                    validation: (val) {
-                      if (confPasswordController.text == "") {
-                          button = false;
-                          cpasswordErrorText = "";
-                      } else if (passwordController.text ==
-                          confPasswordController.text) {
-                        if (!RegExp(LocaleKeysValidation.email).hasMatch(emailController.text) == false &&
-                            emailController.text != "" &&
-                            !RegExp(LocaleKeysValidation.password).hasMatch(passwordController.text) == false) {
-                            button = true;
-                        } else {
-                          button = false;
-                        }
-                          cpasswordErrorText = "";
-                      } else {
-                          button = false;
-                          cpasswordErrorText = "The passwords do not match. Please try again.";
-                      }
-                      return null;
-                    },
-                    press: () {
-                        enableField.value = "Enter cpassword";
-                    },
-                    gesture: GestureDetector(
-                        onTap: () {
-                            cnfrmpassword = !cnfrmpassword;
-                        },
-                        child: Container(
-                            padding: const EdgeInsets.only(top: 5),
-                            height: 20,
-                            width: 30,
-                            alignment: Alignment.center,
-                            child: SvgPicture.asset(cnfrmpassword ? AssetsPics.eyeOff : AssetsPics.eyeOn))),
-                  );}),
-                  cpasswordErrorText == "" ? const SizedBox()
-                      : Padding(
-                    padding: const EdgeInsets.only(left: 10),
-                    child: buildText(cpasswordErrorText, 12.8, FontWeight.w500, Colors.red),
-                  ),
-                  const SizedBox(height: 25),
-                  blue_button(context, "Continue", validation: button,clr: Colors.grey,
-                      press: () async {
-                        if (emailController.text.trim() == "") {showToastMsg("Please Enter email");}
-                        else if (!RegExp(LocaleKeysValidation.email).hasMatch(emailController.text)) {
-                          showToastMsg("Please enter valid email!");}
-                        else {
-                          if (button) {
-                            emailNode.unfocus();
-                            FocusManager.instance.primaryFocus?.unfocus();
-                            // registerUser();
-                            acccntrl.registerUser(context, emailController.text.trim(), passwordController.text.trim());
-                          } else if (cpasswordErrorText == "" && passwordErrorText == "") {
-                            showToastMsg("All fields are mandatory");
+                  ValueListenableBuilder(valueListenable: password, builder: (context,value,child){
+                      return buildContainerPass(
+                        "Enter password",
+                        "Enter password",
+                        passwordController,
+                        AutovalidateMode.onUserInteraction,
+                        passwordFocus,
+                        validation: (val) {
+                          if (val == "") {
+                            passwordErrorText.value = "";
+                          } else if (passwordController.text.length < 8) {
+                            button.value = false;
+                            passwordErrorText.value = "Password length should be 8 Characters";
+                          } else if (!RegExp(LocaleKeysValidation.password).hasMatch(passwordController.text)) {
+                            button.value = false;
+                            passwordErrorText.value = "Your password must include at least one uppercase letter, one lowercase letter, one number, and one special character.";
+                          } else if (passwordController.text == confPasswordController.text &&
+                              !RegExp(LocaleKeysValidation.email).hasMatch(emailController.text) == false &&
+                              emailController.text != "" &&
+                              !RegExp(LocaleKeysValidation.password).hasMatch(passwordController.text) == false) {
+                            button.value = true;
+                            passwordErrorText.value = "";
+                          } else {
+                            button.value = false;
+                            passwordErrorText.value = "";
                           }
+                          return null;
+                        },
+                        obs: password.value,
+                        press: () {enableField.value = "Enter password";},
+                        gesture: GestureDetector(
+                            onTap: () {password.value = !password.value;},
+                            child: Container(
+                                padding: const EdgeInsets.only(top: 5),
+                                height: 20,
+                                width: 30,
+                                alignment: Alignment.center,
+                                child: SvgPicture.asset(password.value ? AssetsPics.eyeOff : AssetsPics.eyeOn))),
+                      );
+                    }
+                  ),
+                  const SizedBox(height: 5),
+                  ValueListenableBuilder(valueListenable: passwordErrorText, builder: (context,value,child){
+                    return  passwordErrorText.value == "" ? const SizedBox()
+                        : Padding(
+                        padding: const EdgeInsets.only(left: 10),
+                        child: buildText(passwordErrorText.value, 12.8, FontWeight.w500, Colors.red));
+                  }),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4, bottom: 2, top: 15),
+                    child: ValueListenableBuilder(
+                        valueListenable: enableField,
+                        builder: (context,value,child) {
+                        return buildText("Confirm Password", 16, FontWeight.w500,
+                            enableField.value == "Enter cpassword" ? color.txtBlue : color.txtgrey,
+                            fontFamily: FontFamily.hellix);
+                      }
+                    ),
+                  ),
+                  ValueListenableBuilder(valueListenable: cnfrmpassword, builder: (context,value,child){
+                    return buildContainerPass(
+                      "Enter password",
+                      "Enter cpassword",
+                      confPasswordController,
+                      AutovalidateMode.onUserInteraction,
+                      confirmPassFocus,
+                      obs: cnfrmpassword.value,
+                      validation: (val) {
+                        if (confPasswordController.text == "") {
+                          button.value = false;
+                          cpasswordErrorText.value = "";
+                        } else if (passwordController.text ==
+                            confPasswordController.text) {
+                          if (!RegExp(LocaleKeysValidation.email).hasMatch(emailController.text) == false &&
+                              emailController.text != "" &&
+                              !RegExp(LocaleKeysValidation.password).hasMatch(passwordController.text) == false) {
+                            button.value = true;
+                          } else {
+                            button.value = false;
+                          }
+                          cpasswordErrorText.value = "";
+                        } else {
+                          button.value = false;
+                          cpasswordErrorText.value = "The passwords do not match. Please try again.";
                         }
-                      }),
+                        return null;
+                      },
+                      press: () {
+                        enableField.value = "Enter cpassword";
+                      },
+                      gesture: GestureDetector(
+                          onTap: () {cnfrmpassword.value = !cnfrmpassword.value;},
+                          child: Container(
+                              padding: const EdgeInsets.only(top: 5),
+                              height: 20,
+                              width: 30,
+                              alignment: Alignment.center,
+                              child: SvgPicture.asset(cnfrmpassword.value ? AssetsPics.eyeOff : AssetsPics.eyeOn))),
+                    );
+                  }),
+                  ValueListenableBuilder(valueListenable: cpasswordErrorText, builder: (context,value,child){
+                    return cpasswordErrorText.value == "" ? const SizedBox()
+                        : Padding(
+                      padding: const EdgeInsets.only(left: 10),
+                      child: buildText(cpasswordErrorText.value, 12.8, FontWeight.w500, Colors.red),
+                    );
+                  }),
+                  const SizedBox(height: 25),
+                  ValueListenableBuilder(
+                    valueListenable: button,
+                    builder: (context,value,child) {
+                      return blue_button(context, "Continue", validation: button.value,clr: Colors.grey,
+                          press: () async {
+                            if (emailController.text.trim() == "") {showToastMsg("Please Enter email");}
+                            else if (!RegExp(LocaleKeysValidation.email).hasMatch(emailController.text)) {
+                              showToastMsg("Please enter valid email!");}
+                            else {
+                              if (button.value) {
+                                emailNode.unfocus();
+                                FocusManager.instance.primaryFocus?.unfocus();
+                                // registerUser();
+                                acccntrl.registerUser(context, emailController.text.trim(), passwordController.text.trim());
+                              } else if (cpasswordErrorText.value == "" && passwordErrorText.value == "") {
+                                showToastMsg("All fields are mandatory");
+                              }
+                            }
+                          });
+                    }
+                  ),
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -663,11 +679,11 @@ class _CreateNewAccountState extends State<CreateNewAccount> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      buildCircleAvatar(AssetsPics.facebook,(){acccntrl.loginWithFacebook();}),
+                      buildCircleAvatar(AssetsPics.facebook,(){acccntrl.loginWithFacebook(context);}),
                       const SizedBox(width: 15),
-                      buildCircleAvatar(AssetsPics.google,(){acccntrl.signInWithGoogle(googleSignIn);}),
-                      const SizedBox(width: 15),
-                      buildCircleAvatar(AssetsPics.apple,(){}),
+                      buildCircleAvatar(AssetsPics.google,(){acccntrl.signInWithGoogle(context,googleSignIn);}),
+                      Platform.isAndroid?const SizedBox(): const SizedBox(width: 15),
+                      Platform.isAndroid?const SizedBox(): buildCircleAvatar(AssetsPics.apple,(){acccntrl.signInWithApple(context);}),
                     ],
                   ),
                   const SizedBox(height: 10),
@@ -702,45 +718,52 @@ class _CreateNewAccountState extends State<CreateNewAccount> {
         GestureDetector? gesture}) {
     return Align(
       alignment: Alignment.center,
-      child: Container(
-        height: 56,
-        width: MediaQuery.of(context).size.width,
-        decoration: BoxDecoration(
-            color: color.txtWhite,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-                color: enableField.value == txt ? color.txtBlue : color.txtWhite,
-                width: 1)),
-        child: TextFormField(
-          textInputAction: TextInputAction.done,
-          onTap: press,
-          focusNode: node,
-          controller: controller,
-          cursorColor: color.txtBlue,
-          autovalidateMode: auto,
-          validator: validation,
-          onChanged: (val) {
-              if (passwordController.text == confPasswordController.text &&
-                  !RegExp(LocaleKeysValidation.email).hasMatch(emailController.text) == false &&
-                  emailController.text != "" && !RegExp(LocaleKeysValidation.password).hasMatch(passwordController.text) == false) {
-                button = true;
-              } else {
-                button = false;
-              }
-          },
-          decoration: InputDecoration(
-            errorStyle: const TextStyle(height: 0, fontSize: 12),
-            border: InputBorder.none,
-            hintText: txt,
-            hintStyle: const TextStyle(
-                fontFamily: FontFamily.hellix,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: color.txtgrey2),
-            contentPadding: const EdgeInsets.only(left: 20, right: 18, top: 13),
-            suffixIcon: gesture,
-          ),
-        ),
+      child: ValueListenableBuilder(
+          valueListenable: enableField,
+          builder: (context,value,child) {
+          return Container(
+            height: 56,
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+                color: color.txtWhite,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                    color: enableField.value == txt ? color.txtBlue : color.txtWhite,
+                    width: 1)
+            ),
+            child: TextFormField(
+              textInputAction: TextInputAction.done,
+              onTap: press,
+              focusNode: node,
+              controller: controller,
+              cursorColor: color.txtBlue,
+              autovalidateMode: auto,
+              validator: validation,
+              onChanged: (val) {
+                  if (passwordController.text == confPasswordController.text &&
+                      !RegExp(LocaleKeysValidation.email).hasMatch(emailController.text) == false &&
+                      emailController.text != "" && !RegExp(LocaleKeysValidation.password).hasMatch(passwordController.text) == false) {
+                    button.value = true;
+                  } else {
+                    button.value = false;
+                  }
+
+              },
+              decoration: InputDecoration(
+                errorStyle: const TextStyle(height: 0, fontSize: 12),
+                border: InputBorder.none,
+                hintText: txt,
+                hintStyle: const TextStyle(
+                    fontFamily: FontFamily.hellix,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: color.txtgrey2),
+                contentPadding: const EdgeInsets.only(left: 20, right: 18, top: 13),
+                suffixIcon: gesture,
+              ),
+            ),
+          );
+        }
       ),
     );
   }
@@ -784,41 +807,47 @@ class _CreateNewAccountState extends State<CreateNewAccount> {
         bool obs = true}) {
     return Align(
       alignment: Alignment.center,
-      child: Container(
-        height: 56,
-        width: MediaQuery.of(context).size.width,
-        decoration: BoxDecoration(
-            color: color.txtWhite,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-                color: enableField.value == chktxt ? color.txtBlue : color.txtWhite,
-                width: 1)),
-        child: TextFormField(
-          textInputAction: TextInputAction.done,
-          onTap: press,
-          focusNode: node,
-          controller: controller,
-          // focusNode: loginFocus,
-          obscureText: obs,
-          obscuringCharacter: "X",
-          cursorColor: color.txtBlue,
-          autovalidateMode: auto,
-          // validator: validation,
-          onChanged: validation,
-          decoration: InputDecoration(
-            errorStyle: const TextStyle(height: 0, fontSize: 12),
-            border: InputBorder.none,
-            hintText: txt,
-            hintStyle: const TextStyle(
-                fontFamily: FontFamily.hellix,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: color.txtgrey2),
-            contentPadding: const EdgeInsets.only(left: 20, right: 18, top: 13),
-            suffixIcon: gesture,
-          ),
-        ),
+      child: ValueListenableBuilder(
+          valueListenable: enableField,
+          builder: (context,value,child) {
+          return Container(
+            height: 56,
+            width: MediaQuery.of(context).size.width,
+            decoration: BoxDecoration(
+                color: color.txtWhite,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(
+                    color: enableField.value == chktxt ? color.txtBlue : color.txtWhite,
+                    width: 1)),
+            child: TextFormField(
+              textInputAction: TextInputAction.done,
+              onTap: press,
+              focusNode: node,
+              controller: controller,
+              // focusNode: loginFocus,
+              obscureText: obs,
+              obscuringCharacter: "X",
+              cursorColor: color.txtBlue,
+              autovalidateMode: auto,
+              // validator: validation,
+              onChanged: validation,
+              decoration: InputDecoration(
+                errorStyle: const TextStyle(height: 0, fontSize: 12),
+                border: InputBorder.none,
+                hintText: txt,
+                hintStyle: const TextStyle(
+                    fontFamily: FontFamily.hellix,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: color.txtgrey2),
+                contentPadding: const EdgeInsets.only(left: 20, right: 18, top: 13),
+                suffixIcon: gesture,
+              ),
+            ),
+          );
+        }
       ),
     );
   }
-}*/
+}
+

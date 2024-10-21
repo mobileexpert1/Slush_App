@@ -135,6 +135,7 @@ class _EventScreenState extends State<EventScreen> {
   int _page = 1;
   var myEvent = null;
   int totalpages = 0;
+  int totalitems = -1;
   int currentpage = 0;
   bool _hasNextPage = true;
   List<int> catId = [0];
@@ -156,6 +157,7 @@ class _EventScreenState extends State<EventScreen> {
       setState(() {
         data = jsonDecode(response.body)["data"];
         totalpages = data["meta"]["totalPages"];
+        totalitems = data["meta"]["totalItems"];
         currentpage = data["meta"]["currentPage"];
         post = data["items"];
         _isLoadMoreRunning=false;
@@ -1065,7 +1067,29 @@ class _EventScreenState extends State<EventScreen> {
               ? const CircularProgressIndicator(color: color.txtBlue)
               : data == "no data"
                   ? Center(child: buildText("no data!", 18, FontWeight.w500, color.txtgrey))
-                  : ListView.builder(
+                  :totalitems==0?
+          Container(
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12),color: Colors.white54),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Stack(
+                  children: [
+                    Container(
+                        margin: const EdgeInsets.only(top: 20,left: 20),
+                        alignment: Alignment.center,
+                        child:Image.asset(AssetsPics.noevent)),
+                  ],
+                ),
+                SizedBox(height: 4.h),
+                buildText("No events! ", 30, FontWeight.w600, color.txtBlue),
+                SizedBox(height: 2.h),
+                buildText2("There is no new event yet.\n Please change location", 18, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix),
+                SizedBox(height: 8.h),
+              ],
+            ),
+          )
+              : ListView.builder(
                       physics: const NeverScrollableScrollPhysics(),
                       scrollDirection: Axis.vertical,
                       shrinkWrap: true,

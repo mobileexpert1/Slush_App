@@ -242,7 +242,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
-                          Row(children: [
+                         /* Row(children: [
                             GestureDetector(
                               onTap: (){prfileControl.setSelectedIndex(1);},
                               child: buildContainer(context,"Gold", "£19.99"),
@@ -255,20 +255,39 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                               onTap: (){prfileControl.setSelectedIndex(3);},
                               child: buildContainer(context, "Platinum", "£29.99"),
                             ),
-                          ],),
+                          ],),*/
                           val.selectedIndex==2? GestureDetector(
                             onTap: () {
                               prfileControl.setSelectedIndex(2);
                             },
                             child: Container(
                               height: 185 ,
-                              // width: MediaQuery.of(context).size.width/3.5,
-                              width: MediaQuery.of(context).size.width/2.9,
+                              // width: MediaQuery.of(context).size.width/2.9,
+                              width: MediaQuery.of(context).size.width,
                               decoration: BoxDecoration(color: color.txtBlue ,
                                   border: Border.all(color: color.example3),
                                   borderRadius: BorderRadius.circular(12)
                               ),
-                              child: Column(
+                              child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",height: 50),
+                                // Spacer(),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    // SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
+                                    buildText("Slush", 30, FontWeight.w600, color.txtWhite ),
+                                    buildText("Silver", 30, FontWeight.w600,color.txtWhite ),
+                                    const SizedBox(height: 10,),
+                                    buildText("£9.99", 30, FontWeight.w600, color.txtWhite ),
+                                  ],
+                                ),
+                                SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",height: 50),
+                              ],
+                            ),
+
+                              /*Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
@@ -279,10 +298,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   // buildText("£19.99", 20, FontWeight.w600, color.txtWhite ),
                                   buildText("£9.99", 20, FontWeight.w600, color.txtWhite ),
                                 ],
-                              ),
+                              )*/
                             ),
                           ):const SizedBox(),
-                          Positioned(
+                       /*   Positioned(
                             bottom:Platform.isAndroid ? val.selectedIndex == 2 ? 0 : 8.0 :val.selectedIndex == 2 ? 11 : 22,
                             child: Container(
                               alignment: Alignment.center,
@@ -292,7 +311,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                   color: val.selectedIndex == 2 ? color.txtWhite : color.txtBlue),
                               child: buildText("Popular", 13, FontWeight.w600,val.selectedIndex == 2 ? color.txtBlue : color.txtWhite,fontFamily: FontFamily.hellix),
                             ),
-                          ),
+                          ),*/
                           val.selectedIndex==1? Positioned(
                             left: 0.0,
                             child: Container(

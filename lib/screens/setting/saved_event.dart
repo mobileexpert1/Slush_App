@@ -4,6 +4,7 @@ import 'package:intl/intl.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
@@ -91,9 +92,52 @@ class _MyEventListScreenState extends State<MySavedEvent> {
       body: data==null ? Center(child: CircularProgressIndicator(color: color.txtBlue)) :Stack(
         children: [
           SizedBox(height: size.height, width: size.width, child: Image.asset(AssetsPics.background,fit: BoxFit.cover),),
-          data.length==0?Center(child:// CircularProgressIndicator(color: color.txtBlue)
-          buildText("No Saved Event",16,FontWeight.w500,color.txtBlue)
-          ):
+          data.length==0?
+          // Center(child: buildText("No Saved Event",16,FontWeight.w500,color.txtBlue))
+          Container(
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12), color: Colors.white54),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Positioned(
+                  top:160.0,
+                  child: Container(
+                    // color: Colors.red,
+                      height: 22.h,
+                      width: 23.h,
+                      alignment: Alignment.center,
+                      child: SvgPicture.asset(AssetsPics.bigheart,fit: BoxFit.cover,)),
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(height: 15.h),
+                    Stack(
+                      children: [
+                        Positioned(
+                          left: 140,
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: SvgPicture.asset(AssetsPics.threeDotsLeft),),
+                        ),
+                        Container(
+                            margin: const EdgeInsets.only(top: 20,left: 20),
+                            alignment: Alignment.center,
+                            child:Image.asset(AssetsPics.noevent)),
+                      ],
+                    ),
+                    SizedBox(height: 8.h),
+                    buildText("No Saved events! ", 30, FontWeight.w600, color.txtBlue),
+                    SizedBox(height: 2.h),
+                    buildText2("You have not saved any \n event yet.", 18, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix),
+                    SizedBox(height: 22.h)
+                  ],
+                ),
+              ],
+            ),
+          )
+
+              :
           SingleChildScrollView(
             child: Padding(padding: const EdgeInsets.only(left: 15,right: 15,top: 20),
               child: Column(children: [

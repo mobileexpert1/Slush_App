@@ -6,6 +6,7 @@ import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/controller/detail_controller.dart';
+import 'package:slush/screens/feed/tutorials/tutorial.dart';
 import 'package:slush/widgets/text_widget.dart';
 
 class DetailSexualOreintScreen extends StatefulWidget {
@@ -38,33 +39,34 @@ class _DetailSexualOreintScreenState extends State<DetailSexualOreintScreen> {
     "Straight","Gay","Lesbian","Bisexual","Asexual","Demisexual","Pansexual","Queer","Questioning"
   ];
 
-  bool textValue=true;
-  int selcetedIndex=-1;
+  // bool textValue=true;
+  // int selcetedIndex=-1;
+  ValueNotifier<bool> textValue = ValueNotifier(true);
+  ValueNotifier<int> selcetedIndex = ValueNotifier(-1);
 
   void selectedValue(){
     if(LocaleHandler.sexualOreintation == "straight"){
-      selcetedIndex = 0;
+      selcetedIndex.value = 0;
     }else if(LocaleHandler.sexualOreintation == "gay"){
-      selcetedIndex = 1;
+      selcetedIndex.value = 1;
     }
     else if(LocaleHandler.sexualOreintation == "lesbian"){
-      selcetedIndex = 2;
+      selcetedIndex.value = 2;
     } else if(LocaleHandler.sexualOreintation == "bisexual"){
-      selcetedIndex = 3;
+      selcetedIndex.value = 3;
     } else if(LocaleHandler.sexualOreintation == "asexual"){
-      selcetedIndex = 4;
+      selcetedIndex.value = 4;
     } else if(LocaleHandler.sexualOreintation == "demisexual"){
-      selcetedIndex = 5;
+      selcetedIndex.value = 5;
     } else if(LocaleHandler.sexualOreintation == "pansexual"){
-      selcetedIndex = 6;
+      selcetedIndex.value = 6;
     } else if(LocaleHandler.sexualOreintation == "queer"){
-      selcetedIndex = 7;
+      selcetedIndex.value = 7;
     } else if(LocaleHandler.sexualOreintation == "questioning"){
-      selcetedIndex = 8;
+      selcetedIndex.value = 8;
     }else{
-      selcetedIndex = -1;
+      selcetedIndex.value = -1;
     }
-    setState(() {});
   }
 
 
@@ -79,7 +81,7 @@ class _DetailSexualOreintScreenState extends State<DetailSexualOreintScreen> {
     if(LocaleHandler.EditProfile){
       if(itemss.contains(LocaleHandler.dataa["sexuality"].toString().capitalize())){
         int index = itemss.indexOf(LocaleHandler.sexualOreintation.toString().capitalize());
-        selcetedIndex=index;
+        selcetedIndex.value=index;
       }
     }
   }
@@ -89,7 +91,7 @@ class _DetailSexualOreintScreenState extends State<DetailSexualOreintScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-         SizedBox(height:LocaleHandler.EditProfile?0: 3.h-2),
+        SizedBox(height:LocaleHandler.EditProfile?0: 3.h-2),
         LocaleHandler.EditProfile? buildText("Choose one option that best represents you.", 28, FontWeight.w600, color.txtBlack):
         buildText2("Your sexual orientation?", 28, FontWeight.w600, color.txtBlack),
         const SizedBox(height: 8),
@@ -97,73 +99,77 @@ class _DetailSexualOreintScreenState extends State<DetailSexualOreintScreen> {
         // const SizedBox(height: 29),
         Expanded(
           child: Consumer<detailedController>(
-            builder: (context,value,child) {
-              return ListView.builder(
-                  padding: const EdgeInsets.only(top: 20,bottom: 100),
-                  itemCount: items.length,
-                  itemBuilder: (context,index){
-                    return value.gender!="female" && items[index].title=="Lesbian" ? const SizedBox():
-                    value.gender!="male" && items[index].title=="gay" ? const SizedBox():
-                    GestureDetector(
-                      onTap: (){
-                        setState(() {
-                          selcetedIndex=index;
+              builder: (context,value,child) {
+                return ListView.builder(
+                    padding: const EdgeInsets.only(top: 20,bottom: 100),
+                    itemCount: items.length,
+                    itemBuilder: (context,index){
+                      return value.gender!="female" && items[index].title=="Lesbian" ? const SizedBox():
+                      value.gender!="male" && items[index].title=="gay" ? const SizedBox():
+                      GestureDetector(
+                        onTap: (){
+                          selcetedIndex.value=index;
                           LocaleHandler.sexualOreintation=items[index].title.toString().toLowerCase();
-                        });
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(bottom: 15),
-                        height: 8.h-2,
-                        width: MediaQuery.of(context).size.width,
-                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(12),
-                            color: color.txtWhite,
-                            border: Border.all(width: 1,color: selcetedIndex==index?color.txtBlue:color.txtWhite)
-                        ),
-                        child: Padding(
-                          padding: const EdgeInsets.only(left: 20,right: 16,top: 0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              buildText(items[index].title, 18, FontWeight.w600, color.txtBlack),
-                              CircleAvatar(
-                                backgroundColor: selcetedIndex==index?color.txtBlue:color.txtBlack,
-                                radius: 9,
-                                child: CircleAvatar(
-                                  radius: 8,
-                                  backgroundColor: selcetedIndex==index?color.txtWhite:color.txtWhite,
-                                  // backgroundImage: SvgPicture.asset(AssetsPics.arrowLeft),
-                                  child: selcetedIndex==index?SvgPicture.asset(AssetsPics.blueTickCheck,fit: BoxFit.cover,):const SizedBox(),
+                        },
+                        child: ValueListenableBuilder(valueListenable: selcetedIndex,
+                            builder: (context,value,child) {
+                              return Container(
+                                margin: const EdgeInsets.only(bottom: 15),
+                                height: 8.h-2,
+                                width: MediaQuery.of(context).size.width,
+                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(12),
+                                    color: color.txtWhite,
+                                    border: Border.all(width: 1,color: selcetedIndex.value==index?color.txtBlue:color.txtWhite)
                                 ),
-                              )
-                            ],),
+                                child: Padding(
+                                  padding: const EdgeInsets.only(left: 20,right: 16,top: 0),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      buildText(items[index].title, 18, FontWeight.w600, color.txtBlack),
+                                      CircleAvatar(
+                                        backgroundColor: selcetedIndex.value==index?color.txtBlue:color.txtBlack,
+                                        radius: 9,
+                                        child: CircleAvatar(
+                                          radius: 8,
+                                          backgroundColor: selcetedIndex.value==index?color.txtWhite:color.txtWhite,
+                                          // backgroundImage: SvgPicture.asset(AssetsPics.arrowLeft),
+                                          child: selcetedIndex.value==index?SvgPicture.asset(AssetsPics.blueTickCheck,fit: BoxFit.cover,):const SizedBox(),
+                                        ),
+                                      )
+                                    ],),
+                                ),
+                              );
+                            }
                         ),
-                      ),
-                    );
-                  });
-            }
+                      );
+                    });
+              }
           ),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
+            SizedBox(
               height: 3.h+2,width: 30,
-              child: Checkbox(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
-                focusColor: Colors.white,
-                checkColor: Colors.white,
-                activeColor: color.txtBlue,
-                value:textValue,
-                onChanged: (bool? value) {
-                  if (value != null) {
-                    setState(() {
-                      textValue = value;
-                      LocaleHandler.showsexualOreintation=value;
-                      LocaleHandler.showsexualOreintations=value.toString();
-                    });
+              child: ValueListenableBuilder(valueListenable: textValue,
+                  builder: (context,value,child) {
+                    return Checkbox(
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(6)),
+                      focusColor: Colors.white,
+                      checkColor: Colors.white,
+                      activeColor: color.txtBlue,
+                      value:textValue.value,
+                      onChanged: (bool? value) {
+                        if (value != null) {
+                          textValue.value = value;
+                          LocaleHandler.showsexualOreintation=value;
+                          LocaleHandler.showsexualOreintations=value.toString();
+                        }
+                      },
+                    );
                   }
-                },
               ),
             ),
             const Text(

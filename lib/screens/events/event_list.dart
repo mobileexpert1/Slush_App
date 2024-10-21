@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
@@ -27,6 +28,7 @@ class MyEventListScreen extends StatefulWidget {
 class _MyEventListScreenState extends State<MyEventListScreen> {
   var data;
   int totalpages=0;
+  int totalitems=-1;
   int currentpage=0;
   List post=[];
   int _page = 1;
@@ -44,6 +46,7 @@ class _MyEventListScreenState extends State<MyEventListScreen> {
     if(response.statusCode==200){
       setState(() {data=jsonDecode(response.body)["data"];});
       totalpages=data["meta"]["totalPages"];
+      totalitems=data["meta"]["totalItems"];
       currentpage=data["meta"]["currentPage"];
       post=data["items"];
     }
@@ -153,7 +156,7 @@ class _MyEventListScreenState extends State<MyEventListScreen> {
       body: Stack(
         children: [
           SizedBox(height: size.height, width: size.width, child: Image.asset(AssetsPics.background,fit: BoxFit.cover),),
-          post.isEmpty?const Center(child: CircularProgressIndicator(color: color.txtBlue)):
+          post.isNotEmpty?
           SingleChildScrollView(
             controller: _controller,
             child: Padding(padding: const EdgeInsets.only(left: 15,right: 15,top: 20),
@@ -192,7 +195,50 @@ class _MyEventListScreenState extends State<MyEventListScreen> {
                 _isLoadMoreRunning? const Center(child: CircularProgressIndicator(color: color.txtBlue)):const SizedBox(),
               ],),
             ),
-          ),
+          )
+              :totalitems==0?Container(
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(12)),
+            child: Stack(
+              alignment: Alignment.center,
+              children: [
+                Positioned(
+                  top:160.0,
+                  child: Container(
+                    // color: Colors.red,
+                      height: 22.h,
+                      width: 23.h,
+                      alignment: Alignment.center,
+                      child: SvgPicture.asset(AssetsPics.bigheart,fit: BoxFit.cover,)),
+                ),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(height: 15.h),
+                    Stack(
+                      children: [
+                        Positioned(
+                          left: 130,
+                          child: Container(
+                            alignment: Alignment.center,
+                            child: SvgPicture.asset(AssetsPics.threeDotsLeft),),
+                        ),
+                        Container(
+                            margin: const EdgeInsets.only(top: 20,left: 20),
+                            alignment: Alignment.center,
+                            child:Image.asset(AssetsPics.noevent)),
+                      ],
+                    ),
+                    SizedBox(height: 8.h),
+                    buildText("No events yet? ", 30, FontWeight.w600, color.txtBlue),
+                    SizedBox(height: 2.h),
+                    buildText2("There is no new event yet.", 18, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix),
+                    SizedBox(height: 25.h)
+                  ],
+                ),
+              ],
+            ),
+          ):
+          const Center(child: CircularProgressIndicator(color: color.txtBlue))
         ],
       ),
     );

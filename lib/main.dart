@@ -39,9 +39,9 @@ Future<void> main() async {
   await UniServices.init();
 
 
-  OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
-  if(Platform.isAndroid){OneSignal.initialize("482a292e-4c3a-48f0-ad0b-8b0f4b653fd8");}
-  else{OneSignal.initialize("4cee1d81-6350-4319-970d-3421754c0fa7");}
+  // OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+  // if(Platform.isAndroid){OneSignal.initialize("482a292e-4c3a-48f0-ad0b-8b0f4b653fd8");}
+  // else{OneSignal.initialize("4cee1d81-6350-4319-970d-3421754c0fa7");}
   // OneSignal.Notifications.requestPermission(true);
   // OneSignal.User.pushSubscription.optIn();
 

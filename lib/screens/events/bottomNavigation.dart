@@ -1,11 +1,6 @@
-import 'dart:convert';
-import 'dart:io';
-
-// import 'package:agora_uikit/controllers/rtc_token_handler.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/color.dart';
@@ -27,8 +22,6 @@ import 'package:slush/video_player/reel_screen.dart';
 import 'package:slush/widgets/alert_dialog.dart';
 import 'package:slush/widgets/customtoptoaster.dart';
 
-import '../../constants/api.dart';
-import '../../widgets/toaster.dart';
 
 class BottomNavigationScreen extends StatefulWidget {
   BottomNavigationScreen({Key? key}) : super(key: key);
@@ -153,16 +146,6 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
                             : AssetsPics.reelIcon),
                         label: 'Reel',
                       ),
-                      // BottomNavigationBarItem(
-                      //   // icon: SvgPicture.asset(_selectedIndex==3?AssetsPics.selectedredheartIcon:AssetsPics.heartIcon),
-                      //   icon:
-                      //   SvgPicture.asset(_selectedIndex.value == 3 && notification == true
-                      //       ? AssetsPics.selectedredheartIcon
-                      //       : _selectedIndex.value == 3 && notification == false
-                      //       ? AssetsPics.selectedheartIcon
-                      //       : AssetsPics.heartIcon),
-                      //   label: 'Heart',
-                      // ),
                       BottomNavigationBarItem(
                         icon: SvgPicture.asset(_selectedIndex.value == 3 && LocaleHandler.isLikedTabUpdate ? AssetsPics.selectedredheartIcon
                             : _selectedIndex.value == 3 && !LocaleHandler.isLikedTabUpdate

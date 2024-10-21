@@ -38,6 +38,8 @@ class _Subscription1State extends State<Subscription1> {
   int currentIndex = 0;
   int selectedIndex = 2;
   bool upgradepressed=true;
+  bool showALert=false;
+  bool buttonPressed=false;
 
   final InAppPurchase _iap = InAppPurchase.instance;
   bool _available = true;
@@ -48,9 +50,9 @@ class _Subscription1State extends State<Subscription1> {
   @override
   void initState() {
     subscriptionDetails();
-    _pageController.addListener(() {
-      setState(() {currentIndex = _pageController.page!.round();});
-    });
+    // _pageController.addListener(() {
+    //   setState(() {currentIndex = _pageController.page!.round();});
+    // });
     print(LocaleHandler.subscriptionPurchase);
     super.initState();
     _initialize();
@@ -66,13 +68,13 @@ class _Subscription1State extends State<Subscription1> {
 
   Future<void> _initialize() async {
     final bool isAvailable = await _iap.isAvailable();
-    setState(() {_available = isAvailable;});
+    _available = isAvailable;
     if (_available) {
       // const Set<String> _kIds = {'silversubscription','goldsubscription','platinumsubscription'};
       const Set<String> _kIds = {'silversubscription'};
       final ProductDetailsResponse response = await _iap.queryProductDetails(_kIds);
       setState(() {_products = response.productDetails;});
-      if (response.notFoundIDs.isNotEmpty) {
+      if (response.notFoundIDs.isNotEmpty && response.error == null) {
         print('Products not found: ${response.notFoundIDs}');
       }
     }
@@ -82,8 +84,9 @@ class _Subscription1State extends State<Subscription1> {
     for (var purchase in purchases) {
       if (purchase.status == PurchaseStatus.purchased) {
         bool valid = await _verifyPurchase(purchase);
+        print("valid;-;-;-$valid");
         if (valid) {
-         selectedIndex == 2 ? subscribeApi(selectedIndex = 2) : showToastMsg("Coming soon...");
+         selectedIndex == 2 ? subscribeApi(1) : showToastMsg("Coming soon...");
           _deliverProduct(purchase);
         } else {
           _handleInvalidPurchase(purchase);
@@ -99,27 +102,27 @@ class _Subscription1State extends State<Subscription1> {
 
   Future<bool> _verifyPurchase(PurchaseDetails purchase) async {
     // Verify the purchase here (usually by checking with your server)
-    return true; // assuming the purchase is valid
+    return buttonPressed; // assuming the purchase is valid
   }
 
-  bool hasPurchased=false;
   void _deliverProduct(PurchaseDetails purchase) {
     // Deliver the product to the user
     setState(() {_purchases.add(purchase);});
-    if(hasPurchased){
-    showDialog(context: context, builder: (BuildContext context) => Successdialog());}
+    if(showALert){showDialog(context: context, builder: (BuildContext context) => Successdialog());}
   }
 
   void _handleInvalidPurchase(PurchaseDetails purchase) {
-    showDialog(context: context, builder: (BuildContext context) => Faildialog());
+    if(showALert){ showDialog(context: context, builder: (BuildContext context) => Faildialog());}
     // Handle invalid purchase here
   }
 
-  void _buySubscription(ProductDetails product) {
-    hasPurchased=true;
+  void buySubscription(ProductDetails product) {
     final PurchaseParam purchaseParam = PurchaseParam(productDetails: product);
     _iap.buyNonConsumable(purchaseParam: purchaseParam);
   }
+
+
+
 
   Future purchaseSpark(int sparkCount)async{
     const url=ApiList.sparkPurchase;
@@ -145,16 +148,16 @@ class _Subscription1State extends State<Subscription1> {
     );
     var i =jsonDecode(response.body);
     setState(() {LoaderOverlay.hide();});
-    print(response.statusCode);
-    print(jsonDecode(response.body));
     if(response.statusCode==201){
+      showALert=true;
       Fluttertoast.showToast(msg: i["message"]);
-      int count=selectedIndex==2?1:selectedIndex==1?3:5;
-      if(count==5){
-        purchaseSpark(5);
-        purchaseSpark(5);}
-      else if(count==3){purchaseSpark(5);}
-      else if(count==1){ purchaseSpark(3);}
+      purchaseSpark(3);
+      // int count=selectedIndex==2?1:selectedIndex==1?3:5;
+      // if(count==5){
+      //   purchaseSpark(5);
+      //   purchaseSpark(5);}
+      // else if(count==3){purchaseSpark(5);}
+      // else if(count==1){ purchaseSpark(3);}
       // purchaseSpark()
       callFunction();
     }
@@ -230,7 +233,6 @@ class _Subscription1State extends State<Subscription1> {
   Widget build(BuildContext context) {
     final size=MediaQuery.of(context).size;
     return Scaffold(
-      // backgroundColor: color.backGroundClr,
       appBar: commonBarWithTextleft(context,color.backGroundClr,"Subscription"),
       body: SizedBox(
         height: MediaQuery.of(context).size.height,
@@ -277,7 +279,7 @@ class _Subscription1State extends State<Subscription1> {
                               // todo unsubscribe and upgrade butttons but api not available yet
                               data==null?const SizedBox():
                               GestureDetector(
-                                onTap: (){setState(() {upgradepressed=false;
+                                onTap: (){//setState(() {upgradepressed=false;
                                 customDialogBoxWithtwobutton(context, "Are you sure to Unsubscribe?", " ",
                                     img: AssetsPics.cancelticketpng,btnTxt1: "No",btnTxt2: "Yes",
                                     onTap2: (){
@@ -285,7 +287,8 @@ class _Subscription1State extends State<Subscription1> {
                                     },isPng: true
                                 );
                                 // cancelPlanApi();
-                                });},
+                                // });
+                                  },
                                 child: Container(
                                   alignment: Alignment.center,
                                   height: size.height*0.055,
@@ -298,20 +301,15 @@ class _Subscription1State extends State<Subscription1> {
                                       gradient: const LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter,
                                           colors:[color.gradientLightBlue, color.txtBlue])
                                   ),
-                                  // child: buildText(LocaleHandler.subscriptionPurchase=="yes"?"Unsubscribe":"Subscribe",18,FontWeight.w600, upgradepressed? color.txtBlue:color.txtWhite),
                                   child: buildText("Unsubscribe",18,FontWeight.w600, upgradepressed? color.txtBlue:color.txtWhite),
                                 ),
                               ),
-                              data==null?const SizedBox(): GestureDetector(
-                                onTap: (){setState(() {upgradepressed=true;
+                             /* data==null?const SizedBox(): GestureDetector(onTap: (){setState(() {upgradepressed=true;
                                selectedIndex == 2 ? upgradePlanApi(selectedIndex=2): showToastMsg("Coming soon...");
-                                });
-                                },
-                                child: Container(
+                                });}, child: Container(
                                   alignment: Alignment.center,
                                   height: size.height*0.055,
                                   width: MediaQuery.of(context).size.width/2-37,
-                                  //width: MediaQuery.of(context).size.width/2-45,
                                   padding: const EdgeInsets.symmetric(horizontal: 10),
                                   decoration:upgradepressed? BoxDecoration(borderRadius: BorderRadius.circular(12),
                                       gradient: const LinearGradient(begin: Alignment.bottomCenter, end: Alignment.topCenter,
@@ -320,8 +318,7 @@ class _Subscription1State extends State<Subscription1> {
                                       color: Colors.transparent, border: Border.all(width: 1.5,color: color.txtBlue)
                                   ),
                                   child: buildText("Upgrade",18,FontWeight.w600,upgradepressed?color.txtWhite:color.txtBlue),
-                                ),
-                              ),
+                                )),*/
                             ],),
                         ],
                       ),
@@ -348,7 +345,6 @@ class _Subscription1State extends State<Subscription1> {
                       controller: _pageController,
                       children: [
                         customScroller(text1: 'See who has Liked you', text2: 'See everyone that likes you', iconName: AssetsPics.like),
-                        // customScroller(text1: 'Sparks', text2: '3 sparks', iconName: AssetsPics.shock),
                         customScroller(text1: 'More Sparks', text2: 'Get 3 Sparks now' //+ 1 daily for 30 days.\n Boost your connection!'
                             , iconName: AssetsPics.shock),
                         customScroller(text1: 'Unlimited Swipes', text2: 'Endless swiping', iconName: AssetsPics.watch),
@@ -399,7 +395,7 @@ class _Subscription1State extends State<Subscription1> {
                     child: Stack(
                       alignment: Alignment.center,
                       children: [
-                        Row(children: [
+                       /* Row(children: [
                           GestureDetector(
                             onTap: (){setState(() {selectedIndex=1;});},
                             child: Container(
@@ -415,10 +411,8 @@ class _Subscription1State extends State<Subscription1> {
                                 children: [
                                   SvgPicture.asset( AssetsPics.crownOff,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
                                   buildText("Slush", 20, FontWeight.w600, color.txtBlack,),
-                                  // buildText("Silver", 20, FontWeight.w600, color.txtBlack,),
                                   buildText("Gold", 20, FontWeight.w600, color.txtBlack,),
                                   const SizedBox(height: 10,),
-                                  // buildText("£9.99", 20, FontWeight.w600, color.txtBlack,),
                                   buildText("£19.99", 20, FontWeight.w600, color.txtBlack,),
                                 ],
                               ),
@@ -439,10 +433,8 @@ class _Subscription1State extends State<Subscription1> {
                                 children: [
                                   SvgPicture.asset( AssetsPics.crownOff,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
                                   buildText("Slush", 20, FontWeight.w600, color.txtBlack,),
-                                  // buildText("Gold", 20, FontWeight.w600, color.txtBlack,),
                                   buildText("Silver", 20, FontWeight.w600, color.txtBlack,),
                                   const SizedBox(height: 10,),
-                                  // buildText("£19.99", 20, FontWeight.w600, color.txtBlack,),
                                   buildText("£9.99", 20, FontWeight.w600, color.txtBlack,),
                                 ],
                               ),
@@ -470,35 +462,49 @@ class _Subscription1State extends State<Subscription1> {
                               ),
                             ),
                           ),
-                        ],),
+                        ],),*/
                         selectedIndex==2? GestureDetector(
                           onTap: () {
-                            setState(() {});
                             selectedIndex = 2 ;
                           },
                           child: Container(
                             height: 185 ,
-                            // width: MediaQuery.of(context).size.width/3.5,
-                            width: MediaQuery.of(context).size.width/2.9,
+                            // width: MediaQuery.of(context).size.width/2.9,
+                            width: MediaQuery.of(context).size.width,
                             decoration: BoxDecoration(color: color.txtBlue ,
                                 border: Border.all(color: color.example3),
                                 borderRadius: BorderRadius.circular(12)
                             ),
-                            child: Column(
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",height: 50),
+                                // Spacer(),
+                                Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    // SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
+                                    buildText("Slush", 30, FontWeight.w600, color.txtWhite ),
+                                    buildText("Silver", 30, FontWeight.w600,color.txtWhite ),
+                                    const SizedBox(height: 10,),
+                                    buildText("£9.99", 30, FontWeight.w600, color.txtWhite ),
+                                  ],
+                                ),
+                                SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",height: 50),
+                              ],
+                            ),
+                            /*Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
                                 buildText("Slush", 20, FontWeight.w600, color.txtWhite ),
-                                // buildText("Gold", 20, FontWeight.w600,color.txtWhite ),
                                 buildText("Silver", 20, FontWeight.w600,color.txtWhite ),
                                 const SizedBox(height: 10,),
-                                // buildText("£19.99", 20, FontWeight.w600, color.txtWhite ),
                                 buildText("£9.99", 20, FontWeight.w600, color.txtWhite ),
                               ],
-                            ),
-                          ),
-                        ):const SizedBox(),
-                        Positioned(
+                            ),*/
+                          ) ):const SizedBox(),
+                       /* Positioned(
                           // bottom: selectedIndex == 2 ? 0 : 8,
                           bottom:Platform.isAndroid ? selectedIndex == 2 ? 0 : 8 :selectedIndex == 2 ? 11 : 22,
                           child: Container(
@@ -511,7 +517,7 @@ class _Subscription1State extends State<Subscription1> {
                             ),
                             child: buildText("Popular", 13, FontWeight.w600,selectedIndex == 2 ? color.txtBlue : color.txtWhite,fontFamily: FontFamily.hellix),
                           ),
-                        ),
+                        ),*/
                         selectedIndex==1? Positioned(
                           left: 0.0,
                           child: Container(
@@ -561,14 +567,15 @@ class _Subscription1State extends State<Subscription1> {
                     if(selectedIndex==2){
                     int num=selectedIndex==1?2:selectedIndex==2?0:1;
                     if(LocaleHandler.subscriptionPurchase=="no" && selectedIndex == 2){
+                      buttonPressed=true;
                       if (Platform.isAndroid) {
                         customDialogBoxx(context);
                         // _buySubscription(_products[2]);
-                        _buySubscription(_products[0]);
+                        buySubscription(_products[0]);
                         } else {
                         // setState(() {LoaderOverlay.show(context);});
                         customDialogBoxx(context);
-                        _buySubscription(_products[0]);
+                        buySubscription(_products[0]);
                       }
                     }else if(selectedIndex != 2){showToastMsg("Coming soon...");}}
                   },
@@ -626,6 +633,7 @@ class _Subscription1State extends State<Subscription1> {
 
   void callFunction(){
     setState(() {
+      LocaleHandler.subscriptionPurchase="no";
       LocaleHandler.isThereAnyEvent=false;
       LocaleHandler.isThereCancelEvent=false;
       LocaleHandler.unMatchedEvent=false;

@@ -652,6 +652,7 @@ class editProfileController extends ChangeNotifier{
     showToastMsg("Please wait...");
     galleryFile = File(file!.path);
     UploadVideo( context,galleryFile!);
+    Get.back();
   }
 
   void cancelrecording()async{
@@ -754,6 +755,7 @@ class editProfileController extends ChangeNotifier{
     }
     var response = await request.send();
     final respStr = await response.stream.bytesToString();
+    print("respStr");
     print(respStr);
     if (response.statusCode == 201) {
       _trimmerstrt=false;
