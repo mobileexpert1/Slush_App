@@ -385,7 +385,7 @@ class _AddVideoScreenState extends State<AddVideoScreen> {
     return Scaffold(
         backgroundColor: Colors.black,
         body: Consumer<detailedController>(builder: (ctx,val,child){
-          return val.videoFinished==2?
+          return val.videoFinished==2 && val.controllerr!=null ?
           Stack(
             children: [
               Positioned(

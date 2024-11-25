@@ -113,6 +113,7 @@ Widget Successdialog(){
           GestureDetector(
             onTap: (){
               Get.back();
+              Get.back(result: true);
             },
             child: Container(
                 height: 35,

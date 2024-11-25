@@ -64,4 +64,14 @@ class waitingRoom extends ChangeNotifier{
     notifyListeners();
   }
 
+
+  String _price="0";
+  String get price=>_price;
+  void getPrice(String val){
+    _price=val;
+    print(";-;-;-");
+    print("$price");
+    notifyListeners();
+  }
+
 }

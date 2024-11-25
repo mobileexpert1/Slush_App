@@ -40,18 +40,19 @@ class _ReelViewScreenState extends State<ReelViewScreen> {
     final size=MediaQuery.of(context).size;
     return Stack(
       children: [
-        SizedBox(height: size.height, width: size.width,
-          child: Image.asset(AssetsPics.background, fit: BoxFit.cover)),
+        SizedBox(height: size.height, width: size.width, child: Image.asset(AssetsPics.background, fit: BoxFit.cover)),
         Consumer<ReelController>(
             builder: (context,value,child){ return
-              value.data == null ? const Center(child: CircularProgressIndicator(color: color.txtBlue)):
+              value.data == null ? const Center(child: CircularProgressIndicator(color: color.txtBlue)) :
               // value.totallen==-2?buildBuildText():
               FeedScreen(index: 0, reels: ReelService().getReels(value.reels), data: value.data);
             }),
         Consumer<reelTutorialController>(
-            builder: (context,value,child){return
-              mounted?
-              Container(
+            builder: (context,value,child){
+              print(LocaleHandler.feedTutorials);
+              print(Provider.of<ReelController>(context).stopReelScroll);
+              return
+              mounted? Container(
               child: LocaleHandler.feedTutorials || Provider.of<ReelController>(context).stopReelScroll ?
               feedTutorials(context):const SizedBox(),
         ):const SizedBox();}),

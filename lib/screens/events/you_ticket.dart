@@ -322,7 +322,7 @@ class _EventYourTicketScreenState extends State<EventYourTicketScreen> {
               SizedBox(
                   height: 3.h + 1,
                   width: 24,
-                  child: !data["hasPassword"]
+                  child: data["hasPassword"]
                       ? SvgPicture.asset(AssetsPics.lock)
                       : const SizedBox())
             ],

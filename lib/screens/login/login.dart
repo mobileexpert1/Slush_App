@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/material.dart';
-// import 'package:flutter_login_facebook/flutter_login_facebook.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
@@ -34,25 +33,25 @@ class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> _form = GlobalKey<FormState>();
   FocusNode loginFocus = FocusNode();
   FocusNode passwordFocus = FocusNode();
-  bool button = false;
-  String enableField = "";
-  bool password = true;
+  ValueNotifier<String> enableField = ValueNotifier<String>("");
+  ValueNotifier<bool> password = ValueNotifier<bool>(true);
+  ValueNotifier<bool> button = ValueNotifier<bool>(false);
 
   @override
   void initState() {
     loginFocus.addListener(() {
-      if (loginFocus.hasFocus) {enableField = "Enter email";}
-      else {enableField = "";}
+      if (loginFocus.hasFocus) {enableField.value = "Enter email";}
+      else {enableField.value = "";}
     });
     passwordFocus.addListener(() {
-      if (passwordFocus.hasFocus) {enableField = "Enter password";}
-      else {enableField = "";}
+      if (passwordFocus.hasFocus) {enableField.value = "Enter password";}
+      else {enableField.value = "";}
     });
     super.initState();
   }
 
   Future sentEmailToverify() async {
-    final url = ApiList.sendverifyemail;
+    const url = ApiList.sendverifyemail;
     var uri = Uri.parse(url);
     var response = await http.post(uri,
         headers: <String, String>{
@@ -109,23 +108,15 @@ class _LoginScreenState extends State<LoginScreen> {
                       SizedBox(height: 4.h),
                       Padding(
                         padding: const EdgeInsets.only(left: 4, bottom: 2),
-                        child: buildText("Email", 16, FontWeight.w500,
-                            enableField == "Enter email" ? color.txtBlue : color.txtgrey,
-                            fontFamily: FontFamily.hellix),
+                        child: ValueListenableBuilder(valueListenable: enableField, builder: (context,value,child){
+                          return buildText("Email", 16, FontWeight.w500,
+                              enableField.value == "Enter email" ? color.txtBlue : color.txtgrey,
+                              fontFamily: FontFamily.hellix);
+                        }),
                       ),
                       buildContainer("Enter email", loginController,
                         AutovalidateMode.onUserInteraction, loginFocus,
-                        // validation: (value) {
-                        //   if (value == null || value.isEmpty) {return '';}
-                        //   else if (!RegExp(LocaleKeysValidation.email).hasMatch(value)) {return '';}
-                        //   else {return null;}
-                        // },
-                        press: () {
-                          // controller.field("Enter email");
-                          setState(() {
-                            enableField = "Enter email";
-                          });
-                        },
+                        press: () {enableField.value = "Enter email";},
                         gesture: GestureDetector(
                             child: Container(
                                 padding: const EdgeInsets.only(top: 5),
@@ -137,45 +128,31 @@ class _LoginScreenState extends State<LoginScreen> {
                       const SizedBox(height: 10),
                       Padding(
                         padding: const EdgeInsets.only(left: 4, bottom: 2),
-                        child: buildText(
-                            "Password",
-                            16,
-                            FontWeight.w500,
-                            enableField == "Enter password"
-                                ? color.txtBlue
-                                : color.txtgrey,
-                            fontFamily: FontFamily.hellix),
+                        child:ValueListenableBuilder(valueListenable: enableField, builder: (context,value,child){return
+                          buildText(
+                              "Password", 16, FontWeight.w500,
+                              enableField.value == "Enter password" ? color.txtBlue : color.txtgrey,
+                              fontFamily: FontFamily.hellix);}),
                       ),
-                      buildContainer(
-                        "Enter password",
-                        passwordController,
-                        AutovalidateMode.onUserInteraction,
-                        passwordFocus,
-                        obs: password,
-                        // validation: (value) {
-                        //   if (value == null || value.isEmpty) {return '';}
-                        //   else if (value.length < 8 || value.length > 12) {return '';}
-                        //   return null;},
-                        press: () {
-                          setState(() {
-                            enableField = "Enter password";
-                          });
-                        },
-                        gesture: GestureDetector(
-                            onTap: () {
-                              setState(() {
-                                password = !password;
-                              });
-                            },
-                            child: Container(
-                                padding: const EdgeInsets.only(top: 5),
-                                height: 20,
-                                width: 30,
-                                alignment: Alignment.center,
-                                child: SvgPicture.asset(password
-                                    ? AssetsPics.eyeOff
-                                    : AssetsPics.eyeOn))),
-                      ),
+
+                      ValueListenableBuilder(valueListenable: password, builder: (context,value,child){return
+                        buildContainer(
+                          "Enter password",
+                          passwordController,
+                          AutovalidateMode.onUserInteraction,
+                          passwordFocus,
+                          obs: password.value,
+                          press: () {enableField.value = "Enter password";},
+                          gesture: GestureDetector(
+                              onTap: () {password.value = !password.value;},
+                              child: Container(
+                                  padding: const EdgeInsets.only(top: 5),
+                                  height: 20,
+                                  width: 30,
+                                  alignment: Alignment.center,
+                                  child: SvgPicture.asset(password.value ? AssetsPics.eyeOff : AssetsPics.eyeOn))),
+                        );
+                      }),
                       Container(
                           padding: const EdgeInsets.only(top: 15),
                           alignment: Alignment.centerRight,
@@ -187,27 +164,26 @@ class _LoginScreenState extends State<LoginScreen> {
                                   FontWeight.w500, color.txtBlack,
                                   fontFamily: FontFamily.hellix))),
                       const SizedBox(height: 30),
-                      blue_button(context, "Login", validation: button,
-                          press: () {
-                        FocusManager.instance.primaryFocus?.unfocus();
-                        if (button == true) {
-                          LocaleHandler.isThereAnyEvent = false;
-                          LocaleHandler.isThereCancelEvent = false;
-                          LocaleHandler.unMatchedEvent = false;
-                          LocaleHandler.subScribtioonOffer = false;
-                          // loginUser();
-                          lgincntrl.loginUser(context, loginController.text.trim(), passwordController.text.trim());
-                          // Get.offAll(()=>BottomNavigationScreen());
-                        }
-                      }),
+                      ValueListenableBuilder(valueListenable: button, builder: (context,value,child){return
+                        blue_button(context, "Login", validation: button.value,
+                            press: () {
+                              FocusManager.instance.primaryFocus?.unfocus();
+                              if (button.value == true) {
+                                LocaleHandler.isThereAnyEvent = false;
+                                LocaleHandler.isThereCancelEvent = false;
+                                LocaleHandler.unMatchedEvent = false;
+                                LocaleHandler.subScribtioonOffer = false;
+                                lgincntrl.loginUser(context, loginController.text.trim(), passwordController.text.trim());
+                              }
+                            });}),
                       SizedBox(height: 5.h),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           buildColorContainer(color.example2, color.example),
                           Container(
-                            margin: const EdgeInsets.only(left: 7, right: 7, bottom: 2),
-                            child: buildText("or continue with", 16, FontWeight.w500, color.txtBlack, fontFamily: FontFamily.hellix)),
+                              margin: const EdgeInsets.only(left: 7, right: 7, bottom: 2),
+                              child: buildText("or continue with", 16, FontWeight.w500, color.txtBlack, fontFamily: FontFamily.hellix)),
                           buildColorContainer(color.example, color.example2)
                         ],
                       ),
@@ -222,8 +198,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           buildCircleAvatar(AssetsPics.google, () {
                             lgincntrl.signInWithGoogle(context,googleSignIn);
                           }),
-                          Platform.isAndroid?SizedBox(): const SizedBox(width: 15),
-                          Platform.isAndroid?SizedBox(): buildCircleAvatar(AssetsPics.apple, () {lgincntrl.signInWithApple(context);}),
+                          Platform.isAndroid?const SizedBox(): const SizedBox(width: 15),
+                          Platform.isAndroid?const SizedBox(): buildCircleAvatar(AssetsPics.apple, () {lgincntrl.signInWithApple(context);}),
                         ],
                       ),
                       SizedBox(height: 5.h),
@@ -257,7 +233,7 @@ class _LoginScreenState extends State<LoginScreen> {
         // width: 100,
         height: 4,
         decoration:
-            BoxDecoration(gradient: LinearGradient(colors: [clr1, clr2])),
+        BoxDecoration(gradient: LinearGradient(colors: [clr1, clr2])),
       ),
     );
   }
@@ -284,58 +260,58 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget buildContainer(String txt, TextEditingController controller,
       AutovalidateMode auto, FocusNode node,
       {FormFieldValidator<String>? validation,
-      VoidCallback? press,
-      GestureDetector? gesture,
-      bool obs = false}) {
+        VoidCallback? press,
+        GestureDetector? gesture,
+        bool obs = false}) {
     return Align(
       alignment: Alignment.center,
-      child: Container(
-        padding: const EdgeInsets.only(left: 20),
-        height: 56,
-        // height: MediaQuery.of(context).size.height*0.07+1,
-        width: MediaQuery.of(context).size.width,
-        decoration: BoxDecoration(
-            color: color.txtWhite,
-            borderRadius: BorderRadius.circular(8),
-            border: Border.all(
-                color: enableField == txt ? color.txtBlue : color.txtWhite,
-                width: 1)),
-        child: TextFormField(
-          textInputAction: TextInputAction.done,
-          onTap: press,
-          focusNode: node,
-          controller: controller,
-          // focusNode: loginFocus,
-          obscureText: obs,
-          obscuringCharacter: "X",
-          cursorColor: color.txtBlue,
-          autovalidateMode: auto,
-          validator: validation,
-          onChanged: (val) {
-            setState(() {
-              if (_form.currentState!.validate()) {
-                if (passwordController.text.length >0 && RegExp(LocaleKeysValidation.email).hasMatch(loginController.text)) {button = true;}
-                else{button = false;}
-              } else {
-                button = false;
-              }
-            });
-          },
-          style: const TextStyle(fontFamily: FontFamily.hellix, fontSize: 17),
-          decoration: InputDecoration(
-            errorStyle: const TextStyle(height: 0, fontSize: 12),
-            border: InputBorder.none,
-            hintText: txt,
-            hintStyle: const TextStyle(
-                fontFamily: FontFamily.hellix,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: color.txtgrey2),
-            contentPadding: const EdgeInsets.only(right: 18, top: 13),
-            suffixIcon: gesture,
+      child:ValueListenableBuilder(valueListenable: enableField, builder: (context,value,child){return
+        Container(
+          padding: const EdgeInsets.only(left: 20),
+          height: 56,
+          // height: MediaQuery.of(context).size.height*0.07+1,
+          width: MediaQuery.of(context).size.width,
+          decoration: BoxDecoration(
+              color: color.txtWhite,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                  color: enableField.value == txt ? color.txtBlue : color.txtWhite,
+                  width: 1)),
+          child: TextFormField(
+            textInputAction: TextInputAction.done,
+            onTap: press,
+            focusNode: node,
+            controller: controller,
+            // focusNode: loginFocus,
+            obscureText: obs,
+            obscuringCharacter: "X",
+            cursorColor: color.txtBlue,
+            autovalidateMode: auto,
+            validator: validation,
+            onChanged: (val) {
+                if (_form.currentState!.validate()) {
+                  if (passwordController.text.isNotEmpty && RegExp(LocaleKeysValidation.email).hasMatch(loginController.text)) {button.value = true;}
+                  else{button.value = false;}
+                } else {
+                  button.value = false;
+                }
+            },
+            style: const TextStyle(fontFamily: FontFamily.hellix, fontSize: 17),
+            decoration: InputDecoration(
+              errorStyle: const TextStyle(height: 0, fontSize: 12),
+              border: InputBorder.none,
+              hintText: txt,
+              hintStyle: const TextStyle(
+                  fontFamily: FontFamily.hellix,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w500,
+                  color: color.txtgrey2),
+              contentPadding: const EdgeInsets.only(right: 18, top: 13),
+              suffixIcon: gesture,
+            ),
           ),
-        ),
-      ),
+        );}),
     );
   }
 }
+

@@ -203,6 +203,7 @@ class AssetsPics{
   static const smiley = "assets/icons/smiley.svg";
   static const sparkWhiteCirlce = "assets/icons/sparkWhiteCirlce.svg";
   static const star = "assets/icons/star.svg";
+  static const whiteeye = "assets/icons/whiteeye.svg";
   static const superlike = "assets/icons/superlike.svg";
   static const superlikewhite = "assets/icons/superlikewhite.svg";
   static const terms = "assets/icons/terms.svg";

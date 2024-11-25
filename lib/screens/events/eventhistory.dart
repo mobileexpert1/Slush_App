@@ -240,7 +240,7 @@ class _EventHistoryScreenState extends State<EventHistoryScreen> {
          border: Border.all(
            width: 1,color: color.disableButton
          ),
-        color: const Color.fromRGBO(242, 247, 255, 1)
+        color: color.unSelectedColor
       ),
       child: buildText(btntxt, 16, FontWeight.w600, color.txtBlack),
     );
@@ -253,12 +253,14 @@ class _EventHistoryScreenState extends State<EventHistoryScreen> {
                   children: [
                     SizedBox(
                         // width: 190,child: buildTextOverFlow(historyItem[index].title, 16, FontWeight.w600, color.txtBlack)),
-                        width: size.width*0.4,child: buildTextOverFlow(data[index]["e_title"], 16, FontWeight.w600, color.txtBlack)),
+                        width: size.width*0.48,child: buildTextOverFlow(data[index]["e_title"], 16, FontWeight.w600, color.txtBlack)),
                   Row(children: [
                     SvgPicture.asset(AssetsPics.blueMapPoint),
                     const SizedBox(width: 4),
                     // buildTextOverFlow(historyItem[index].location, 13, FontWeight.w500, color.txtgrey2,fontFamily: FontFamily.hellix),
-                    buildTextOverFlow(data[index]["e_country"], 13, FontWeight.w500, color.txtgrey2,fontFamily: FontFamily.hellix),
+                    Container(
+                        width: size.width*0.44,
+                        child: buildTextOverFlow(data[index]["e_country"], 13, FontWeight.w500, color.txtgrey2,fontFamily: FontFamily.hellix)),
                   ],),
                     const SizedBox(height: 8),
                     // buildText(historyItem[index].status, 16, FontWeight.w600, historyItem[index].status=="Cancelled"?

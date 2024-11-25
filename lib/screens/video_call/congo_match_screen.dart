@@ -11,7 +11,6 @@ import 'package:slush/constants/image.dart';
 import 'package:slush/controller/video_call_controller.dart';
 import 'package:slush/screens/chat/text_chat_screen.dart';
 import 'package:slush/screens/events/bottomNavigation.dart';
-import 'package:slush/screens/video_call/didnofind.dart';
 import 'package:slush/screens/waiting_room/waiting_completed_screen.dart';
 import 'package:slush/widgets/blue_button.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
@@ -136,7 +135,8 @@ class _CongratMatchScreenState extends State<CongratMatchScreen> {
                                     // child: Image.asset(AssetsPics.sample,fit: BoxFit.cover)
                                     child: CachedNetworkImage(
                                         imageUrl: LocaleHandler.eventParticipantData["avatar"],
-                                        fit: BoxFit.cover)))),
+                                        fit: BoxFit.cover,
+                                        errorWidget: (context, url, error) => Image.asset(AssetsPics.demouser,height: 19.h,width: 17.h))))),
                       ),
                       Positioned(
                         bottom: 40.0,
@@ -156,7 +156,8 @@ class _CongratMatchScreenState extends State<CongratMatchScreen> {
                                         // Image.asset(AssetsPics.sample,fit: BoxFit.cover),
                                         CachedNetworkImage(
                                             imageUrl: LocaleHandler.avatar,
-                                            fit: BoxFit.cover)))),
+                                            fit: BoxFit.cover,
+                                            errorWidget: (context, url, error) => Image.asset(AssetsPics.demouser,height: 19.h,width: 17.h))))),
                       ),
                       Positioned(
                           top: 30.0,
@@ -188,7 +189,7 @@ class _CongratMatchScreenState extends State<CongratMatchScreen> {
                   blue_button(context, "Chat", press: () {
                     if (widget.likedscreen) {
                       Get.to(() => TextChatScreen(id:
-                      LocaleHandler.eventParticipantData["user_id"], name: LocaleHandler.eventParticipantData["firstName"],));
+                      LocaleHandler.eventParticipantData["userId"], name: LocaleHandler.eventParticipantData["firstName"],));
                     } else {
                       customSparkBottomSheeet(
                           context,
@@ -197,7 +198,7 @@ class _CongratMatchScreenState extends State<CongratMatchScreen> {
                           "Cancel",
                           "Leave", onTap2: () {
                         Get.back();
-                        Get.to(() => TextChatScreen(id: LocaleHandler.eventParticipantData["user_id"], name: LocaleHandler.eventParticipantData["firstName"],
+                        Get.to(() => TextChatScreen(id: LocaleHandler.eventParticipantData["userId"], name: LocaleHandler.eventParticipantData["firstName"],
                             ));
                       });
                     }

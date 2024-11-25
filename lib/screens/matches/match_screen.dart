@@ -344,8 +344,8 @@ class _MatchesScreenState extends State<MatchesScreen> {
               child:item[index]["profilePictures"].isEmpty?Image.asset(AssetsPics.demouser): CachedNetworkImage(
                 imageUrl: item[index]["profilePictures"][0]["key"],
                 fit: BoxFit.cover,
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-                placeholder: (ctx, url) => const Center(child: CircularProgressIndicator(color: color.txtBlue)),
+                errorWidget: (context, url, error) => Image.asset(AssetsPics.demouser,height: 30,width: 30),
+                placeholder: (ctx, url) => const Center(child: CircularProgressIndicator(color: color.txtBlue),),
               ),
             ),
           ),
@@ -442,11 +442,9 @@ class _MatchesScreenState extends State<MatchesScreen> {
               child:item[index]["profilePictures"].isEmpty?Image.asset(AssetsPics.demouser): CachedNetworkImage(
                 imageUrl: item[index]["profilePictures"][0]["key"],
                 fit: BoxFit.cover,
-                errorWidget: (context, url, error) => const Icon(Icons.error),
-                placeholder: (ctx, url) => const Center(
-                    child: CircularProgressIndicator(
-                  color: color.txtBlue,
-                )),
+                // errorWidget: (context, url, error) => const Icon(Icons.error),
+                errorWidget: (context, url, error) => Image.asset(AssetsPics.demouser,height: 30,width: 30),
+                placeholder: (ctx, url) => const Center(child: CircularProgressIndicator(color: color.txtBlue),),
               ),
             ),
           ),

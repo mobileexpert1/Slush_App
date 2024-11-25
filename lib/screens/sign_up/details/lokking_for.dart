@@ -23,7 +23,6 @@ class _DetailLookingForScreenState extends State<DetailLookingForScreen> {
   // bool textValue=true;
   ValueNotifier<bool> textValue = ValueNotifier(true);
   ValueNotifier<int> selcetedIndex = ValueNotifier(-1);
-  // int selcetedIndex=-1;
 
   void selectedValue(){
     if(LocaleHandler.lookingfor == "meet new people"){
@@ -35,7 +34,6 @@ class _DetailLookingForScreenState extends State<DetailLookingForScreen> {
     }else {
       selcetedIndex.value = -1;
     }
-    setState(() {});
   }
 
   @override
@@ -62,10 +60,8 @@ class _DetailLookingForScreenState extends State<DetailLookingForScreen> {
               itemBuilder: (context,index){
                 return GestureDetector(
                   onTap: (){
-                    setState(() {
                       LocaleHandler.lookingfor=items[index].title.toString().toLowerCase();
                       selcetedIndex.value=index;
-                    });
                   },
                   child: ValueListenableBuilder(valueListenable: selcetedIndex,
                       builder: (context,value,child) {

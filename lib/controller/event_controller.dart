@@ -1,9 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:get/get.dart';
@@ -20,7 +18,8 @@ import 'package:slush/screens/events/event_list.dart';
 import 'package:slush/screens/waiting_room/waiting_room_screen.dart';
 import 'package:slush/widgets/text_widget.dart';
 import 'package:slush/widgets/toaster.dart';
-
+import 'package:intl/intl.dart';
+import 'package:uuid/uuid.dart';
 import '../constants/image.dart';
 
 //---- after added banner
@@ -55,8 +54,7 @@ class eventController extends ChangeNotifier {
 
   Future getmeEvent(BuildContext context, String eventType) async {
     _page = 1;
-    final url =
-        "${ApiList.getEvent}${LocaleHandler.miliseconds}&distance=${LocaleHandler.distancee}&events=$eventType&latitude=${LocaleHandler.latitude}&longitude=${LocaleHandler.longitude}&page=$_page&limit=10";
+    final url = "${ApiList.getEvent}${LocaleHandler.miliseconds}&distance=${LocaleHandler.distancee}&events=$eventType&latitude=${LocaleHandler.latitude}&longitude=${LocaleHandler.longitude}&page=$_page&limit=10";
     print(url);
     var uri = Uri.parse(url);
     var response = await http.get(uri, headers: {
@@ -354,7 +352,7 @@ class eventController extends ChangeNotifier {
       startTimer(context);
 
       if (sec <= 0) {countdownTimer!.cancel();
-        _startTime = 0;
+      _startTime = 0;
       } else if (sec < 60) {
         _myDuration = Duration(seconds: sec);
       } else if (min < 60) {
@@ -372,33 +370,33 @@ class eventController extends ChangeNotifier {
       print("This Code Is Working Fine------------------------------------------!!!");
       if (min <= 0 ) {}
       else {Get.snackbar('', '',
-            duration: const Duration(seconds: 5),
-            snackPosition: SnackPosition.TOP,
-            margin: EdgeInsets.zero,
-            padding: EdgeInsets.zero,
-            backgroundColor: Colors.transparent, onTap: (snack) {},
-            borderRadius: 0.0,
-            titleText: Stack(
-              alignment: Alignment.center,
-              children: [
-                SizedBox(
-                    width: MediaQuery.of(context).size.width,
-                    child: Image.asset(AssetsPics.bannerpng, fit: BoxFit.cover)),
-                Container(
-                    padding: const EdgeInsets.only(top: 0, left: 10, right: 10, bottom: 15),
-                    child: buildText2(
-                        'Event starting in ${min} minutes, Click Here\nto join the waiting room!',
-                        18,
-                        FontWeight.w600,
-                        color.txtWhite)),
-              ],
-            ),
-            shouldIconPulse: true,
-            maxWidth: MediaQuery.of(context).size.width,
-            snackStyle: SnackStyle.FLOATING,
-            borderWidth: 0.0,
-            overlayBlur: 0.0,
-            barBlur: 0.0);}
+          duration: const Duration(seconds: 5),
+          snackPosition: SnackPosition.TOP,
+          margin: EdgeInsets.zero,
+          padding: EdgeInsets.zero,
+          backgroundColor: Colors.transparent, onTap: (snack) {},
+          borderRadius: 0.0,
+          titleText: Stack(
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                  width: MediaQuery.of(context).size.width,
+                  child: Image.asset(AssetsPics.bannerpng, fit: BoxFit.cover)),
+              Container(
+                  padding: const EdgeInsets.only(top: 0, left: 10, right: 10, bottom: 15),
+                  child: buildText2(
+                      'Event starting in ${min} minutes, Click Here\nto join the waiting room!',
+                      18,
+                      FontWeight.w600,
+                      color.txtWhite)),
+            ],
+          ),
+          shouldIconPulse: true,
+          maxWidth: MediaQuery.of(context).size.width,
+          snackStyle: SnackStyle.FLOATING,
+          borderWidth: 0.0,
+          overlayBlur: 0.0,
+          barBlur: 0.0);}
     }
     notifyListeners();
   }
@@ -460,19 +458,19 @@ class eventController extends ChangeNotifier {
               Provider.of<waitingRoom>(context,listen: false).timerStart(min);
               Get.to(()=> WaitingRoom(data: _myevent[_indexnum],min: min));
             }, child: Stack(
-              alignment: Alignment.center,
-              children: [
-                SizedBox(
-                    width: double.infinity,
-                    child: Image.asset(AssetsPics.bannerpng, fit: BoxFit.cover)),
-                Container(
-                    padding: const EdgeInsets.only(
-                        top: 0, left: 10, right: 10, bottom: 15),
-                    child: buildText2(
-                        'Event starting in ${strDigits(_myDuration!.inMinutes.remainder(60))} minutes, Click Here\nto join the waiting room!',
-                        18, FontWeight.w600, color.txtWhite)),
-              ],
-            ),
+            alignment: Alignment.center,
+            children: [
+              SizedBox(
+                  width: double.infinity,
+                  child: Image.asset(AssetsPics.bannerpng, fit: BoxFit.cover)),
+              Container(
+                  padding: const EdgeInsets.only(
+                      top: 0, left: 10, right: 10, bottom: 15),
+                  child: buildText2(
+                      'Event starting in ${strDigits(_myDuration!.inMinutes.remainder(60))} minutes, Click Here\nto join the waiting room!',
+                      18, FontWeight.w600, color.txtWhite)),
+            ],
+          ),
           ),
           shouldIconPulse: true,
           // maxWidth: MediaQuery.of(context).size.width,
@@ -502,5 +500,27 @@ class eventController extends ChangeNotifier {
     // setState(() {_bookiingCancelled = true;LocaleHandler.isBanner2=true;});
     // Timer(const Duration(seconds: 10), () {setState(() {_bookiingCancelled = false;});});
     Timer(const Duration(seconds: 10), () {_bookiingCancelled = false;});
+  }
+
+
+  //---- search location
+  var uuid = const Uuid();
+  String _sessionToken = const Uuid().toString();
+  List<dynamic> _placeList = [];
+  List<dynamic> get placeList =>_placeList;
+
+
+  void getLocationResults(String input) async {
+    String kPLACES_API_KEY = "AIzaSyAtb9qudpaPK2l0uoANyRE0zi4Nj4jNoT4";
+    String type = '(regions)';
+    String baseURL = "https://maps.googleapis.com/maps/api/place/autocomplete/json";
+    String request = "$baseURL?input=$input&key=$kPLACES_API_KEY&sessiontoken=$_sessionToken";
+    var response = await http.get(Uri.parse(request));
+    if (response.statusCode == 200) {
+      _placeList = jsonDecode(response.body)["predictions"];
+    } else {
+      throw Exception("Failed to load predictions");
+    }
+    notifyListeners();
   }
 }

@@ -54,12 +54,11 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
       if (_selectedIndex.value != 2) {
         Provider.of<ReelController>(context, listen: false).videoPause(true, LocaleHandler.pageIndex);
         Provider.of<ReelController>(context, listen: false).remove();
-        if(_selectedIndex.value!=0){
-          Provider.of<eventController>(context, listen: false).timerCancel();
-        }}
+        if(_selectedIndex.value!=0){Provider.of<eventController>(context, listen: false).timerCancel();}}
       else if(_selectedIndex.value!=0){
         Provider.of<eventController>(context, listen: false).timerCancel();
-      }}
+      }
+    }
     Provider.of<SplashController>(context, listen: false).checkInterenetConnection();
   }
 
@@ -147,7 +146,8 @@ class _BottomNavigationScreenState extends State<BottomNavigationScreen> {
                         label: 'Reel',
                       ),
                       BottomNavigationBarItem(
-                        icon: SvgPicture.asset(_selectedIndex.value == 3 && LocaleHandler.isLikedTabUpdate ? AssetsPics.selectedredheartIcon
+                        icon: SvgPicture.asset(_selectedIndex.value == 3 && LocaleHandler.isLikedTabUpdate
+                            ? AssetsPics.selectedredheartIcon
                             : _selectedIndex.value == 3 && !LocaleHandler.isLikedTabUpdate
                             ? AssetsPics.selectedheartIcon : AssetsPics.heartIcon),
                         label: 'Heart',

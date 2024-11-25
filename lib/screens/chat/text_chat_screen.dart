@@ -142,8 +142,7 @@ class _TextChatScreenState extends State<TextChatScreen> {
   }
 
   void connectToSocket() {
-    socket = IO.io(
-      'http://dev-api.slushdating.com:3000', // Replace with your server address and port
+    socket = IO.io(ApiList.socket,
       IO.OptionBuilder()
           .setTransports(['websocket']) // for Flutter or Dart VM
           .enableAutoConnect() // optional
@@ -167,6 +166,7 @@ class _TextChatScreenState extends State<TextChatScreen> {
 
     socket!.onConnectError((data) {
       print('Connect Error: $data');
+      // showToastMsg("Slow internet please change connectivity");
     });
 
     socket!.on('private message', (data) {
@@ -199,12 +199,16 @@ class _TextChatScreenState extends State<TextChatScreen> {
 
   @override
   void dispose()async {
+    disposeFunction();
+    super.dispose();
+  }
+
+  Future<void> disposeFunction()async{
     socket!.disconnect();
     socket!.dispose();
     socket = null;
-    // messageController.dispose();
+    // // messageController.dispose();
     await OneSignal.User.pushSubscription.optIn();
-    super.dispose();
   }
 
   Future imgFromGallery(ImageSource src) async {
@@ -307,12 +311,11 @@ class _TextChatScreenState extends State<TextChatScreen> {
     DateTime now = DateTime.now();
     DateTime yesterday = now.subtract(const Duration(days: 1));
     if (dateTime.year == now.year && dateTime.month == now.month && dateTime.day == now.day)
-    {return DateFormat.jm().format(dateTime.add(const Duration(seconds: 157)));}
+    // {return DateFormat.jm().format(dateTime.add(const Duration(seconds: 157)));}
+    {return DateFormat.jm().format(dateTime.add(const Duration(seconds: 0)));}
     else if (dateTime.year == yesterday.year && dateTime.month == yesterday.month && dateTime.day == yesterday.day)
     {return "Yesterday ${DateFormat.jm().format(dateTime)}";}
     else {return DateFormat('dd/MM/yy, hh:mm a').format(dateTime);}
-
-
   }
 
   void toggleEmojiPicker() {
@@ -356,6 +359,15 @@ class _TextChatScreenState extends State<TextChatScreen> {
     // Convert the URL to lowercase and check if it ends with '.png'
     return url.toLowerCase().endsWith('.png');
   }
+
+  String convertImg(String url){
+    List<String> parts = url.split('/users/');
+    String extractText = parts.length > 1 ? parts[1] : '';
+    String result = "https://slush-prod.s3.eu-west-2.amazonaws.com/users/$extractText";
+    return result;
+  }
+
+
   String lastdatetime="";
   String time="";
   String time2="";
@@ -379,7 +391,7 @@ class _TextChatScreenState extends State<TextChatScreen> {
         width: size.width,
         child: Stack(
           children: [
-            const Divider(thickness: 1.0, color: Color.fromRGBO(246, 246, 246, 1),),
+            const Divider(thickness: 1.0, color: color.textFieldColor),
             Column(
               children: <Widget>[
                 const SizedBox(height: 5),
@@ -404,8 +416,7 @@ class _TextChatScreenState extends State<TextChatScreen> {
                                   child: buildText(time, 13, FontWeight.w500, color.dropDowngreytxt,fontFamily: FontFamily.hellix))),
                             Container(
                                 padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 8),
-                                child:
-                                Align(
+                                child: Align(
                                   alignment: (messages[index]["sender"].toString() == LocaleHandler.userId?Alignment.topRight:Alignment.topLeft),
                                   child: Container(
                                     margin: EdgeInsets.only(
@@ -432,11 +443,15 @@ class _TextChatScreenState extends State<TextChatScreen> {
                                     // child: buildText(data[index]["content"],15, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix),
                                     child:isPng(messages[index]["content"])?
                                     GestureDetector(onTap: (){
+                                      // customSingleImage(context,convertImg(messages[index]["content"]));},
                                       customSingleImage(context,messages[index]["content"]);},
                                         child: ClipRRect(
                                         borderRadius: BorderRadius.circular(10),
                                         // child: Image.network(messages[index]["content"], fit: BoxFit.cover,width: 100,height: 100)
-                                        child: CachedNetworkImage(imageUrl:messages[index]["content"],fit: BoxFit.cover,width: 100,height: 100,filterQuality: FilterQuality.low,
+                                        child: CachedNetworkImage(
+                                          imageUrl:messages[index]["content"],
+                                          // imageUrl:convertImg(messages[index]["content"]),
+                                          fit: BoxFit.cover,width: 100,height: 100,filterQuality: FilterQuality.low,
                                           placeholder: (ctx, url) => const Center(child: CircularProgressIndicator(color: color.txtBlue,strokeWidth: 0.5)),
                                         ),
                                         ))

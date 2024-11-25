@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-// import 'dart:nativewrappers/_internal/vm/lib/async_patch.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -199,6 +198,7 @@ class detailedController extends ChangeNotifier {
     LocaleHandler.entencity.clear();
     LocaleHandler.introImage = null;
     LocaleHandler.introVideo = null;
+    LocaleHandler.subscriptionPurchase="no";
     croppedFile = null;
     galleryFile = null;
     _controller.dispose();

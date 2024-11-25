@@ -77,7 +77,8 @@ class TimerProvider with ChangeNotifier {
     body: jsonEncode({  "participantId": participantId, "reason": reason}));
     print("response.statusCode======${response.statusCode}");
     print(jsonDecode(response.body));
-    if(response.statusCode==200){showToastMsg("Reported successfully");}
+    if(response.statusCode==200){// showToastMsg("Reported successfully");
+    }
   }
 
 // time used due to whole event
@@ -97,12 +98,14 @@ class TimerProvider with ChangeNotifier {
       } else {_timerr?.cancel();
       stopTimerr();}
     });
+    notifyListeners();
   }
 
   void stopTimerr() {
     _timerr?.cancel();
     _min=360;
     _durationn = const Duration(minutes: 6);
+    notifyListeners();
   }
 
   Future updateFixtureStatus(int participantid, String status) async {
@@ -116,5 +119,6 @@ class TimerProvider with ChangeNotifier {
     if (response.statusCode == 200) {
       print(jsonDecode(response.body)["message"]);
     }
+    notifyListeners();
   }
 }

@@ -196,7 +196,7 @@ class _DeatilProfileVideoScreenState extends State<DeatilProfileVideoScreen> {
                       buildText("Don't know what to show? ", 18, FontWeight.w600, color.txtBlack),
                       GestureDetector(
                         onTap: () {
-                          buildShowModalBottomSheet(context);
+                          // buildShowModalBottomSheet(context);
                         },
                         child: CircleAvatar(
                           radius: 9,

@@ -47,13 +47,6 @@ class _DetailScreenState extends State<DetailScreen> {
   int currentIndex=0;
   bool trimmerstrt =false;
 
-/*
-@override
-  void initState() {
-  Provider.of<detailedController>(context,listen: false).setCurrentIndex();
-    super.initState();
- }*/
-
   @override
   Widget build(BuildContext context) {
     final detailcntrl=Provider.of<detailedController>(context,listen: false);

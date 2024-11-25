@@ -144,8 +144,7 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
                     SizedBox(
                       height: size.height,
                       width: size.width,
-                      child:
-                          Image.asset(AssetsPics.background, fit: BoxFit.cover),
+                      child: Image.asset(AssetsPics.background, fit: BoxFit.cover),
                     ),
                     SingleChildScrollView(
                       physics: const ClampingScrollPhysics(),
@@ -191,7 +190,7 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
               height: 246,
               width: size.width,
               child: CachedNetworkImage(
-                  imageUrl: LocaleHandler.freeEventImage, fit: BoxFit.cover)),
+                  imageUrl: LocaleHandler.freeEventImage, fit: BoxFit.cover,)),
           IgnorePointer(
               child: SizedBox(
                   width: MediaQuery.of(context).size.width,
@@ -348,16 +347,12 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
                           imageFilter:
                               ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
                           // child: Image.asset(AssetsPics.eventProfile, fit: BoxFit.cover),
-                          child: data["participants"][index]["user"]
-                                          ["profilePictures"]
-                                      .length ==
-                                  0
+                          child: data["participants"][index]["user"]["profilePictures"].length == 0
                               ? Image.asset(AssetsPics.demouser, height: 35)
-                              : CachedNetworkImage(
-                                  imageUrl: data["participants"][index]["user"]
-                                      ["profilePictures"][0]["key"],
-                                  fit: BoxFit.cover),
-                        )));
+                              : CachedNetworkImage(imageUrl: data["participants"][index]["user"]["profilePictures"][0]["key"],
+                                  fit: BoxFit.cover,
+                              errorWidget: (context, url, error) => Image.asset(AssetsPics.demouser,width: 70),
+                        ))));
               }),
     );
   }
@@ -422,7 +417,8 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
 
   void bottomSHeet() {
     getAvailable();
-    if (!data["isFree"] || data["hasPassword"]) {
+    // if (!data["isFree"] || data["hasPassword"]) {
+    if (data["hasPassword"]) {
       customDialogBoxTextField(
           context, "Passport protected.", "Confirm", passNode,
           heading: "This event is password protected. Please contact the organiser.",

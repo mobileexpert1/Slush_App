@@ -20,7 +20,7 @@ class _DetailHieghtScreenState extends State<DetailHieghtScreen> {
   ValueNotifier<int> hieghtFt = ValueNotifier(0);
 
   ValueNotifier<int> hieghtInch = ValueNotifier(0);
-  String hightIn = "cm";
+  ValueNotifier<String> hightIn = ValueNotifier<String>("cm");
 
   @override
   void initState() {
@@ -43,8 +43,7 @@ class _DetailHieghtScreenState extends State<DetailHieghtScreen> {
       children: [
         SizedBox(height: LocaleHandler.EditProfile ? 0 : 3.h - 3),
         LocaleHandler.EditProfile
-            ? buildText(
-            "How tall are you?", 28, FontWeight.w600, color.txtBlack)
+            ? buildText("How tall are you?", 28, FontWeight.w600, color.txtBlack)
             : buildText("Please provide your height.", 28, FontWeight.w600,
             color.txtBlack),
         const SizedBox(height: 8),
@@ -60,7 +59,8 @@ class _DetailHieghtScreenState extends State<DetailHieghtScreen> {
             width: MediaQuery.of(context).size.width - 30,
             decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(12), color: Colors.white),
-            child: hightIn == "cm"
+            child:
+            ValueListenableBuilder(valueListenable: hightIn, builder: (context,value,child){return   hightIn.value == "cm"
                 ? ValueListenableBuilder(
                 valueListenable: hieghtCm,
                 builder: (context, value, child) {
@@ -174,7 +174,7 @@ class _DetailHieghtScreenState extends State<DetailHieghtScreen> {
                       );
                     }),
                 ValueListenableBuilder(
-                    valueListenable: hieghtFt,
+                    valueListenable: hieghtInch,
                     builder: (context, value, child) {
                       return WheelSlider.number(
                         isVibrate: false,
@@ -192,8 +192,7 @@ class _DetailHieghtScreenState extends State<DetailHieghtScreen> {
                         currentIndex: hieghtInch.value,
                         onValueChanged: (val) {
                           hieghtInch.value = val;
-                          LocaleHandler.height =
-                          "${hieghtFt.value}'${hieghtInch.value}";
+                          LocaleHandler.height = "${hieghtFt.value}'${hieghtInch.value}";
                           LocaleHandler.heighttype = "ft";
                         },
                         hapticFeedbackType:
@@ -230,7 +229,7 @@ class _DetailHieghtScreenState extends State<DetailHieghtScreen> {
                       );
                     }),
               ],
-            ),
+            );}),
           ),
         ),
         Row(
@@ -238,20 +237,16 @@ class _DetailHieghtScreenState extends State<DetailHieghtScreen> {
           children: [
             GestureDetector(
               onTap: () {
-                setState(() {
-                  hightIn = "ft";
-                  LocaleHandler.heighttype = hightIn;
-                });
+                hightIn.value = "ft";
+                  LocaleHandler.heighttype = hightIn.value;
               },
-              child: Column(
+              child:
+              ValueListenableBuilder(valueListenable: hightIn, builder: (context,value,child){return Column(
                 children: [
-                  Icon(Icons.arrow_drop_up_rounded,
-                      color:
-                      hightIn == "ft" ? color.txtBlue : Colors.transparent),
-                  buildText("ft in", 18, FontWeight.w500,
-                      hightIn == "ft" ? color.txtBlue : color.txtBlack),
+                  Icon(Icons.arrow_drop_up_rounded, color: hightIn.value == "ft" ? color.txtBlue : Colors.transparent),
+                  buildText("ft in", 18, FontWeight.w500, hightIn.value == "ft" ? color.txtBlue : color.txtBlack),
                 ],
-              ),
+              );}),
             ),
             Column(
               children: [
@@ -265,20 +260,19 @@ class _DetailHieghtScreenState extends State<DetailHieghtScreen> {
             ),
             GestureDetector(
               onTap: () {
-                setState(() {
-                  hightIn = "cm";
-                  LocaleHandler.heighttype = hightIn;
-                });
+                hightIn.value = "cm";
+                  LocaleHandler.heighttype = hightIn.value;
               },
-              child: Column(
+              child:
+              ValueListenableBuilder(valueListenable: hightIn, builder: (context,value,child){return  Column(
                 children: [
                   Icon(Icons.arrow_drop_up_rounded,
                       color:
-                      hightIn == "cm" ? color.txtBlue : Colors.transparent),
+                      hightIn.value == "cm" ? color.txtBlue : Colors.transparent),
                   buildText("cm", 18, FontWeight.w500,
-                      hightIn == "cm" ? color.txtBlue : color.txtBlack),
+                      hightIn.value == "cm" ? color.txtBlue : color.txtBlack),
                 ],
-              ),
+              );}),
             ),
           ],
         ),
@@ -309,8 +303,7 @@ class _DetailHieghtScreenState extends State<DetailHieghtScreen> {
                     );
                   }),
             ),
-            buildText("Display on profile", 16, FontWeight.w500, color.txtBlack,
-                fontFamily: FontFamily.hellix),
+            buildText("Display on profile", 16, FontWeight.w500, color.txtBlack, fontFamily: FontFamily.hellix),
           ],
         ),
         SizedBox(height: 2.h - 2)

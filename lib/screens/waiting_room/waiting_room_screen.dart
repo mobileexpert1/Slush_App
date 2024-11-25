@@ -268,7 +268,8 @@ class _WaitingRoomState extends State<WaitingRoom> with SingleTickerProviderStat
                                             imageFilter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
                                             child: CachedNetworkImage(
                                                 imageUrl: widget.data["participants"][index]["user"]["profilePictures"][0]["key"],
-                                                fit: BoxFit.cover),
+                                                fit: BoxFit.cover,
+                                              errorWidget: (context, url, error) => Image.asset(AssetsPics.demouser,height: 35,width: 50),),
                                           )),
                                     );
                                   })),

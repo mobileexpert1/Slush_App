@@ -235,6 +235,7 @@ class loginControllerr with ChangeNotifier{
     var data = jsonDecode(response.body);
     print("response.statusCode======${response.statusCode}");
     print(data);
+    LoaderOverlay.hide();
     if(response.statusCode==201){
       LocaleHandler.socialLogin="yes";
       print(LocaleHandler.accessToken);
@@ -244,8 +245,7 @@ class loginControllerr with ChangeNotifier{
       Provider.of<profileController>(context,listen: false).getTotalSparks();
       saveDAta(context,data);
       print(LocaleHandler.accessToken);
-      if (data["data"]["emailVerifiedAt"] == true) {Get.offAll(() => BottomNavigationScreen());}
-      else if(data["data"]["nextAction"]=="none"){Get.offAll(() => BottomNavigationScreen());}
+      if (data["data"]["emailVerifiedAt"] == true && data["data"]["nextAction"]=="none") {Get.offAll(() => BottomNavigationScreen());}
       else if(data["data"]["nextAction"]!="none"){
         Provider.of<detailedController>(context,listen: false).setCurrentIndex();
       LocaleHandler.EditProfile = false;
@@ -354,16 +354,24 @@ class loginControllerr with ChangeNotifier{
           AppleIDAuthorizationScopes.fullName,
         ],
       );
-
       // Use the credential to authenticate with your backend.
       print("===================");
       print(credential.identityToken);
       print(credential.authorizationCode);
+      print(credential.givenName);
+      print(credential.familyName);
+      LoaderOverlay.show(context);
       socialLoginUser(context, "APPLE", socialToken: credential.authorizationCode);
+      if(credential.givenName!=null){
+        LocaleHandler.name=credential.givenName!.toString();
+      }
+      notifyListeners();
     } catch (e) {
       print('Error signing in with Apple: $e');
     }
   }
+
+
 
   static final DeviceInfoPlugin deviceInfoPlugin = DeviceInfoPlugin();
   Map<String, dynamic> _deviceData = <String, dynamic>{};

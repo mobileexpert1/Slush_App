@@ -102,7 +102,6 @@ class ChatController extends ChangeNotifier{
   }
 
   void getUnreadChat(bool val){
-    print(";-;-;-;-$val");
     _unreadMsg=val;
     notifyListeners();
   }

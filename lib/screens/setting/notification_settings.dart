@@ -1,10 +1,12 @@
 import 'package:animated_toggle_switch/animated_toggle_switch.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/prefs.dart';
+import 'package:slush/controller/notification_setting_controller.dart';
 import 'package:slush/widgets/app_bar.dart';
 import 'package:slush/widgets/text_widget.dart';
 
@@ -24,9 +26,18 @@ class _NotificationSettingsState extends State<NotificationSettings> {
     Notification(3, "Message", "Never miss a message",false),
     Notification(4, "Likes", "Get notified when someone likes you",false),
   ];
+  late final NotificationSettingController notificationSettingController;
+
   bool isSwitch=false;
   List<int> item = [];
   int selectedIndex= 0;
+
+  @override
+  void initState() {
+    notificationSettingController=context.read<NotificationSettingController>();
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     final size=MediaQuery.of(context).size;
@@ -55,7 +66,7 @@ class _NotificationSettingsState extends State<NotificationSettings> {
                   child: ListView.builder(
                     shrinkWrap: true,
                       // physics: NeverScrollableScrollPhysics(),
-                      padding: EdgeInsets.all(0.0),
+                      padding: const EdgeInsets.all(0.0),
                       itemCount: notificationSetting.length,
                       itemBuilder: (context,index){
                       if(LocaleHandler.switchitem.contains(notificationSetting[index].Id.toString())){notificationSetting[index].val=true;}
@@ -75,6 +86,10 @@ class _NotificationSettingsState extends State<NotificationSettings> {
                                     Preferences.setList(LocaleHandler.switchitem);
                                   }
                                 });
+
+                                String type= notificationSettingController.checkType(index);
+                                int i=notificationSetting[index].val?1:0;
+                                notificationSettingController.setNotificationSettings(context, type, i);
                               },
                               child: Container(color: Colors.transparent,
                                 child: Padding(
@@ -94,65 +109,6 @@ class _NotificationSettingsState extends State<NotificationSettings> {
                                                 width: 265,
                                                 child: buildTextoneline(notificationSetting[index].subTitle, 16, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix)),
                                           ],),
-                                        /*Align(
-                                          alignment: Alignment.centerRight,
-                                          child: Column(
-                                            mainAxisAlignment: MainAxisAlignment.center,
-                                            children: [
-                                              GestureDetector(
-                                                onTap: () {
-                                                  setState(() {
-                                                    isSwitch = !isSwitch;
-                                                  });
-                                                },
-                                                child: Container(
-                                                  height: 5.h-2,
-                                                  width: 10.h-2,
-                                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),),
-                                                  child: Stack(
-                                                    children: [
-                                                      Positioned(
-                                                        child: Stack(
-                                                          children:[
-                                                            Positioned(
-                                                              child: Container(
-                                                                margin:const EdgeInsets.all(10),
-                                                                height: 3.h-3,
-                                                                width: 5.h,
-                                                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(50), color: isSwitch ? color.example3 : color.txtgrey4,),
-                                                              ),
-                                                            )],
-                                                        ),
-                                                      ),
-                                                      // Thumb
-                                                      Positioned(
-                                                        left: isSwitch ? 30 : 6,
-                                                        top: 7,
-                                                        child: Container(
-                                                          height: 3.h+1,
-                                                          width: 3.h+1,
-                                                          decoration: BoxDecoration(
-                                                            boxShadow: [
-                                                              BoxShadow(
-                                                                color: Colors.grey.withOpacity(0.9),
-                                                                spreadRadius: 0,
-                                                                blurRadius: 5,
-                                                                offset: const Offset(0,0), // changes position of shadow
-                                                              ),
-                                                            ],
-                                                            shape: BoxShape.circle,
-                                                            color: isSwitch ? color.txtBlue : color.txtWhite,
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                              ),
-                                              const SizedBox(height: 10),
-                                            ],
-                                          ),
-                                        )*/
                                         IgnorePointer(
                                           child: CustomAnimatedToggleSwitch<bool>(
                                             current:LocaleHandler.switchitem.contains(notificationSetting[index].Id.toString())?true:false,
@@ -164,20 +120,8 @@ class _NotificationSettingsState extends State<NotificationSettings> {
                                             iconBuilder: (context, local, global) {return const SizedBox();},
                                             cursors: const ToggleCursors(defaultCursor: SystemMouseCursors.click,),
                                             onTap: (_) {
-                                              setState(() {
                                                 notificationSetting[index].val=!notificationSetting[index].val;
-                                              });
-                                              // setState(() {
-                                              //   if(LocaleHandler.switchitem.contains(notificationSetting[index].Id)){
-                                              //     notificationSetting[index].val = false;
-                                              //     LocaleHandler.switchitem.remove(notificationSetting[index].Id);
-                                              //   }else{
-                                              //     notificationSetting[index].val = true;
-                                              //     LocaleHandler.switchitem.add(notificationSetting[index].Id);
-                                              //   }
-                                              // });
                                               },
-                                                // setState(() => notificationSetting[index].val = !notificationSetting[index].val),
                                             iconsTappable: false,
                                             wrapperBuilder: (context, global, child) {
                                               return Stack(alignment: Alignment.center,

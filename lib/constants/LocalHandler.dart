@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:in_app_purchase/in_app_purchase.dart';
+
 class LocaleHandler {
   static bool bioAuth=false;
   static bool speeddatePermission=false;

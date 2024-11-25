@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
 import 'package:slush/constants/LocalHandler.dart';
@@ -30,15 +31,24 @@ class VideoCallScreen extends StatefulWidget {
 }
 
 class _VideoCallScreenState extends State<VideoCallScreen> {
+  // List reportingMatter = [
+  //   "They did not show up!",
+  //   "Did not have much in common",
+  //   "Nudity / inappropriate",
+  //   "Swearing / Aggression",
+  //   "I have joined the wrong event",
+  //   "I left the video-call by accident",
+  //   "They are in the wrong event",
+  //   "others"
+  // ];
+
   List reportingMatter = [
     "They did not show up!",
-    "Did not have much in common",
-    "Nudity / inappropriate",
-    "Swearing / Aggression",
-    "I have joined the wrong event",
-    "I left the video-call by accident",
-    "They are in the wrong event",
-    "others"
+    "We didn’t have much in common",
+    "I’m in the wrong event",
+    "Inappropriate behaviour",
+    "Video call froze",
+    "Other"
   ];
 
   int selectedIndex = -1;
@@ -52,6 +62,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     initializeAgora();
     // _initAgora();
   }
+
   final AgoraClient client = AgoraClient(
     agoraConnectionData: AgoraConnectionData(
       appId: appId,
@@ -64,6 +75,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   bool _isLoading = true;
 
   Future<void> initializeAgora() async {
+    await OneSignal.User.pushSubscription.optOut();
     setState(() {_isLoading = true;});
     try {
     await [Permission.camera, Permission.microphone].request();
@@ -130,10 +142,10 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   }
 
   @override
-  void dispose() {
+  Future<void> dispose() async{
     client.engine.leaveChannel();
     client.release();
-
+    await OneSignal.User.pushSubscription.optIn();
     super.dispose();
   }
 
@@ -152,6 +164,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     final timerProvider = Provider.of<TimerProvider>(context);
     final duration = timerProvider.duration;
     final formattedTime = "${duration.inMinutes.toString().padLeft(2, '0')}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}";
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
     if (formattedTime == "00:00") {
       print("disconnect");
@@ -207,7 +220,6 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                               // timerProvider.resetTimer();
                               // _engine.leaveChannel();
                               print("LocaleHandler.eventParticipantData====${LocaleHandler.eventParticipantData["participantId"]}");
-
                               timerProvider.videoCallReport(LocaleHandler.eventParticipantData["participantId"], reportReason);
                               client.engine.leaveChannel();
                               _onExit();
@@ -310,7 +322,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                 child: GestureDetector(
                   onTap: (){},
                   child: Container(
-                      height: MediaQuery.of(context).size.height / 1.65,
+                      height: MediaQuery.of(context).size.height *0.67,
                       width: MediaQuery.of(context).size.width / 1.1,
                       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
                       padding: const EdgeInsets.all(20),

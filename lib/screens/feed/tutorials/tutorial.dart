@@ -46,13 +46,14 @@ Widget feedTutorials(BuildContext context){
           value.cou==2? third(context):
           value.cou==3? fourth(context):
           value.cou==4?fifth(context):
-          value.cou==5? sixth(context):const SizedBox()
+          value.cou==5? sixth(context):
+          const SizedBox()
           // :seventh(context),
           );
         },
       ),
       Consumer<ReelController>(builder: (ctx,val,child){
-        return val.count==0?seventh(context):const SizedBox();
+        return val.count == 0 ? seventh(context):const SizedBox();
       })
       ],
     ),
@@ -387,6 +388,7 @@ double _endValue = 90.0;
 String selectedGender = "";
 List gender = ["Male", "Female", "Everyone"];
 List<dynamic> _items = [];
+
 Widget seventh(BuildContext context){
   final size=MediaQuery.of(context).size;
   return SafeArea(

@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 class color{
   static const txtBlack = Color.fromRGBO(28, 29, 32, 1);
   static const txtgrey = Color.fromRGBO(69, 70, 72, 1);
+  static const chatDeleteIcon = Color.fromRGBO(255, 92, 71, 1);
   static const txtgreyhex = Color(0xFF929394);
   static const txtgrey2 = Color.fromRGBO(105, 106, 108, 1);
   static const txtBlue = Color.fromRGBO(7, 140, 254, 1);

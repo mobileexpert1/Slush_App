@@ -142,6 +142,7 @@ class _WaitingCompletedState extends State<WaitingCompleted> with SingleTickerPr
                 showToastMsg("Event is over");
                 Get.offAll(()=>BottomNavigationScreen());
                 Provider.of<TimerProvider>(context,listen: false).stopTimerr();}
+
               else{Get.offAll(()=>WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));}
             });
         }
@@ -281,7 +282,9 @@ class _WaitingCompletedState extends State<WaitingCompleted> with SingleTickerPr
                                                   child:widget.data["participants"][index]["user"]["profilePictures"].length==0?
                                                   Image.asset(AssetsPics.demouser,height: 35): CachedNetworkImage(
                                                       imageUrl: widget.data["participants"][index]["user"]["profilePictures"][0]["key"],
-                                                      fit: BoxFit.cover),
+                                                      fit: BoxFit.cover,
+                                                      errorWidget: (context, url, error) => Image.asset(AssetsPics.demouser,height: 35,width: 50)
+                                                  ),
                                                 )),
                                           );
                                         })),
@@ -378,7 +381,7 @@ class _WaitingCompletedFeedBackState extends State<WaitingCompletedFeedBack>
   bool timerCompleted = false;
   late AnimationController _animationController;
   late Animation<double> _animation;
-  final int startingMinutes = 5;
+  final int startingMinutes = 6;
   int initialMinutes = 0;
   double initialPercent = 0.0;
   int min = 0;
@@ -389,7 +392,7 @@ class _WaitingCompletedFeedBackState extends State<WaitingCompletedFeedBack>
     final int mins = Provider.of<TimerProvider>(context, listen: false).durationn;
     min = mins < 0 ? 0 : mins;
     double reaming = min / 60;
-    int x = 5 - reaming.toInt();
+    int x = 6 - reaming.toInt();
     initialMinutes = x;
     initialPercent = initialMinutes / startingMinutes.toDouble();
     _animationController = AnimationController(vsync: this, duration: Duration(seconds: min));
@@ -397,6 +400,7 @@ class _WaitingCompletedFeedBackState extends State<WaitingCompletedFeedBack>
     _animationController.forward();
     settimer();
     getFixtures();
+    Provider.of<TimerProvider>(context, listen: false).startTimerr();
   }
 
   var data;
@@ -646,7 +650,8 @@ class _WaitingCompletedFeedBackState extends State<WaitingCompletedFeedBack>
                                                   imageFilter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
                                                   child: CachedNetworkImage(
                                                       imageUrl: widget.data["participants"][index]["user"]["profilePictures"][0]["key"],
-                                                      fit: BoxFit.cover),
+                                                      fit: BoxFit.cover,
+                                                      errorWidget: (context, url, error) => Image.asset(AssetsPics.demouser,height: 35,width: 50)),
                                                 )),
                                           );
                                         })),

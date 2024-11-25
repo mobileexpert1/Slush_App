@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/gestures.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:shimmer/shimmer.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -71,12 +73,13 @@ class _Subscription1State extends State<Subscription1> {
     _available = isAvailable;
     if (_available) {
       // const Set<String> _kIds = {'silversubscription','goldsubscription','platinumsubscription'};
-      const Set<String> _kIds = {'silversubscription'};
-      final ProductDetailsResponse response = await _iap.queryProductDetails(_kIds);
+      const Set<String> _kAndroidIds = {'silversubscription'};
+      // const Set<String> _kiOsIds = {'Tier1'};
+      const Set<String> _kiOsIds = {'com.slush.silver.subscription'};
+      // const Set<String> _kiOsIds = {'silver_subscription'};
+      final ProductDetailsResponse response = await _iap.queryProductDetails(Platform.isAndroid?_kAndroidIds:_kiOsIds);
       setState(() {_products = response.productDetails;});
-      if (response.notFoundIDs.isNotEmpty && response.error == null) {
-        print('Products not found: ${response.notFoundIDs}');
-      }
+      if (response.notFoundIDs.isEmpty && response.error == null) {print('Products not found: ${response.notFoundIDs}');}
     }
   }
 
@@ -86,6 +89,7 @@ class _Subscription1State extends State<Subscription1> {
         bool valid = await _verifyPurchase(purchase);
         print("valid;-;-;-$valid");
         if (valid) {
+          buttonPressed = false;
          selectedIndex == 2 ? subscribeApi(1) : showToastMsg("Coming soon...");
           _deliverProduct(purchase);
         } else {
@@ -119,6 +123,7 @@ class _Subscription1State extends State<Subscription1> {
   void buySubscription(ProductDetails product) {
     final PurchaseParam purchaseParam = PurchaseParam(productDetails: product);
     _iap.buyNonConsumable(purchaseParam: purchaseParam);
+
   }
 
 
@@ -336,44 +341,29 @@ class _Subscription1State extends State<Subscription1> {
                     color: color.txtWhite,
                     borderRadius: BorderRadius.circular(15)
                 ),
-                child: Column(children: [
+                child: Column(
+                  children: [
                   SizedBox(
-                    height:defaultTargetPlatform==TargetPlatform.iOS? size.height*0.20:size.height*0.21,
-                    child:
-                    selectedIndex ==2 ?
-                    PageView(
+                    // height:defaultTargetPlatform==TargetPlatform.iOS? size.height*0.20:size.height*0.21,
+                    height:size.height*0.26,
+                    child: PageView(
                       controller: _pageController,
+                      onPageChanged: (val){setState(() {currentIndex=val;});},
                       children: [
                         customScroller(text1: 'See who has Liked you', text2: 'See everyone that likes you', iconName: AssetsPics.like),
-                        customScroller(text1: 'More Sparks', text2: 'Get 3 Sparks now' //+ 1 daily for 30 days.\n Boost your connection!'
-                            , iconName: AssetsPics.shock),
+                        customScroller(text1: 'Plan Details', text2: '1 month Subscription plan', iconName: AssetsPics.like),
+                        customScroller(text1: 'More Sparks', text2: 'Get 3 Sparks now + 1 daily for 1 month.\n Boost your connection!', iconName: AssetsPics.shock),
                         customScroller(text1: 'Unlimited Swipes', text2: 'Endless swiping', iconName: AssetsPics.watch),
+                        // customScroller(text1: 'Rules', text2: 'For privacy policy and term & condition please go to setting section', iconName: AssetsPics.watch),
+                        cutomTextforPrivacyPolicy(iconName: AssetsPics.watch)
                       ],
-                    ) : selectedIndex ==1 ?  PageView(
-                      controller: _pageController,
-                      children: [
-                        customScroller(text1: 'See who has Liked you', text2: 'See everyone that likes you', iconName: AssetsPics.like),
-                        customScroller(text1: 'Sparks', text2: 'Get 5 Sparks now', iconName: AssetsPics.shock),
-                        customScroller(text1: 'Unlimited Swipes', text2:  'Endless swiping', iconName: AssetsPics.watch),
-                        customScroller(text1: 'AI Dating Coach', text2: 'Your dating coach', iconName: AssetsPics.dating),
-                        customScroller(text1: 'No ads', text2: 'Your dating coach', iconName: AssetsPics.noAds),
-                      ],
-                    ) : PageView(
-                      controller: _pageController,
-                      children: [
-                        customScroller(text1: 'See who has Liked you', text2: 'See everyone that likes you', iconName: AssetsPics.like),
-                        customScroller(text1: 'Sparks', text2: 'Get 10 Sparks now', iconName: AssetsPics.shock),
-                        customScroller(text1: 'Unlimited Swipes', text2:  'Endless swiping', iconName: AssetsPics.watch),
-                        customScroller(text1: 'AI Dating Coach', text2: 'Your dating coach', iconName: AssetsPics.dating),
-                        customScroller(text1: 'No ads', text2: 'Your dating coach', iconName: AssetsPics.noAds),
-                      ],
-                    ),
+                    )
                   ),
                   Container(height: size.height*0.01),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children:
-                    List<Widget>.generate( selectedIndex == 2 ? 3 : 5, (int index) {
+                    List<Widget>.generate( 5, (int index) {
                       return Container(
                         margin: const EdgeInsets.only(left: 2.5,right: 2.5,bottom: 12.0),
                         width: currentIndex == index?14: 12.0,
@@ -382,14 +372,15 @@ class _Subscription1State extends State<Subscription1> {
                           color:currentIndex == index? color.txtWhite:Colors.transparent,
                           borderRadius: BorderRadius.circular(20),
                           border: Border.all(color: currentIndex == index ?
-                          Colors.blue : color.txtgrey, width: currentIndex == index ? 3 : 1.5 ,),
+                          Colors.blue : color.txtgrey, width: currentIndex == index ? 3 : 1.5 ),
                         ),
                       );
                     }),
                   ),
                   SizedBox(height: size.height*0.01),
                   SizedBox(
-                    height: 25.h,
+                    // height: 25.h,
+                    height: 18.h,
                     width: MediaQuery.of(context).size.width,
                     // color: Colors.green,
                     child: Stack(
@@ -468,7 +459,8 @@ class _Subscription1State extends State<Subscription1> {
                             selectedIndex = 2 ;
                           },
                           child: Container(
-                            height: 185 ,
+                            // height: 185 ,
+                            height: MediaQuery.of(context).size.width*0.4-28 ,
                             // width: MediaQuery.of(context).size.width/2.9,
                             width: MediaQuery.of(context).size.width,
                             decoration: BoxDecoration(color: color.txtBlue ,
@@ -478,19 +470,20 @@ class _Subscription1State extends State<Subscription1> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",height: 50),
+                                SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",height: 40),
                                 // Spacer(),
                                 Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     // SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
-                                    buildText("Slush", 30, FontWeight.w600, color.txtWhite ),
-                                    buildText("Silver", 30, FontWeight.w600,color.txtWhite ),
-                                    const SizedBox(height: 10,),
-                                    buildText("£9.99", 30, FontWeight.w600, color.txtWhite ),
+                                    buildText("Slush", 25, FontWeight.w600, color.txtWhite ),
+                                    buildText("Silver", 25, FontWeight.w600,color.txtWhite ),
+                                    const SizedBox(height: 6),
+                                    // buildText("£9.99", 25, FontWeight.w600, color.txtWhite ),
+                                    buildText(_products.isEmpty?"...":"${_products[0].price} /mo", 25, FontWeight.w600, color.txtWhite ),
                                   ],
                                 ),
-                                SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",height: 50),
+                                SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",height: 40),
                               ],
                             ),
                             /*Column(
@@ -518,7 +511,7 @@ class _Subscription1State extends State<Subscription1> {
                             child: buildText("Popular", 13, FontWeight.w600,selectedIndex == 2 ? color.txtBlue : color.txtWhite,fontFamily: FontFamily.hellix),
                           ),
                         ),*/
-                        selectedIndex==1? Positioned(
+                     /*   selectedIndex==1? Positioned(
                           left: 0.0,
                           child: Container(
                             height: 185 ,
@@ -558,30 +551,31 @@ class _Subscription1State extends State<Subscription1> {
                               ],
                             ),
                           ),
-                        ):const SizedBox(),
+                        ):const SizedBox(),*/
                       ],
                     ),
                   ),
                   const SizedBox(height: 18),
                   clrchangeBUtton(context,selectedIndex==2? "Continue":"Coming soon",press: (){
-                    if(selectedIndex==2){
+                    if(selectedIndex==2  && _products.isNotEmpty){
                     int num=selectedIndex==1?2:selectedIndex==2?0:1;
+                    print(LocaleHandler.subscriptionPurchase);
                     if(LocaleHandler.subscriptionPurchase=="no" && selectedIndex == 2){
                       buttonPressed=true;
                       if (Platform.isAndroid) {
+                        // _showDialog(context);
                         customDialogBoxx(context);
                         // _buySubscription(_products[2]);
-                        buySubscription(_products[0]);
-                        } else {
-                        // setState(() {LoaderOverlay.show(context);});
-                        customDialogBoxx(context);
-                        buySubscription(_products[0]);
-                      }
-                    }else if(selectedIndex != 2){showToastMsg("Coming soon...");}}
+                        buySubscription(_products.first);
+                        } else {_showDialog(context);}
+
+                    }else if(selectedIndex != 2){showToastMsg("Coming soon...");}
+                    else {showToastMsg("Aready purchased");}
+                    }
                   },
-                  validation: selectedIndex==2
+                  validation: selectedIndex==2 && _products.isNotEmpty
                   ),
-                  SizedBox(height:defaultTargetPlatform==TargetPlatform.iOS?25: 10)
+                  SizedBox(height:defaultTargetPlatform==TargetPlatform.iOS?25: 25)
                 ],),
               )
             ],)
@@ -597,6 +591,7 @@ class _Subscription1State extends State<Subscription1> {
   }){
     return  Column(
       crossAxisAlignment: CrossAxisAlignment.center,
+      mainAxisAlignment: MainAxisAlignment.end,
       children: [
         Container(
           child: selectedIndex== 3 ? Stack(
@@ -627,9 +622,47 @@ class _Subscription1State extends State<Subscription1> {
         ),
         buildText(text1, 19.sp, FontWeight.w600, color.txtBlack),
         buildText2(text2, 16.sp, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix),
+        const SizedBox(height: 20)
       ],
     );
   }
+
+  cutomTextforPrivacyPolicy({required String iconName}){
+    return  Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Padding(
+          padding: const EdgeInsets.only(left: 16),
+          child: SvgPicture.asset(iconName,height:12.h),
+        ),
+        buildText("Rules", 19.sp, FontWeight.w600, color.txtBlack),
+        Text.rich(textAlign: TextAlign.center,
+          TextSpan(
+            children: <TextSpan>[
+              TextSpan(text: 'For ', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500, color: color.txtgrey,fontFamily:FontFamily.hellix ),),
+              TextSpan(text: 'privacy policy', style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w500, color: color.txtBlue,fontFamily:FontFamily.hellix,
+                  decoration: TextDecoration.underline,decorationColor: Colors.blue,decorationThickness: 1),
+              recognizer: TapGestureRecognizer()..onTap=() async {
+                var url = Uri.parse('https://www.slushdating.com/privacy-policy');
+                if (await canLaunchUrl(url)) {await launchUrl(url, mode: LaunchMode.inAppWebView);}
+                else {throw 'Could not launch $url';}}),
+              TextSpan(text: ' and ', style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w500, color: color.txtgrey,fontFamily:FontFamily.hellix ),),
+              TextSpan(text: 'term & condition', style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w500, color: color.txtBlue,fontFamily:FontFamily.hellix,
+                  decoration: TextDecoration.underline,decorationColor: Colors.blue,decorationThickness: 1),
+                  recognizer: TapGestureRecognizer()..onTap=() async {
+                    var url = Uri.parse('https://www.slushdating.com/terms-of-use');
+                    if (await canLaunchUrl(url)) {await launchUrl(url, mode: LaunchMode.inAppWebView);}
+                    else {throw 'Could not launch $url';}}),
+              // TextSpan(text: 'please go to setting section', style: TextStyle(fontSize: 16.sp, fontWeight: FontWeight.w500, color: color.txtgrey,fontFamily:FontFamily.hellix ),),
+            ],
+          ),
+        ),
+        // buildText2("For privacy policy and term & condition please go to setting section", 16.sp, FontWeight.w500, color.txtgrey,fontFamily: FontFamily.hellix),
+      ],
+    );
+  }
+
+
 
   void callFunction(){
     setState(() {
@@ -640,6 +673,65 @@ class _Subscription1State extends State<Subscription1> {
       LocaleHandler.subScribtioonOffer=false;
       Get.to(()=>BottomNavigationScreen());
     });
+  }
+
+  void _showDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Colors.white,
+          content: buildText("Payment will be charged to iTunes Account at confirmation of purchase. Subscription automatically renews unless auto-renew is turned off at least 24-hours before the end of the current period. Account will be charged for renewal within 24-hours prior to the end of the current period, and identify the cost of the renewal. Subscriptions may be managed by the user and auto-renewal may be turned off by going to the user's Account Settings after purchase. No cancellation of the current subscription is allowed during active subscription period. Any unused portion of a free trial period, if offered will be forfeited when the user purchases a subscription to that publication, where applicable.", 16, FontWeight.w500, Colors.black),
+          actions: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+              GestureDetector(
+                  onTap: () async {
+                    var url = Uri.parse('https://www.slushdating.com/terms-of-use');
+                    if (await canLaunchUrl(url)) {await launchUrl(url, mode: LaunchMode.inAppWebView);}
+                    else {throw 'Could not launch $url';}
+                  }
+                  ,child: buildText("Term of service   ", 15, FontWeight.w500, Colors.black54)),
+              buildText("|", 15, FontWeight.w500, Colors.black54),
+              GestureDetector(onTap: () async {
+                var url = Uri.parse('https://www.slushdating.com/privacy-policy');
+                if (await canLaunchUrl(url)) {await launchUrl(url, mode: LaunchMode.inAppWebView);}
+                else {throw 'Could not launch $url';}
+              },child: buildText("   Privacy policy", 15, FontWeight.w500, Colors.black54)),
+            ],),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                GestureDetector(
+                  onTap: (){
+                    Get.back();
+                  }, child: Container(
+                    alignment: Alignment.center,
+                    padding: const EdgeInsets.all(5),
+                    decoration: BoxDecoration(color: color.logOutRed,
+                    borderRadius: BorderRadius.circular(10)),
+                      child: buildText("Cancel", 15, FontWeight.w500, Colors.white)),
+                ),
+                GestureDetector(
+                  onTap: (){
+                    Get.back();
+                    customDialogBoxx(context);
+                    buySubscription(_products.first);
+                  },
+                  child: Container(
+                      alignment: Alignment.center,
+                      padding: const EdgeInsets.all(5),
+                      decoration: BoxDecoration(color: color.txtBlue,
+                          borderRadius: BorderRadius.circular(10)),
+                      child: buildText("    Pay    ", 15, FontWeight.w500, Colors.white)),
+                ),
+              ],),
+          ],
+        );
+      },
+    );
   }
 }
 
@@ -794,3 +886,4 @@ class _LoadingDialogState extends State<LoadingDialog> {
     );
   }
 }
+

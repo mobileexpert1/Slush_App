@@ -21,8 +21,7 @@ class DetailNameScreen extends StatefulWidget {
 }
 
 class _DetailNameScreenState extends State<DetailNameScreen> {
-  TextEditingController nameController =
-      TextEditingController(text: LocaleHandler.name);
+  TextEditingController nameController = TextEditingController(text: LocaleHandler.name);
   FocusNode nameNode = FocusNode();
   ValueNotifier<String> enableField = ValueNotifier("");
 

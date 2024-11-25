@@ -24,14 +24,12 @@ import 'package:slush/screens/events/eventhistory.dart';
 import 'package:slush/screens/events/free_event.dart';
 import 'package:slush/screens/events/you_ticket.dart';
 import 'package:slush/screens/notification/notification_screen.dart';
-import 'package:slush/screens/onboarding/introscreen.dart';
 import 'package:slush/screens/waiting_room/waiting_room_screen.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
 import 'package:slush/widgets/customtoptoaster.dart';
 import 'package:slush/widgets/text_widget.dart';
 import 'package:slush/widgets/toaster.dart';
 import 'package:intl/intl.dart';
-import 'package:uuid/uuid.dart';
 import 'package:geocoding/geocoding.dart';
 
 class EventScreen extends StatefulWidget {
@@ -54,26 +52,6 @@ class _EventScreenState extends State<EventScreen> {
   FocusNode locationNode = FocusNode();
   List statesList = [];
   String _searchQuery = '';
-  var uuid = const Uuid();
-  String _sessionToken = const Uuid().toString();
-  List<dynamic> _placeList = [];
-
-  void _onChanged() {
-    getLocationResults(locationController.text);
-  }
-
-  void getLocationResults(String input) async {
-    String kPLACES_API_KEY = "AIzaSyAtb9qudpaPK2l0uoANyRE0zi4Nj4jNoT4";
-    String type = '(regions)';
-    String baseURL = "https://maps.googleapis.com/maps/api/place/autocomplete/json";
-    String request = "$baseURL?input=$input&key=$kPLACES_API_KEY&sessiontoken=$_sessionToken";
-    var response = await http.get(Uri.parse(request));
-    if (response.statusCode == 200) {
-      setState(() {_placeList = jsonDecode(response.body)["predictions"];});
-    } else {
-      throw Exception("Failed to load predictions");
-    }
-  }
 
   List<CircleAvatarItems> items = [
     CircleAvatarItems(0, "All", AssetsPics.all, AssetsPics.selectall),
@@ -88,7 +66,7 @@ class _EventScreenState extends State<EventScreen> {
 
   @override
   void initState() {
-    locationController.addListener(() {_onChanged();});
+    locationController.addListener(() {context.read<eventController>().getLocationResults(locationController.text);});
     _getCurrentPosition();
     profileData();
     Provider.of<eventController>(context, listen: false).savedEvents(context);
@@ -255,19 +233,14 @@ class _EventScreenState extends State<EventScreen> {
     bool serviceEnabled;
     LocationPermission permission;
     serviceEnabled = await _geolocatorPlatform.isLocationServiceEnabled();
-    if (!serviceEnabled) {
-      return false;
-    }
+    if (!serviceEnabled) {return false;}
     permission = await _geolocatorPlatform.checkPermission();
     if (permission == LocationPermission.denied) {
       permission = await _geolocatorPlatform.requestPermission();
-      if (permission == LocationPermission.denied) {
-        return false;
-      }
+      if (permission == LocationPermission.denied) {return false;}
     }
-    if (permission == LocationPermission.deniedForever) {
-      return false;
-    }
+    if (permission == LocationPermission.deniedForever) {return false;}
+
     return true;
   }
 
@@ -283,10 +256,11 @@ class _EventScreenState extends State<EventScreen> {
           getEvents();
         });
       } else {
-        setState(() {
-          print('No coordinates found for this address');
-        });
+        setState(() {print('No coordinates found for this address');});
       }
+      Provider.of<eventController>(context, listen: false).timerCancel();
+      await Future.delayed(const Duration(seconds: 2));
+      Provider.of<eventController>(context, listen: false).getmeEvent(context,"me");
     } catch (e) {
       setState(() {
         print('Error: $e');
@@ -392,86 +366,86 @@ class _EventScreenState extends State<EventScreen> {
         children: [
           Scaffold(
               body: Stack(
-            children: [
-              GestureDetector(
-                onTap: () {_searchQuery = "";},
-                child: Stack(
-                  children: [
-                    SizedBox(height: size.height, width: size.width,
-                      child: Image.asset(AssetsPics.background, fit: BoxFit.cover),
-                    ),
-                    SafeArea(
-                      child: userData == null
-                          ? const Center(child: CircularProgressIndicator(color: color.txtBlue))
-                          : Stack(
-                              children: [
-                                SingleChildScrollView(
-                                  physics: const ClampingScrollPhysics(),
-                                  controller: _controller,
-                                  child: Center(
-                                      child: Column(
-                                    children: [
-                                      Stack(
-                                        children: [
-                                          buildProfileSection(),
-                                          // animatedBanner(context)
-                                        ],
-                                      ),
-                                      searchContainer(),
-                                      isThereEvent(),
-                                      // LocaleHandler.isThereAnyEvent? myEventlist():const SizedBox(),
-                                      myEventlist(),
-                                      categoryList(context),
-                                      buildColumn(),
-                                      SizedBox(height: 5.h)
-                                    ],
-                                  )),
-                                ),
-                                if (_isLoadMoreRunning == true)
-                                  const Column(
-                                    children: [
-                                      Spacer(),
-                                      Padding(
-                                        padding: EdgeInsets.only(top: 10, bottom: 40),
-                                        child: Center(
-                                          child: CircularProgressIndicator(color: color.txtBlue),
+                children: [
+                  GestureDetector(
+                    onTap: () {_searchQuery = "";},
+                    child: Stack(
+                      children: [
+                        SizedBox(height: size.height, width: size.width,
+                          child: Image.asset(AssetsPics.background, fit: BoxFit.cover),
+                        ),
+                        SafeArea(
+                          child: userData == null
+                              ? const Center(child: CircularProgressIndicator(color: color.txtBlue))
+                              : Stack(
+                            children: [
+                              SingleChildScrollView(
+                                physics: const ClampingScrollPhysics(),
+                                controller: _controller,
+                                child: Center(
+                                    child: Column(
+                                      children: [
+                                        Stack(
+                                          children: [
+                                            buildProfileSection(),
+                                            // animatedBanner(context)
+                                          ],
                                         ),
+                                        searchContainer(),
+                                        isThereEvent(),
+                                        // LocaleHandler.isThereAnyEvent? myEventlist():const SizedBox(),
+                                        myEventlist(),
+                                        categoryList(context),
+                                        buildColumn(),
+                                        SizedBox(height: 5.h)
+                                      ],
+                                    )),
+                              ),
+                              if (_isLoadMoreRunning == true)
+                                const Column(
+                                  children: [
+                                    Spacer(),
+                                    Padding(
+                                      padding: EdgeInsets.only(top: 10, bottom: 40),
+                                      child: Center(
+                                        child: CircularProgressIndicator(color: color.txtBlue),
                                       ),
-                                    ],
-                                  ),
-                              ],
-                            ),
+                                    ),
+                                  ],
+                                ),
+                            ],
+                          ),
+                        ),
+                        Positioned(top: -6, child: animatedBanner(context)),
+                      ],
                     ),
-                    Positioned(top: -6, child: animatedBanner(context)),
-                  ],
-                ),
-              ),
-              _searchQuery == ""
-                  ? const SizedBox()
-                  : Container(
-                      margin: const EdgeInsets.only(top: 200),
-                      padding: const EdgeInsets.only(bottom: 10, top: 5),
-                      decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          color: color.txtWhite),
-                      child: ListView.builder(
+                  ),
+                  _searchQuery == ""
+                      ? const SizedBox()
+                      : Container(
+                    margin: const EdgeInsets.only(top: 200),
+                    padding: const EdgeInsets.only(bottom: 10, top: 5),
+                    decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(8),
+                        color: color.txtWhite),
+                    child:Consumer<eventController>(builder: (context,val,child){
+                      return ListView.builder(
                           shrinkWrap: true,
                           padding: EdgeInsets.zero,
-                          itemCount: _placeList.length,
+                          itemCount: val.placeList.length,
                           itemBuilder: (context, index) {
                             return Column(
                               mainAxisSize: MainAxisSize.min,
                               children: [
                                 GestureDetector(
                                   onTap: () {
-                                    setState(() {
-                                      locationController.text = _placeList[index]["description"];
-                                      getCoordinates(locationController.text.trim());
-                                      LocaleHandler.location = _placeList[index]["description"];
-                                      _searchQuery = "";
-                                      statesList.clear();
-                                      FocusManager.instance.primaryFocus?.unfocus();
-                                    });
+                                    locationController.text = val.placeList[index]["description"];
+                                    getCoordinates(locationController.text.trim());
+                                    LocaleHandler.location = val.placeList[index]["description"];
+                                    _searchQuery = "";
+                                    statesList.clear();
+                                    FocusManager.instance.primaryFocus?.unfocus();
+
                                   },
                                   child: Container(
                                       alignment: Alignment.topLeft,
@@ -481,7 +455,7 @@ class _EventScreenState extends State<EventScreen> {
                                       // decoration:  BoxDecoration(border: Border(bottom: BorderSide(width: 0.5,color:index==statesList.length-1?color.txtWhite: color.txtBlue))),
                                       child: Row(
                                         crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        CrossAxisAlignment.start,
                                         children: [
                                           Container(
                                               padding: const EdgeInsets.only(top: 5),
@@ -492,22 +466,23 @@ class _EventScreenState extends State<EventScreen> {
                                           const SizedBox(width: 12),
                                           Flexible(
                                               child: buildText(
-                                                  _placeList[index]["description"],
+                                                  val.placeList[index]["description"],
                                                   18,
                                                   FontWeight.w500,
                                                   color.txtgrey))
                                         ],
                                       )),
                                 ),
-                                index == _placeList.length - 1
+                                index == val.placeList.length - 1
                                     ? const SizedBox()
                                     : const Divider(thickness: 0.2)
                               ],
                             );
-                          }),
-                    ),
-            ],
-          )),
+                          });
+                    },),
+                  ),
+                ],
+              )),
           // const CustomTopToaster(),
           Consumer<eventController>(builder: (context,val,child){
             return val.bookiingCancelled?  CustomredTopToaster(textt: "Booking cancelled"):const SizedBox.shrink();
@@ -576,36 +551,36 @@ class _EventScreenState extends State<EventScreen> {
                   : Image.asset(AssetsPics.bannerpng, fit: BoxFit.cover)),
           LocaleHandler.subScribtioonOffer
               ? Padding(
-                  padding: const EdgeInsets.only(bottom: 20, top: 30),
-                  child: Row(mainAxisSize: MainAxisSize.min, children: [
-                    SizedBox(width: LocaleHandler.isBanner ? 2.h : 0),
-                    SvgPicture.asset(AssetsPics.crownwithround),
-                    SizedBox(width: LocaleHandler.isBanner ? 2.h : 0),
-                    Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        buildText("Slush Silver Subscription", 18, FontWeight.w600, color.txtWhite),
-                        Row(
-                          children: [
-                            buildText("Get 50% off", 15, FontWeight.w600, color.txtWhite),
-                            SizedBox(width: LocaleHandler.isBanner ? 1.h : 0),
-                            SvgPicture.asset(AssetsPics.verticaldivider),
-                            SizedBox(width: LocaleHandler.isBanner ? 1.h : 0),
-                            buildText("Ends : 00:11:33", 15, FontWeight.w600, color.txtWhite)
-                          ],
-                        )
-                      ],
-                    )
-                  ]),
-                )
+            padding: const EdgeInsets.only(bottom: 20, top: 30),
+            child: Row(mainAxisSize: MainAxisSize.min, children: [
+              SizedBox(width: LocaleHandler.isBanner ? 2.h : 0),
+              SvgPicture.asset(AssetsPics.crownwithround),
+              SizedBox(width: LocaleHandler.isBanner ? 2.h : 0),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  buildText("Slush Silver Subscription", 18, FontWeight.w600, color.txtWhite),
+                  Row(
+                    children: [
+                      buildText("Get 50% off", 15, FontWeight.w600, color.txtWhite),
+                      SizedBox(width: LocaleHandler.isBanner ? 1.h : 0),
+                      SvgPicture.asset(AssetsPics.verticaldivider),
+                      SizedBox(width: LocaleHandler.isBanner ? 1.h : 0),
+                      buildText("Ends : 00:11:33", 15, FontWeight.w600, color.txtWhite)
+                    ],
+                  )
+                ],
+              )
+            ]),
+          )
               : Container(
-                  padding: const EdgeInsets.only(
-                      top: 30, left: 10, right: 10, bottom: 15),
-                  child: buildText2(
-                      LocaleHandler.isThereCancelEvent ? ""
-                          : LocaleHandler.unMatchedEvent ? "" : "Event starting in 15 minutes, Click Hereto join the waiting room!",
-                      20, FontWeight.w600, color.txtWhite)),
+              padding: const EdgeInsets.only(
+                  top: 30, left: 10, right: 10, bottom: 15),
+              child: buildText2(
+                  LocaleHandler.isThereCancelEvent ? ""
+                      : LocaleHandler.unMatchedEvent ? "" : "Event starting in 15 minutes, Click Hereto join the waiting room!",
+                  20, FontWeight.w600, color.txtWhite)),
         ],
       ),
     );
@@ -735,25 +710,25 @@ class _EventScreenState extends State<EventScreen> {
 
   Widget isThereEvent() {
     return Consumer<eventController>(
-      builder: (context,val,child){
-      return  val.startTime== 0?const SizedBox():  Container(
-        margin: const EdgeInsets.only(top: 25),
-        color: color.lightestBlue,
-        child: Stack(
-          children: [
-            Positioned(
-              right: 0.0,
-              bottom: 0.50,
-              child: SizedBox(
-                  height: 80,
-                  width: 60,
-                  child: SvgPicture.asset(AssetsPics.eventflower)),
+        builder: (context,val,child){
+          return  val.startTime== 0?const SizedBox():  Container(
+            margin: const EdgeInsets.only(top: 25),
+            color: color.lightestBlue,
+            child: Stack(
+              children: [
+                Positioned(
+                  right: 0.0,
+                  bottom: 0.50,
+                  child: SizedBox(
+                      height: 80,
+                      width: 60,
+                      child: SvgPicture.asset(AssetsPics.eventflower)),
+                ),
+                timerWidget(val),
+              ],
             ),
-            timerWidget(val),
-          ],
-        ),
-      );
-      }
+          );
+        }
     );
   }
 
@@ -793,57 +768,57 @@ class _EventScreenState extends State<EventScreen> {
                               child: buildText("Deadline", 16, FontWeight.w600, color.txtBlack)),
                         ],
                       ),
-                     Consumer<eventController>(builder: (context,val,child){
-                       return val.days==""?const SizedBox():  Row(
-                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                         children: [
-                           Row(children: [
-                             val.days == "00"?const SizedBox():  Column(
-                               children: [
-                                 buildText(val.days, 24, FontWeight.w600, color.txtBlack),
-                                 buildText("Days", 15, FontWeight.w400, color.txtgrey, fontFamily: FontFamily.hellix),
-                               ],
-                             ),
-                             SizedBox(width:val.days == "00"?0: size.width*0.03),
-                             val.days == "00"?const SizedBox():  buildText(":", 24, FontWeight.w600, color.txtBlack),
-                           ],),
-                           Column(
-                             children: [
-                               buildText(int.parse(val.hours) < 0 ? "00" : val.hours, 24, FontWeight.w600, color.txtBlack),
-                               buildText("Hours", 15, FontWeight.w400, color.txtgrey, fontFamily: FontFamily.hellix),
-                             ],
-                           ),
-                           buildText(":", 24, FontWeight.w600, color.txtBlack),
-                           Column(
-                             children: [
-                               buildText(int.parse(val.minutes) < 0 ? "00" :val.minutes, 24, FontWeight.w600, color.txtBlack),
-                               buildText("Minutes", 15, FontWeight.w400, color.txtgrey, fontFamily: FontFamily.hellix),
-                             ],
-                           ),
-                           Row(children: [  val.days != "00"?const SizedBox():  buildText(":", 24, FontWeight.w600, color.txtBlack),
-                             SizedBox(width:val.days != "00"?0: size.width*0.03),
-                             val.days != "00"?const SizedBox():  Column(
-                               children: [
-                                 buildText(int.parse(val.seconds) < 0 ? "00" :val.seconds, 24, FontWeight.w600, color.txtBlack),
-                                 buildText("Seconds", 15, FontWeight.w400, color.txtgrey, fontFamily: FontFamily.hellix),
-                               ],
-                             ),],),
-                           Container(height: 40, width: 2,
-                             decoration: BoxDecoration(color: color.hieghtGrey, borderRadius: BorderRadius.circular(12)),
-                           ),
-                           Padding(
-                             padding: const EdgeInsets.only(right: 20),
-                             child: Column(
-                               crossAxisAlignment: CrossAxisAlignment.center,
-                               children: [
-                                 buildText(formattedDate, 24, FontWeight.w600, color.txtBlack),
-                                 buildText(formattedmonth, 15, FontWeight.w400, color.txtgrey, fontFamily: FontFamily.hellix),
-                               ],
-                             ),
-                           ),
-                         ],
-                       );
-                     }),
+                      Consumer<eventController>(builder: (context,val,child){
+                        return val.days==""?const SizedBox():  Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(children: [
+                              val.days == "00"?const SizedBox():  Column(
+                                children: [
+                                  buildText(val.days, 24, FontWeight.w600, color.txtBlack),
+                                  buildText("Days", 15, FontWeight.w400, color.txtgrey, fontFamily: FontFamily.hellix),
+                                ],
+                              ),
+                              SizedBox(width:val.days == "00"?0: size.width*0.03),
+                              val.days == "00"?const SizedBox():  buildText(":", 24, FontWeight.w600, color.txtBlack),
+                            ],),
+                            Column(
+                              children: [
+                                buildText(int.parse(val.hours) < 0 ? "00" : val.hours, 24, FontWeight.w600, color.txtBlack),
+                                buildText("Hours", 15, FontWeight.w400, color.txtgrey, fontFamily: FontFamily.hellix),
+                              ],
+                            ),
+                            buildText(":", 24, FontWeight.w600, color.txtBlack),
+                            Column(
+                              children: [
+                                buildText(int.parse(val.minutes) < 0 ? "00" :val.minutes, 24, FontWeight.w600, color.txtBlack),
+                                buildText("Minutes", 15, FontWeight.w400, color.txtgrey, fontFamily: FontFamily.hellix),
+                              ],
+                            ),
+                            Row(children: [  val.days != "00"?const SizedBox():  buildText(":", 24, FontWeight.w600, color.txtBlack),
+                              SizedBox(width:val.days != "00"?0: size.width*0.03),
+                              val.days != "00"?const SizedBox():  Column(
+                                children: [
+                                  buildText(int.parse(val.seconds) < 0 ? "00" :val.seconds, 24, FontWeight.w600, color.txtBlack),
+                                  buildText("Seconds", 15, FontWeight.w400, color.txtgrey, fontFamily: FontFamily.hellix),
+                                ],
+                              ),],),
+                            Container(height: 40, width: 2,
+                              decoration: BoxDecoration(color: color.hieghtGrey, borderRadius: BorderRadius.circular(12)),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.only(right: 20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  buildText(formattedDate, 24, FontWeight.w600, color.txtBlack),
+                                  buildText(formattedmonth, 15, FontWeight.w400, color.txtgrey, fontFamily: FontFamily.hellix),
+                                ],
+                              ),
+                            ),
+                          ],
+                        );
+                      }),
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisAlignment: MainAxisAlignment.end,
@@ -860,18 +835,18 @@ class _EventScreenState extends State<EventScreen> {
                               ,child: buildText(vall.before15?"":"Unable to attend", 16, FontWeight.w600, color.txtBlack)),
                           GestureDetector(
                             onTap: () {
-                               DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(vall.startEventTime * 1000);
-                                DateTime timeFormat = DateTime.now();
-                                var timee = DateTime.tryParse(dateTime.toString());
-                                int min = timee!.difference(timeFormat).inSeconds;
-                                if(min<900 && min>=0){
+                              DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(vall.startEventTime * 1000);
+                              DateTime timeFormat = DateTime.now();
+                              var timee = DateTime.tryParse(dateTime.toString());
+                              int min = timee!.difference(timeFormat).inSeconds;
+                              if(min<900 && min>=0){
                                 // if(min>900){
-                                  Provider.of<waitingRoom>(context,listen: false).timerStart(min);
-                                  Get.to(()=> WaitingRoom(data: vall.meEvent[vall.indexnum],min: min));}
-                                else if(min<0){}
-                                else{ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:
-                                Text('Waiting room will open before 15 min of event Start')));}
-                                // Get.to(()=>const EventYourTicketScreen());
+                                Provider.of<waitingRoom>(context,listen: false).timerStart(min);
+                                Get.to(()=> WaitingRoom(data: vall.meEvent[vall.indexnum],min: min));}
+                              else if(min<0){}
+                              else{ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content:
+                              Text('Waiting room will open before 15 min of event Start')));}
+                              // Get.to(()=>const EventYourTicketScreen());
                             },
                             child: Container(
                               padding: const EdgeInsets.only(left: 16, right: 16, top: 4, bottom: 4),
@@ -922,11 +897,14 @@ class _EventScreenState extends State<EventScreen> {
       Row(
         children: [
           LocaleHandler.avatar == ""
-              ? Image.asset(AssetsPics.demouser, fit: BoxFit.fill)
+              ? Image.asset(width: 50,height: 50,AssetsPics.demouser, fit: BoxFit.fill)
               : ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: CachedNetworkImage(width: 50,height: 50, imageUrl: LocaleHandler.avatar, fit: BoxFit.fitWidth, placeholder: (ctx, url) => const Center(child: SizedBox()),
-                  )),
+              borderRadius: BorderRadius.circular(8),
+              child: CachedNetworkImage(
+                width: 50,height: 50, imageUrl: LocaleHandler.avatar,
+                fit: BoxFit.fitWidth, placeholder: (ctx, url) => const Center(child: SizedBox()),
+                errorWidget: (context, url, error) => Image.asset(AssetsPics.demouser,height: 35,width: 50),
+              )),
 
 
           Padding(
@@ -1066,8 +1044,8 @@ class _EventScreenState extends State<EventScreen> {
           data == null
               ? const CircularProgressIndicator(color: color.txtBlue)
               : data == "no data"
-                  ? Center(child: buildText("no data!", 18, FontWeight.w500, color.txtgrey))
-                  :totalitems==0?
+              ? Center(child: buildText("no data!", 18, FontWeight.w500, color.txtgrey))
+              :totalitems==0?
           Container(
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(12),color: Colors.white54),
             child: Column(
@@ -1090,39 +1068,39 @@ class _EventScreenState extends State<EventScreen> {
             ),
           )
               : ListView.builder(
-                      physics: const NeverScrollableScrollPhysics(),
-                      scrollDirection: Axis.vertical,
-                      shrinkWrap: true,
-                      // controller: _controller,
-                      // itemCount: eventItem.length,
-                      itemCount: itemList.isEmpty ? post.length : itemList.length,
-                      itemBuilder: (context, index) {
-                        var item = itemList.isEmpty ? post : itemList;
-                        String type = item[index]["gender"].toString().toLowerCase();
-                        String typename = type == "straight"
-                            ? "Straight" : type == "lesbian"
-                                ? "Lesbian" : type == "queer"
-                                    ? "Queer" : type == "transgender"
-                                        ? "Transgender" : type == "gay"
-                                            ? "Gay" : "Bisexual";
-                        int timestamp = item[index]["startsAt"];
-                        DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
-                        String formattedDate = DateFormat('dd').format(dateTime);
-                        formattedmon = DateFormat('MMM').format(dateTime);
-                        String formattedTime = DateFormat.jm().format(dateTime);
-                        String maleseats = getTotalMale(index, item) == "0" ? "Full" :getTotalMale(index, item) == "-1"?"Not": "Available";
-                        // String maleseats = getTotalMale(index, item) == "0" ? "Full" : "Available";
-                        String femaleseats = getTotalFemale(index, item) == "0" ? "Full" :getTotalFemale(index, item) == "-1"?"Not": "Available";
-                        // String femaleseats = getTotalFemale(index, item) == "0" ? "Full" : "Available";
-                        return selectedIndex == 0
-                            ? buildContainereventDetails(item, index,
-                            context, type, typename, formattedDate, formattedTime, maleseats, femaleseats)
-                            : selectedIndex == item[index]["categoryId"]
-                                ? buildContainereventDetails(item, index, context,
-                                    type, typename, formattedDate, formattedTime,
-                                    maleseats, femaleseats)
-                                : const SizedBox();
-                      }),
+              physics: const NeverScrollableScrollPhysics(),
+              scrollDirection: Axis.vertical,
+              shrinkWrap: true,
+              // controller: _controller,
+              // itemCount: eventItem.length,
+              itemCount: itemList.isEmpty ? post.length : itemList.length,
+              itemBuilder: (context, index) {
+                var item = itemList.isEmpty ? post : itemList;
+                String type = item[index]["gender"].toString().toLowerCase();
+                String typename = type == "straight"
+                    ? "Straight" : type == "lesbian"
+                    ? "Lesbian" : type == "queer"
+                    ? "Queer" : type == "transgender"
+                    ? "Transgender" : type == "gay"
+                    ? "Gay" : "Bisexual";
+                int timestamp = item[index]["startsAt"];
+                DateTime dateTime = DateTime.fromMillisecondsSinceEpoch(timestamp * 1000);
+                String formattedDate = DateFormat('dd').format(dateTime);
+                formattedmon = DateFormat('MMM').format(dateTime);
+                String formattedTime = DateFormat.jm().format(dateTime);
+                String maleseats = getTotalMale(index, item) == "0" ? "Full" :getTotalMale(index, item) == "-1"?"Not": "Available";
+                // String maleseats = getTotalMale(index, item) == "0" ? "Full" : "Available";
+                String femaleseats = getTotalFemale(index, item) == "0" ? "Full" :getTotalFemale(index, item) == "-1"?"Not": "Available";
+                // String femaleseats = getTotalFemale(index, item) == "0" ? "Full" : "Available";
+                return selectedIndex == 0
+                    ? buildContainereventDetails(item, index,
+                    context, type, typename, formattedDate, formattedTime, maleseats, femaleseats)
+                    : selectedIndex == item[index]["categoryId"]
+                    ? buildContainereventDetails(item, index, context,
+                    type, typename, formattedDate, formattedTime,
+                    maleseats, femaleseats)
+                    : const SizedBox();
+              }),
         ],
       ),
     );
@@ -1140,8 +1118,8 @@ class _EventScreenState extends State<EventScreen> {
         child: searchController.text == ""
             ? eventList(context, item, index, type, typename, formattedDate, formattedTime, maleseats, femaleseats)
             : itemList.isNotEmpty
-                ? eventList(context, itemList, index, type, typename, formattedDate, formattedTime, maleseats, femaleseats)
-                : const SizedBox(),
+            ? eventList(context, itemList, index, type, typename, formattedDate, formattedTime, maleseats, femaleseats)
+            : const SizedBox(),
       ),
     );
   }
@@ -1218,24 +1196,24 @@ class _EventScreenState extends State<EventScreen> {
                               color: type == "straight"
                                   ? color.straight
                                   : type == "lesbian"
-                                      ? color.lesbian
-                                      : type == "queer"
-                                          ? color.queer
-                                          : type == "transgender"
-                                              ? color.transgender
-                                              : type == "gay"
-                                                  ? color.gay
-                                                  : color.bisexual),
+                                  ? color.lesbian
+                                  : type == "queer"
+                                  ? color.queer
+                                  : type == "transgender"
+                                  ? color.transgender
+                                  : type == "gay"
+                                  ? color.gay
+                                  : color.bisexual),
                           height: 24,
                           child: buildText(
                               typename, 13, FontWeight.w500, color.txtWhite,
                               fontFamily: FontFamily.hellix)),
                       item[index]["hasPassword"]
                           ? CircleAvatar(
-                              radius: 15,
-                              backgroundColor: color.txtWhite,
-                              child: SvgPicture.asset(AssetsPics.lock),
-                            ) : const SizedBox()
+                        radius: 15,
+                        backgroundColor: color.txtWhite,
+                        child: SvgPicture.asset(AssetsPics.lock),
+                      ) : const SizedBox()
                     ],
                   )
                 ],
@@ -1279,7 +1257,7 @@ class _EventScreenState extends State<EventScreen> {
                                 SvgPicture.asset(AssetsPics.whitemappoint),
                                 const SizedBox(width: 3),
                                 SizedBox(
-                                    // color: Colors.red,
+                                  // color: Colors.red,
                                     width: 100,
                                     child: buildTextOverFlow(item[index]["country"], 15.sp,
                                         FontWeight.w500,
@@ -1377,8 +1355,8 @@ class _EventScreenState extends State<EventScreen> {
 
   void sendtoEventDetail(var item,int index){
     LocaleHandler.eventId=item[index]["eventId"];
-      LocaleHandler.isProtected = item[index]["hasPassword"];
-      LocaleHandler.freeEventImage = item[index]["coverImage"];
+    LocaleHandler.isProtected = item[index]["hasPassword"];
+    LocaleHandler.freeEventImage = item[index]["coverImage"];
     bool isParticipant = false;
     var dataa = item[index]["participants"];
     var i;
@@ -1430,27 +1408,25 @@ class _EventScreenState extends State<EventScreen> {
   }
 
   Widget buildContainer(
-    String txt,
-    TextEditingController controller,
-    AutovalidateMode auto,
-    FocusNode node, {
-    FormFieldValidator<String>? validation,
-    VoidCallback? press,
-    GestureDetector? gesture,
-    GestureDetector? preImg,
-    final ValueChanged<String>? onChanged,
-  }) {
+      String txt,
+      TextEditingController controller,
+      AutovalidateMode auto,
+      FocusNode node, {
+        FormFieldValidator<String>? validation,
+        VoidCallback? press,
+        GestureDetector? gesture,
+        GestureDetector? preImg,
+        final ValueChanged<String>? onChanged,
+      }) {
     return Align(
       alignment: Alignment.center,
       child: Container(
-        // padding: const EdgeInsets.only(left: 10),
         height: 56,
         margin: const EdgeInsets.only(top: 20),
         width: MediaQuery.of(context).size.width,
         decoration: BoxDecoration(
             color: color.txtWhite,
             borderRadius: BorderRadius.circular(12),
-            // border: Border.all(color:enableField == txt? color.txtBlue:color.txtWhite, width:1)
             border: Border.all(color: color.txtWhite, width: 1)),
         child: TextFormField(
           onChanged: (value) {
@@ -1475,14 +1451,13 @@ class _EventScreenState extends State<EventScreen> {
                   fontWeight: FontWeight.w500,
                   color: color.txtBlack),
               contentPadding:
-                  const EdgeInsets.only(left: 20, right: 18, top: 12),
+              const EdgeInsets.only(left: 20, right: 18, top: 12),
               suffixIcon: gesture,
               prefixIcon: preImg),
         ),
       ),
     );
   }
-
 }
 
 class CircleAvatarItems {

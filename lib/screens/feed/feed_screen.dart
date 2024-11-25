@@ -159,6 +159,8 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
       backgroundColor: Colors.black,
       body: Stack(
         children: [
+      Consumer<ReelController>(builder:(build,val,child){return Center(child:CircularProgressIndicator(color:
+      val.videocntroller.length!=0 || Provider.of<ReelController>(context).count==0 ? Colors.transparent : color.txtBlue));}),
           Consumer<ReelController>(builder: (build, val, child) {
             return mounted ? PageView.builder(
                     physics: LocaleHandler.subscriptionPurchase != "no" && val.count != 0 ?
@@ -187,6 +189,7 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                           reelcntrol.reelInilizedstop();
                           isPLaying = !isPLaying;});}
                       Provider.of<ReelController>(context,listen: false).changeBioHieght(false);
+
                       if(Provider.of<ReelController>(context,listen: false).totallen==index) {
                         Provider.of<ReelController>(context,listen: false).stopReels(context);
                       }
@@ -200,14 +203,13 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                           alignment: Alignment.center,
                           children: [
                             // val.videocntroller[index+1].value.isInitialized || context.mounted?
-                            val.videocntroller[index].value.isInitialized  ?
+                            val.videocntroller[index].value.isInitialized ?
                                 // VideoPlayerWidget(key: Key(val.videocntroller[index].dataSource), reelUrl: val.videocntroller[index].dataSource)
                             AspectRatio(
                                 aspectRatio: val.videoPlayerController[index].value.aspectRatio,
                                 child: ClipRRect(borderRadius: BorderRadius.circular(10),
                                     child: VideoPlayer(val.videocntroller[index]))
-                            )
-                                : const Center(child: CircularProgressIndicator(color: color.txtBlue)),
+                            ) : const Center(child: CircularProgressIndicator(color: color.txtBlue)),
                             Padding(
                               padding: EdgeInsets.symmetric(horizontal: 15, vertical: defaultTargetPlatform == TargetPlatform.iOS ? 45 : 20),
                               child: Column(
@@ -361,7 +363,9 @@ class _FeedScreenState extends State<FeedScreen> with WidgetsBindingObserver {
                                                       if(val.sparks<=0) {customSparkBottomSheet(context, AssetsPics.sparkempty,
                                                           " You have run out of Sparks, please purchase  more.",
                                                           "Cancel", "Purchase", false,onTap2: (){Get.back();
-                                                          Get.to(()=>const SparkPurchaseScreen());});
+                                                          Get.to(()=>const SparkPurchaseScreen());
+                                                          reelcntrol.videoPause(true,index);
+                                                      });
                                                       }else{
                                                         interactAPi("SPARK LIKE", widget.data[index]["user"]["id"],index,name);
                                                         Provider.of<SparkLikedController>(context, listen: false).addSparkLike(widget.data[index]["user"]["id"]);

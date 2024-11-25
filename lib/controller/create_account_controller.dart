@@ -240,7 +240,13 @@ class createAccountController extends ChangeNotifier {
       print("===================");
       print(credential.identityToken);
       print(credential.authorizationCode);
+      print(credential.givenName);
       socialLoginUser(context, "APPLE", socialToken: credential.authorizationCode);
+      if(credential.givenName!=null){
+        LocaleHandler.name=credential.givenName!.toString();
+        print(LocaleHandler.name);
+      }
+      notifyListeners();
     } catch (e) {
       print('Error signing in with Apple: $e');
     }
@@ -264,18 +270,11 @@ class createAccountController extends ChangeNotifier {
       LocaleHandler.socialLogin="yes";
       print(LocaleHandler.accessToken);
       LoaderOverlay.hide();
-      if (data["data"]["emailVerifiedAt"] == true) {
+      if (data["data"]["emailVerifiedAt"] == true && data["data"]["nextAction"]=="none") {
+        saveDetailsToLocal(data);
         Provider.of<ReelController>(context,listen: false).getVideoCount(context);
         Provider.of<profileController>(context,listen: false).getTotalSparks();
-        saveDetailsToLocal(data);
         Get.offAll(() => BottomNavigationScreen());}
-
-      else if(data["data"]["nextAction"]=="none"){
-        Provider.of<ReelController>(context,listen: false).getVideoCount(context);
-        Provider.of<profileController>(context,listen: false).getTotalSparks();
-        saveDetailsToLocal(data);
-        Get.offAll(() => BottomNavigationScreen());}
-
       else {
         saveDetailsToLocal(data);
         Provider.of<detailedController>(context, listen: false).setCurrentIndex();

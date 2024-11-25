@@ -213,7 +213,8 @@ class _EvenetFreeScreenState extends State<EvenetSuscribeScreen> {
                 child: ImageFiltered(
                   imageFilter: ImageFilter.blur(sigmaX: 5.0, sigmaY: 5.0),
                   // child: Image.asset(AssetsPics.eventProfile, fit: BoxFit.cover),
-                  child: CachedNetworkImage(imageUrl: widget.data["participants"][index]["user"]["profilePictures"][0]["key"],fit: BoxFit.cover),
+                  child: CachedNetworkImage(imageUrl: widget.data["participants"][index]["user"]["profilePictures"][0]["key"],fit: BoxFit.cover,
+                      errorWidget: (context, url, error) => Image.asset(AssetsPics.demouser,width: 70)),
                 )
             )
         );

@@ -198,7 +198,8 @@ class _FeedbackVideoChatScreenState extends State<FeedbackVideoChatScreen> {
                           width: 13.h,
                           decoration: BoxDecoration(color: Colors.white54, borderRadius: BorderRadius.circular(38)),
                           child: ClipRRect(borderRadius: BorderRadius.circular(35),
-                            child: CachedNetworkImage(imageUrl: LocaleHandler.eventParticipantData["avatar"],fit: BoxFit.cover),),
+                            child: CachedNetworkImage(imageUrl: LocaleHandler.eventParticipantData["avatar"],fit: BoxFit.cover,
+                                errorWidget: (context, url, error) => Image.asset(AssetsPics.demouser,height: 13.h,width: 13.h)),),
                         )
                       ],
                     ),

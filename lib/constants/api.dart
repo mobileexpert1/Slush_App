@@ -4,24 +4,23 @@
 // API
 // https://api.slushdating.com/
 class ApiList {
-  //-----old url
-  // static const String baseUrl = 'https://dev-api.slushdating.com/api/v1/';
+  //-----Todo dev url
+  // static const String baseUrl =  'https://dev-api.slushdating.com/api/v1/';
   // static const String baseUrl1 = 'https://dev-api.slushdating.com/';
+  // static const String socket =  'http://dev-api.slushdating.com:3000';
+  // static const String imgbaseUrl = 'https://virtual-speed-date.s3.eu-west-2.amazonaws.com/';
 
-  //-----new url
+
+  //-----Todo prod url
   static const String baseUrl = 'https://api.slushdating.com/api/v1/';
   static const String baseUrl1 = 'https://api.slushdating.com/';
-
-
-
-  // static const String imgbaseUrl = 'https://virtual-speed-date.s3.eu-west-2.amazonaws.com/';
+  static const String socket = 'http://api.slushdating.com:3002/';
   static const String imgbaseUrl = 'https://slush-prod.s3.eu-west-2.amazonaws.com/';
-  // static const String imageBaseUrl = 'https://dev81.csdevhub.com/gaurdemand/storage/profileImages/';
+
+
 
   //--- Events Todo
   static const String getEvent= '${baseUrl}events?date=';
-  // static const String getEvent= baseUrl + 'events?date=745&distance=5000&events=popular&latitude=30.6990901&longitude=76.6913955&page=1&limit=15';
-  // static const String cancelEvent= baseUrl + 'events/book/1001/cancel';
   static const String cancelEvent= '${baseUrl}events/book/';
   static const String eventDetail= '${baseUrl}events/';
   static const String eventBook= '${baseUrl}events/book';
@@ -32,6 +31,7 @@ class ApiList {
   static const String unsaveEvent= '${baseUrl}events/unsave-event/';
   static const String savedEvents= '${baseUrl}events/saved_events';
   static const String notification= '${baseUrl1}notifications?';
+  static const String notificationSetting = '${baseUrl1}notifications/settings';
   static const String fixtures= '${baseUrl}events/';
   // static const String fixtures= baseUrl + 'events/1008/report/fixtures';
   // static const String fixtures= baseUrl1 + 'events/1008/fixtures';

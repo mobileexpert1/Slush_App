@@ -1035,8 +1035,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                               var newmicStatus = await Permission.microphone.request();
                               // if (newcamStatus.isGranted && newmicStatus.isGranted){  editCntrler.getVideo(context,ImageSource.camera);}
                               if (newcamStatus.isGranted && newmicStatus.isGranted){  editCntrler.callVideoRecordFunction(context,ImageSource.camera);}
-                              else if (newcamStatus.isPermanentlyDenied || newmicStatus.isPermanentlyDenied){openAppSettings();}}
-                            else if (camStatus.isPermanentlyDenied || micStatus.isPermanentlyDenied){openAppSettings();}
+                              else if (newcamStatus.isPermanentlyDenied || newmicStatus.isPermanentlyDenied){//openAppSettings();
+                              showToastMsg("Camera Permission is denied! please goto app setting and enable permission");
+                              Get.back();}}
+                            else if (camStatus.isPermanentlyDenied || micStatus.isPermanentlyDenied){//openAppSettings();
+                            showToastMsg("Camera Permission is denied! please goto app setting and enable permission");
+                            Get.back();}
                           }
                           else{
                             var status = await Permission.camera.status;
@@ -1044,9 +1048,15 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                             else if (status.isDenied){
                               var newStatus = await Permission.camera.request();
                               if (newStatus.isGranted){editCntrler.tappedOPtion(context, ImageSource.camera, "0", PictureId,imgIndex);}
-                              else if (newStatus.isPermanentlyDenied){openAppSettings();}
+                              else if (newStatus.isPermanentlyDenied){//openAppSettings();
+                                showToastMsg("Camera Permission is denied! please goto app setting and enable permission");
+                                Get.back();
+                              }
                             }
-                            else if (status.isPermanentlyDenied){openAppSettings();}}
+                            else if (status.isPermanentlyDenied){//openAppSettings();
+                              showToastMsg("Camera Permission is denied! please goto app setting and enable permission");
+                              Get.back();
+                            }}
                           selcetedIndex = "";
                         });
                       });

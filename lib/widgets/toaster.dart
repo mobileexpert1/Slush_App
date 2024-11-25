@@ -17,7 +17,7 @@ Future showToastMsg(String msg,{Color clrbg=Colors.grey,Color clrtxt=Colors.whit
     msg: msg,
     toastLength: Toast.LENGTH_LONG, // You can also use Toast.LENGTH_LONG
     gravity: ToastGravity.BOTTOM,
-    timeInSecForIosWeb: 1, // Only necessary for iOS and web
+    timeInSecForIosWeb: 2, // Only necessary for iOS and web
     backgroundColor: clrbg,
     textColor: clrtxt,
     fontSize: 15.0,

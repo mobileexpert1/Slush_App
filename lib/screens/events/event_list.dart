@@ -183,7 +183,7 @@ class _MyEventListScreenState extends State<MyEventListScreen> {
                               child: Column(children: [
                                 Row(children: [
                                   imagewithdate(index,formattedDate,formattedmon),
-                                  const SizedBox(width: 10),
+                                  const SizedBox(width: 9),
                                   details(index,formattedTime)
                                 ],),
                                 index==post.length-1 ?const SizedBox():const Divider(color: color.lightestBlue),
@@ -270,16 +270,19 @@ class _MyEventListScreenState extends State<MyEventListScreen> {
   }
 
   Column details(int index,String time) {
+    final size=MediaQuery.of(context).size;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Container(
             margin: const EdgeInsets.only(bottom: 5),
-            width: 170,child: buildTextOverFlow(post[index]["title"]+" - "+post[index]["type"], 16, FontWeight.w600, color.txtBlack)),
+            width: size.width*0.48,child: buildTextOverFlow(post[index]["title"]+" - "+post[index]["type"], 16, FontWeight.w600, color.txtBlack)),
         Row(children: [
           SvgPicture.asset(AssetsPics.blueMapPoint),
           const SizedBox(width: 4),
-          buildTextOverFlow(post[index]["country"], 13, FontWeight.w500, color.txtgrey2,fontFamily: FontFamily.hellix),
+          SizedBox(
+               width: size.width*0.44,
+              child: buildTextOverFlow(post[index]["country"], 13, FontWeight.w500, color.txtgrey2,fontFamily: FontFamily.hellix)),
         ],),
         const SizedBox(height: 4),
         Row(children: [

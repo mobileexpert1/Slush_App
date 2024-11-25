@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:cached_network_image/cached_network_image.dart';
 
@@ -185,12 +186,15 @@ class ReelController with ChangeNotifier {
       if (LocaleHandler.subscriptionPurchase == "no") {
         _count = i["left_Swipes"];
         if (_count == 0) {
+          _count=0;
           //Provider.of<reelTutorialController>(context,listen: false).setScrollLimit(true);
           _stopReelScroll = true;
         }
       } else {
+        _count=-1;
         //Provider.of<reelTutorialController>(context,listen: false).setScrollLimit(false);
         _stopReelScroll = false;
+        notifyListeners();
       }
     }
     notifyListeners();
@@ -209,8 +213,7 @@ class ReelController with ChangeNotifier {
             context: context,
             title: 'Maximum limit reached',
             secontxt: "",
-            heading:
-                "You've swipped your way to the limit today, Want to keep the momentum going? Upgrade now for unlimited swipes.",
+            heading: "You've swipped your way to the limit today, Want to keep the momentum going? Upgrade now for unlimited swipes.",
             btnTxt: "ok",
             img: AssetsPics.guide1,
             isPng: true,
@@ -263,24 +266,26 @@ class ReelController with ChangeNotifier {
     dataa = null;
     posts.clear();
     final reelcntrol = Provider.of<ReelController>(context, listen: false);
-    final url =
-        "${ApiList.getVideo}$minage&maxAge=$maxage&distance=$distance&latitude=$lat&longitude=$lon$genderparam&isVerified=${LocaleHandler.isChecked}&page=1&limit=5";
+    final url = "${ApiList.getVideo}$minage&maxAge=$maxage&distance=$distance&latitude=$lat&longitude=$lon$genderparam&isVerified=${LocaleHandler.isChecked}&page=1&limit=5";
     print(url);
     var uri = Uri.parse(url);
     var response = await http.get(uri, headers: {
       'Content-Type': 'application/json',
       "Authorization": "Bearer ${LocaleHandler.accessToken}"
+    }).timeout(const Duration(seconds: 2),onTimeout: (){
+      LocaleHandler.matchedd = false;
+      throw TimeoutException('The connection has timed out!');
     });
     var ii = jsonDecode(response.body);
     LoaderOverlay.hide();
+    LocaleHandler.matchedd = false;
     notifyListeners();
     if (response.statusCode == 200) {
       dataa = ii["data"]["items"];
       posts = dataa;
       for (var i = 0; i < posts.length; i++) {
         videoPlayerController.add(VideoPlayerController.networkUrl(Uri.parse(posts[i]["video"].toString())));
-        reelcntrol.addReel(posts[i]["video"].toString());
-      }
+        reelcntrol.addReel(posts[i]["video"].toString());}
       playNextReel(LocaleHandler.pageIndex);
       total = ii["data"]["meta"]["totalItems"];
       if (total == 0) {
@@ -472,15 +477,16 @@ class ReelController with ChangeNotifier {
   }
 
   void removeVideoLimit(BuildContext context) {
-    Provider.of<ChatController>(context,listen: false).getUnreadChat(false);
     _count = -1;
-    // Provider.of<reelTutorialController>(context,listen: false).setScrollLimit(false);
     _stopReelScroll = false;
+    Provider.of<ChatController>(context,listen: false).getUnreadChat(false);
+    // Provider.of<reelTutorialController>(context,listen: false).setScrollLimit(false);
     notifyListeners();
   }
 
   void stopReels(BuildContext context) {
     _count = 0;
+    // _count = -1;
     _stopReelScroll = true;
     // Provider.of<reelTutorialController>(context,listen: false).setScrollLimit(true);
     notifyListeners();

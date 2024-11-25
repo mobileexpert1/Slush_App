@@ -43,7 +43,7 @@ class _ChatScreenState extends State<ChatScreen> {
   bool _isLoadMoreRunning = false;
   ScrollController? _controller;
   Timer? _timer;
-  SlidableController _slidableController = SlidableController();
+  final SlidableController _slidableController = SlidableController();
 
   @override
   void initState() {
@@ -70,8 +70,6 @@ class _ChatScreenState extends State<ChatScreen> {
          if (i["meta"]["totalItems"] == 0) {
            isListEmpty = true;
          } else {
-           print(";-;-;-${data[0]["unreadCount"]}");
-           // LocaleHandler.isUnreadMessage = data[0]["unreadCount"]!="0"?true:false;
            Provider.of<ChatController>(context,listen: false).getUnreadChat(false);
            isListEmpty = false;
          }
@@ -241,10 +239,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                                               colorBlendMode:
                                                                   BlendMode.darken,
                                                               // color:personData["onlineStatus"]?Colors.transparent: Colors.black.withOpacity(0.7),
-                                                              placeholder: (ctx, url) =>
-                                                                  const Center(
-                                                                      child:
-                                                                          SizedBox()),
+                                                              placeholder: (ctx, url) => const Center(child: SizedBox()),
+                                                              errorWidget: (context, url, error) => Image.asset(AssetsPics.demouser,height: 72,width: 72)
                                                             )
                                                       // Image.asset(AssetsPics.sample,fit: BoxFit.cover),
                                                       ),
@@ -457,7 +453,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                     },
                                     child: CircleAvatar(
                                         radius: 17,
-                                        backgroundColor: const Color.fromRGBO(255, 92, 71, 1),
+                                        backgroundColor: color.chatDeleteIcon,
                                         child: SvgPicture.asset(AssetsPics.deletechaticon))),
                               ),
                             ],
@@ -510,8 +506,8 @@ class _ChatScreenState extends State<ChatScreen> {
                                                 image: DecorationImage(image: imageProvider, fit: BoxFit.cover),
                                               ),
                                             ),
-                                            placeholder: (ctx, url) =>
-                                                const Center(child: SizedBox()),
+                                            placeholder: (ctx, url) => const Center(child: SizedBox()),
+                                            errorWidget: (context, url, error) => ClipRRect(borderRadius: BorderRadius.circular(20),child: Image.asset(AssetsPics.demouser))
                                           )),
                                 const SizedBox(width: 10),
                                 Expanded(

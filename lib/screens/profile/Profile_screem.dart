@@ -6,6 +6,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:get/get.dart';
+import 'package:in_app_purchase/in_app_purchase.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
 import 'package:provider/provider.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
@@ -47,7 +48,25 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
   @override
   void initState() {
     Provider.of<profileController>(context,listen: false).profileData(context);
+    _initialize();
     super.initState();
+  }
+
+  final InAppPurchase _iap = InAppPurchase.instance;
+  bool _available = true;
+  List<ProductDetails> _products = [];
+  Future<void> _initialize() async {
+    final bool isAvailable = await _iap.isAvailable();
+    _available = isAvailable;
+    if (_available) {
+      // const Set<String> _kIds = {'silversubscription','goldsubscription','platinumsubscription'};
+      const Set<String> _kIds = {'silversubscription'};
+      final ProductDetailsResponse response = await _iap.queryProductDetails(_kIds);
+      setState(() {_products = response.productDetails;});
+      if (response.notFoundIDs.isNotEmpty && response.error == null) {
+        print('Products not found: ${response.notFoundIDs}');
+      }
+    }
   }
 
   int calculateAge(String dobString) {
@@ -117,25 +136,54 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             // LocaleHandler.sparkAndVerification?
-                            Container(
-                              // height: size.height*0.04,
-                              padding: const EdgeInsets.symmetric(horizontal: 33,vertical: 5.5),
-                              decoration: BoxDecoration(color:const Color.fromRGBO(239, 230, 243, 1),
-                                  borderRadius: BorderRadius.circular(8)),
-                              child: Row(children: [
-                                SvgPicture.asset(AssetsPics.star),
-                                const SizedBox(width: 5),
-                                buildText("${val.sparks} Sparks", 15, FontWeight.w500, color.txtBlack,fontFamily: FontFamily.hellix)
-                              ]),
-                            )//:const SizedBox()
-                            ,const SizedBox(width: 14),
                             GestureDetector(
-                                onTap: (){
-                                  Get.to(()=>const ViewProfileScreen());
-                                  // for(var i=0;i<LocaleHandler.dataa["profileVideos"].length;i++){
-                                  //   Provider.of<profileController>(context,listen: false).cacheVideos(LocaleHandler.dataa["profileVideos"][i]["key"]);
-                                  // }
-                                },child: SvgPicture.asset(LocaleHandler.isVerified?AssetsPics.viewProfileplain:AssetsPics.viewProfile,height: 37)),
+                              onTap: (){
+                                Get.to(()=> const SparkPurchaseScreen())?.then((value) {setState(() {});});
+                              },
+                              child: Container(
+                                // height: size.height*0.04,
+                                padding: const EdgeInsets.symmetric(horizontal: 27,vertical: 5.5),
+                                decoration: BoxDecoration(color:color.example4,
+                                    borderRadius: BorderRadius.circular(8)),
+                                child: Row(children: [
+                                  SvgPicture.asset(AssetsPics.star),
+                                  const SizedBox(width: 10),
+                                  buildText("${val.sparks} Sparks", 15, FontWeight.w500, color.txtBlack,fontFamily: FontFamily.hellix)
+                                ]),
+                              ),
+                            ),
+                            const SizedBox(width: 14),
+                            // GestureDetector(onTap: (){Get.to(()=>const ViewProfileScreen());},
+                            //     child: SvgPicture.asset(LocaleHandler.isVerified?AssetsPics.viewProfileplain:AssetsPics.viewProfile,height: 37)),
+
+                            GestureDetector(onTap: (){Get.to(()=>const ViewProfileScreen());},
+                              child: Stack(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 20,vertical: 5.5),
+                                    decoration: BoxDecoration(color:const Color(0xFFE6F0FF),
+                                        borderRadius: BorderRadius.circular(8)),
+                                    child: Row(children: [
+                                      SvgPicture.asset(AssetsPics.whiteeye),
+                                      const SizedBox(width: 10),
+                                      buildText("View Profile", 15, FontWeight.w500, color.txtBlack,fontFamily: FontFamily.hellix)
+                                    ]),
+                                  ),
+                                  Positioned(
+                                    right: 0.0,
+                                    child: Container(
+                                      padding: const EdgeInsets.all(1.5),
+                                      decoration: BoxDecoration(color: const Color(0xFFFFFFFF),borderRadius: BorderRadius.circular(10)),
+                                      child: Container(
+                                        padding: const EdgeInsets.all(2),
+                                        decoration: BoxDecoration(color: Colors.red,borderRadius: BorderRadius.circular(10)),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            )
+
                           ],
                         )
                       ],),),
@@ -183,9 +231,9 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           children: [
                             SizedBox(height: 2.h),
                             buildText("Slush Subscription", 20, FontWeight.w600, color.txtBlack),
-                            SizedBox(height: 2.h),
+                            // SizedBox(height: 2.h),
                             subScriptionOption(context,val),
-                            SizedBox(height: 2.h+2),
+                            // SizedBox(height: 2.h+2),
                             white_button_woBorder(context, "View more",press: (){Get.to(()=>const Subscription1());}),
                           ],
                         )),
@@ -236,8 +284,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     final prfileControl=Provider.of<profileController>(context,listen: false);
    final size=MediaQuery.of(context).size;
     return Container(
+      // color: Colors.red,
       padding: const EdgeInsets.only(left: 2),
-                      height: 25.h+2,
+                      // height: 25.h+2,
+                      height: 20.h,
                       width: MediaQuery.of(context).size.width,
                       child: Stack(
                         alignment: Alignment.center,
@@ -261,7 +311,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                               prfileControl.setSelectedIndex(2);
                             },
                             child: Container(
-                              height: 185 ,
+                              // height: 185 ,
+                              height: MediaQuery.of(context).size.width*0.4-28 ,
                               // width: MediaQuery.of(context).size.width/2.9,
                               width: MediaQuery.of(context).size.width,
                               decoration: BoxDecoration(color: color.txtBlue ,
@@ -271,19 +322,20 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                               child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",height: 50),
+                                SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",height: 40),
                                 // Spacer(),
                                 Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     // SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
-                                    buildText("Slush", 30, FontWeight.w600, color.txtWhite ),
-                                    buildText("Silver", 30, FontWeight.w600,color.txtWhite ),
-                                    const SizedBox(height: 10,),
-                                    buildText("£9.99", 30, FontWeight.w600, color.txtWhite ),
+                                    buildText("Slush", 25, FontWeight.w600, color.txtWhite ),
+                                    buildText("Silver", 25, FontWeight.w600,color.txtWhite ),
+                                    const SizedBox(height: 6),
+                                    // buildText("£9.99", 25, FontWeight.w600, color.txtWhite ),
+                                    buildText(_products.isEmpty?"...": _products[0].price.toString(), 25, FontWeight.w600, color.txtWhite ),
                                   ],
                                 ),
-                                SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",height: 50),
+                                SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",height: 40),
                               ],
                             ),
 
@@ -312,7 +364,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                               child: buildText("Popular", 13, FontWeight.w600,val.selectedIndex == 2 ? color.txtBlue : color.txtWhite,fontFamily: FontFamily.hellix),
                             ),
                           ),*/
-                          val.selectedIndex==1? Positioned(
+                         /* val.selectedIndex==1? Positioned(
                             left: 0.0,
                             child: Container(
                               height: 185 ,
@@ -352,7 +404,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                 ],
                               ),
                             ),
-                          ):const SizedBox(),
+                          ):const SizedBox(),*/
                         ],
                       ),
                     );
@@ -385,8 +437,10 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
           backgroundColor: Colors.transparent,
           radius: 75.0,
           // backgroundImage: NetworkImage(val.dataa["avatar"]),
-          child: CachedNetworkImage(imageUrl: val.dataa["avatar"]??val.dataa["profilePictures"][0]["key"], fit: BoxFit.cover, imageBuilder: (context, imageProvider) => Container(
-              decoration: BoxDecoration(shape: BoxShape.circle, image: DecorationImage(image: imageProvider, fit: BoxFit.cover)),),),
+          child: CachedNetworkImage(imageUrl: val.dataa["avatar"]??val.dataa["profilePictures"][0]["key"], fit: BoxFit.cover,
+           imageBuilder: (context, imageProvider) => Container(decoration: BoxDecoration(shape: BoxShape.circle, image: DecorationImage(image: imageProvider, fit: BoxFit.cover)),),
+            errorWidget: (context, url, error) => ClipRRect(borderRadius: BorderRadius.circular(70), child: Image.asset(AssetsPics.demouser)),
+          ),
         ):const CircleAvatar(
           backgroundColor: Colors.transparent,
           radius: 75.0,

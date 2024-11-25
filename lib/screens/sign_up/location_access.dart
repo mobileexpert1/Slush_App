@@ -85,7 +85,8 @@ class _SignUpLocationAccessScreenState extends State<SignUpLocationAccessScreen>
   Future<void> _getCurrentPosition() async {
     final hasPermission = await _handlePermission();
     setState(() {LoaderOverlay.show(context);});
-    if (!hasPermission) {Get.to(()=>const VacationDetailsScreen());}
+    if (!hasPermission) {Get.to(()=>const VacationDetailsScreen());
+    setState(() {LoaderOverlay.hide();});}
     final position = await _geolocatorPlatform.getCurrentPosition();
     latitude = position.latitude.toString();
     longitude = position.longitude.toString();

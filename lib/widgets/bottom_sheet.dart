@@ -801,7 +801,7 @@ Widget buildContainer(BuildContext context, TextEditingController controller,
           color: color.txtWhite,
           borderRadius: BorderRadius.circular(8),
           border: Border.all(
-              color: const Color.fromRGBO(246, 246, 246, 1), width: 1)),
+              color: color.textFieldColor, width: 1)),
       child: TextFormField(
         readOnly: true,
         textInputAction: TextInputAction.done,
@@ -1070,7 +1070,7 @@ customSparkBottomSheeet(BuildContext context, String img, String title,
                         child: Container(
                           // height: size.height*0.04,
                           padding: const EdgeInsets.symmetric(horizontal: 10,vertical: 5.5),
-                          decoration: BoxDecoration(color:const Color.fromRGBO(239, 230, 243, 1),
+                          decoration: BoxDecoration(color:color.example4,
                               borderRadius: BorderRadius.circular(8)),
                           child: Row(children: [
                             SvgPicture.asset(AssetsPics.star),

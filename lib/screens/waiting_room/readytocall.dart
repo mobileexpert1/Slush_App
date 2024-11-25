@@ -142,7 +142,9 @@ class _ReadyToCallScreenState extends State<ReadyToCallScreen> {
                                   width: 19.h,
                                   child: ClipRRect(
                                       borderRadius: BorderRadius.circular(40),
-                                      child: CachedNetworkImage(imageUrl: LocaleHandler.avatar, fit: BoxFit.cover)))),
+                                      child: CachedNetworkImage(imageUrl: LocaleHandler.avatar, fit: BoxFit.cover,
+                                          errorWidget: (context, url, error) => Image.asset(AssetsPics.demouser,height: 20.h,width: 19.h)
+                                      )))),
                           // Image.asset(AssetsPics.example5),
                           const SizedBox(width: 25),
                           // Image.asset(AssetsPics.example4),
@@ -154,7 +156,8 @@ class _ReadyToCallScreenState extends State<ReadyToCallScreen> {
                                   height: 20.h,
                                   width: 19.h,
                                   child: ClipRRect(borderRadius: BorderRadius.circular(40),
-                                      child: CachedNetworkImage(imageUrl: widget.data["avatar"], fit: BoxFit.cover)))),
+                                      child: CachedNetworkImage(imageUrl: widget.data["avatar"], fit: BoxFit.cover,
+                                          errorWidget: (context, url, error) => Image.asset(AssetsPics.demouser,height: 20.h,width: 19.h))))),
                         ],
                       ),
                       CircleAvatar(radius: 45, backgroundColor: Colors.transparent, child: SvgPicture.asset(AssetsPics.bluecam),
