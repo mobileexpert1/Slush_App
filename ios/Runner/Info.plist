@@ -25,6 +25,8 @@
 	<key>CFBundleURLTypes</key>
 	<array>
 		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>fb175424641387291</string>
@@ -32,12 +34,10 @@
 				<string>com.mobile.app.virtualspeeddate</string>
 				<string>com.googleusercontent.apps.422898489031-r79nump83gqn306o49d0v8544kbu9750</string>
 			</array>
-			<key>CFBundleTypeRole</key>
-			<string>Editor</string>
 		</dict>
 	</array>
 	<key>CFBundleVersion</key>
-	<string>52</string>
+	<string>60</string>
 	<key>FacebookAppID</key>
 	<string>175424641387291</string>
 	<key>FacebookDisplayName</key>
@@ -71,15 +71,13 @@
 	<string>Camera access is required for video calls and video record.</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>We need to use Face ID to authenticate you securely.</string>
-	<key>NSLocationAlwaysUsageDescription</key>
-	<string>We need access to your location at all times to show you nearby events and improve your dating experience.</string>
 	<key>NSLocationTemporaryUsageDescriptionDictionary</key>
 	<dict>
 		<key>TemporaryPreciseAccuracy</key>
 		<string>We require precise location temporarily to find the closest events near you.</string>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string>We need access to your location to show you nearby events while you&apos;re using the app.</string>
+	<string>We need access to your location to show you nearby events while you're using the app.</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>Microphone access is required for video calls and video record.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
