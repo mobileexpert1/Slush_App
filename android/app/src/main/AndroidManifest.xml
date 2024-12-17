@@ -3,8 +3,8 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+<!--    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />-->
+<!--    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />-->
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.CAMERA" />
@@ -24,9 +24,9 @@
         <meta-data android:name="com.google.android.geo.AIzaSyAij0Iixlp5sKIcVmUKwYDpqEOV0qpNvKQ"
             android:value="AIzaSyAij0Iixlp5sKIcVmUKwYDpqEOV0qpNvKQ"/>
         <activity
-            android:name=".MainActivity"
+            android:name=".MainFragmentActivity"
             android:exported="true"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:theme="@style/LaunchTheme"
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
@@ -36,6 +36,8 @@
                  the Android process has started. This theme is visible to the user
                  while the Flutter UI initializes. After that, this theme continues
                  to determine the Window background behind the Flutter UI. -->
+            <!-- Firebase Analytics -->
+            <meta-data android:name="firebase_analytics_collection_enabled" android:value="true" />
             <meta-data
               android:name="io.flutter.embedding.android.NormalTheme"
               android:resource="@style/NormalTheme" />
@@ -50,16 +52,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <!--<data android:scheme="https" android:host="dev-api.slushdating.com" />-->
-                <data android:scheme="https" android:host="slushdating.page.link" />
-                <data android:scheme="https" />
-            </intent-filter>
-            <intent-filter>
-            <action android:name="android.intent.action.VIEW" />
-            <category android:name="android.intent.category.DEFAULT" />
-            <category android:name="android.intent.category.BROWSABLE" />
-            <!--<data android:scheme="https" android:host="dev-api.slushdating.com" />-->
-            <data android:scheme="https" android:host="slushdating.page.link" />
-            <data android:scheme="https" />
+                <data android:scheme="https" android:host="api.slushdating.com" />
             </intent-filter>
         </activity>
         <activity
