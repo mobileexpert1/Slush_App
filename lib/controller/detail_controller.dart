@@ -44,7 +44,7 @@ class detailedController extends ChangeNotifier {
   bool get trimmerstrt => _trimmerstrt;
   Trimmer trimmer = Trimmer();
   double _startValue = 0.0;
-  double _endValue = 0.0;
+  double _endValue = 15.0;
   bool isPlaying = false;
   bool _progressVisibility = false;
   String _gender = "";
@@ -106,20 +106,20 @@ class detailedController extends ChangeNotifier {
     var request = http.MultipartRequest('POST', uri);
     request.headers['Authorization'] = "Bearer ${LocaleHandler.accessToken}";
     // Add image file
-    if (LocaleHandler.introImage != null) {
-      File imageFile = File(LocaleHandler.introImage!.path);
+    if (croppedFile != null) {
+      File imageFile = File(croppedFile!.path);
       var stream = http.ByteStream(imageFile.openRead());
       var length = await imageFile.length();
-      var multipartFile = http.MultipartFile('avatar', stream, length, filename: LocaleHandler.introImage.toString().split("/").last, contentType: MediaType('image', 'jpeg'));
+      var multipartFile = http.MultipartFile('avatar', stream, length, filename: croppedFile.toString().split("/").last, contentType: MediaType('image', 'jpeg'));
       request.files.add(multipartFile);
     }
     // if (LocaleHandler.introVideo != null && action=="upload_video") {
-    if (LocaleHandler.introVideo != null) {
-      File introVideo = File(LocaleHandler.introVideo!.path);
+    if (galleryFile != null) {
+      File introVideo = File(galleryFile!.path);
       var stream = http.ByteStream(introVideo.openRead());
       var length = await introVideo.length();
       var multipartFile2 = http.MultipartFile('video', stream, length,
-          filename: LocaleHandler.introVideo.toString().split("/").last,
+          filename: galleryFile.toString().split("/").last,
           contentType: MediaType('video', 'mp4'));
       request.files.add(multipartFile2);
     }
@@ -324,9 +324,9 @@ class detailedController extends ChangeNotifier {
       _controller.pause();
       notifyListeners();
     }
-    final allowedTimeLimit = Duration(seconds: 16);
+    const allowedTimeLimit = Duration(seconds: 16);
     // final allowedTimeLimit = Duration(seconds: 4);
-    final allowedTimeLimit2 = Duration(minutes: 15);
+    const allowedTimeLimit2 = Duration(minutes: 15);
     final pickedFile = await picker.pickVideo(source: img, preferredCameraDevice: CameraDevice.front, maxDuration: const Duration(seconds: 15));
     XFile? xfilePick = pickedFile;
     if (xfilePick != null) {
@@ -338,18 +338,15 @@ class detailedController extends ChangeNotifier {
       }
       _controller
         ..initialize().then((_) {
-          if (_controller.value.duration <= allowedTimeLimit) {
-            palyVideo(File(pickedFile.path));
-          } else if (_controller.value.duration <= allowedTimeLimit2) {
+          if (_controller.value.duration <= allowedTimeLimit) {palyVideo(File(pickedFile.path));}
+          else if (_controller.value.duration <= allowedTimeLimit2) {
             // galleryFile=null;
             _trimmerstrt = true;
             trimmer = Trimmer();
             _loadVideo(File(pickedFile.path));
           } else {
             // galleryFile=null;
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                content: buildText("Video should be less then 15 seconds", 16,
-                    FontWeight.w500, color.txtWhite)));
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: buildText("Video should be less then 15 seconds", 16, FontWeight.w500, color.txtWhite)));
           }
         });
     } else {}
@@ -376,6 +373,8 @@ class detailedController extends ChangeNotifier {
   }
 
   void _loadVideo(File file) {
+    _startValue=0.0;
+    _endValue = 15.0;
     trimmer.loadVideo(videoFile: file);
     notifyListeners();
   }
@@ -385,22 +384,23 @@ class detailedController extends ChangeNotifier {
     trimmer.saveTrimmedVideo(
       startValue: _startValue,
       endValue: _endValue,
+      // ffmpegCommand: '-i ${trimmer.videoPlayerController!.dataSource} -ss ${_startValue.toString()} -t ${_endValue.compareTo(_startValue).seconds} -c:v copy -c:a aac ${trimmer.currentVideoFile}/trimmed_video.mp4',
       // ffmpegCommand: '-i input.mp4 -ss 0 -t 4 -c:v copy output.mp4',
       // ffmpegCommand: '-i ${_trimmer.videoPlayerController!.dataSource} -ss ${_startValue.toString()} -t ${_endValue.difference(_startValue).inSeconds} -c copy ${_trimmer.outputPath}/trimmed_video.mp4',
       // ffmpegCommand: '-c:a aac -c:v copy',
       // customVideoFormat: '.mp4',
       onSave: (outputPath) {
-        galleryFile = null;
+        galleryFile = File(outputPath!);
         _progressVisibility = false;
         debugPrint('OUTPUT PATH: $outputPath');
         trimmer.currentVideoFile;
         _trimmerstrt = false;
-        palyVideo(File(trimmer.currentVideoFile!.path));
+        palyVideo(File(outputPath!));
         getValueInController(outputPath!);
         // trimmer=false;
         notifyListeners();
       },
-    );
+    ).then((value){});
     notifyListeners();
   }
 
@@ -530,15 +530,15 @@ class detailedController extends ChangeNotifier {
     _trimmerstrt = false;
     _controller = VideoPlayerController.file(File(outputVideoPath))
       ..initialize().then((_) {
-        palyVideo(File(trimmer.currentVideoFile!.path));
+        palyVideo(File(outputVideoPath));
+        // palyVideo(File(_controller.dataSource));
         notifyListeners();
       });
     notifyListeners();
   }
 
   void playTrimmmervideo() async {
-    await trimmer.videoPlaybackControl(
-        startValue: _startValue, endValue: _endValue);
+    await trimmer.videoPlaybackControl(startValue: _startValue, endValue: _endValue);
     notifyListeners();
   }
 
@@ -554,7 +554,7 @@ class detailedController extends ChangeNotifier {
     LocaleHandler.introVideo = null;
     trimmer.dispose();
     _startValue = 0.0;
-    _endValue = 0.0;
+    _endValue = 15.0;
     if (galleryFile != null) {
       if (Platform.isAndroid) {
         _controller =
@@ -574,4 +574,6 @@ class detailedController extends ChangeNotifier {
     _controller.pause();
     notifyListeners();
   }
+
+  //--not used
 }

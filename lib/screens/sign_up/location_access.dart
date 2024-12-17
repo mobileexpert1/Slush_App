@@ -65,13 +65,10 @@ class _SignUpLocationAccessScreenState extends State<SignUpLocationAccessScreen>
                 const SizedBox(height: 10),
                 buildText2("We use your location to show you potential matches in your area.", 20, FontWeight.w400, color.txtWhite,fontFamily: FontFamily.hellix),
                 const Spacer(),
-                blue_button(context, "Enable Location",press: (){
-                  _getCurrentPosition();
-                }),
+                // blue_button(context, "Enable Location",press: (){_getCurrentPosition();}),
+                blue_button(context, "Continue",press: (){_getCurrentPosition();}),
                  SizedBox(height: 2.h-1),
-                white_button(context, "Skip",press: (){
-                  Get.offAll(()=> BottomNavigationScreen());
-                }),
+                // white_button(context, "Skip",press: (){Get.offAll(()=> BottomNavigationScreen());}),
                  SizedBox(height: 2.h+4),
 
               ],
@@ -85,7 +82,9 @@ class _SignUpLocationAccessScreenState extends State<SignUpLocationAccessScreen>
   Future<void> _getCurrentPosition() async {
     final hasPermission = await _handlePermission();
     setState(() {LoaderOverlay.show(context);});
-    if (!hasPermission) {Get.to(()=>const VacationDetailsScreen());
+    if (!hasPermission) {
+      showToastMsg("To make full use of this app, location access is recommended. You can enable this permission later in Settings.");
+      Get.to(()=>const VacationDetailsScreen());
     setState(() {LoaderOverlay.hide();});}
     final position = await _geolocatorPlatform.getCurrentPosition();
     latitude = position.latitude.toString();

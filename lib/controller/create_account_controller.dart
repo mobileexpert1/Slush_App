@@ -133,46 +133,6 @@ class createAccountController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> loginWithFacebookk() async {
-    // final result = await FacebookLogin().logIn(customPermissions: ['email']);
-    // switch (result.status) {
-    //   case FacebookLoginStatus.success:
-    //     result.accessToken;
-    //     result.status;
-    //     // final AuthCredential credential = FacebookAuthProvider.credential(
-    //     //   enableField,
-    //     //
-    //     //   // idToken: result.accessToken?.userId,
-    //     // );
-    //     // final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
-    //     // final User? user = userCredential.user;
-    //     // print('User  ----------- ${user.toString()}');
-    //     // print('Credential ----------- ${credential.toString()}');
-    //     final OAuthCredential facebookAuthCredential =
-    //         FacebookAuthProvider.credential(result.accessToken!.token);
-    //     // Once signed in, return the UserCredential
-    //     FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
-    //     socialLoginUser(
-    //       "FACEBOOK",
-    //       socialToken: result.accessToken.toString(),
-    //     );
-    //     print('Status ----------- ${result.accessToken}');
-    //     print('Status ----------- ${result.status}');
-    //     // You're logged in with Facebook, use result.accessToken to make API calls.
-    //     print('Facebook Logged in Successfully-----');
-    //     break;
-    //   case FacebookLoginStatus.cancel:
-    //     print('Status Cancel By User  ----------- ${result.status}');
-    //     // User cancelled the login.
-    //     break;
-    //   case FacebookLoginStatus.error:
-    //     // There was an error during login.
-    //     print('Error ----------- ${result.error.toString()}');
-    //     break;
-    // }
-    // notifyListeners();
-  }
-
   Future<Resource?> loginWithFacebook(BuildContext context,) async {
     try {
       final LoginResult result = await FacebookAuth.instance.login();
@@ -203,25 +163,27 @@ class createAccountController extends ChangeNotifier {
   }
 
   Future<void> signInWithGoogle(BuildContext context,GoogleSignIn googleSignIn) async {
+    LoaderOverlay.show(context);
     try {
       final GoogleSignInAccount? googleSignInAccount =
-          await googleSignIn.signIn();
+      await googleSignIn.signIn();
       final GoogleSignInAuthentication googleSignInAuthentication =
-          await googleSignInAccount!.authentication;
+      await googleSignInAccount!.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleSignInAuthentication.accessToken,
         idToken: googleSignInAuthentication.idToken,
       );
-      final UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithCredential(credential);
+      final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
       final User? user = userCredential.user;
       // loginUser();
       print("User -- -> ${user.toString()}");
       // print("User Credentials -- -> ${user}");
       print("User Credentials -- -> ${userCredential}");
-      socialLoginUser(context,"GOOGLE", socialToken: googleSignInAuthentication.idToken.toString());
+      LoaderOverlay.hide();
+      socialLoginUser(context,"GOOGLE", socialToken: googleSignInAuthentication.idToken.toString(),providerName: user!.displayName.toString()??"");
       // Use the user object for further operations or navigate to a new screen.
     } catch (e) {
+      LoaderOverlay.hide();
       print(e.toString());
     }
     notifyListeners();
@@ -235,24 +197,24 @@ class createAccountController extends ChangeNotifier {
           AppleIDAuthorizationScopes.fullName,
         ],
       );
-
       // Use the credential to authenticate with your backend.
       print("===================");
       print(credential.identityToken);
       print(credential.authorizationCode);
       print(credential.givenName);
-      socialLoginUser(context, "APPLE", socialToken: credential.authorizationCode);
       if(credential.givenName!=null){
         LocaleHandler.name=credential.givenName!.toString();
         print(LocaleHandler.name);
       }
+      socialLoginUser(context, "APPLE", socialToken: credential.authorizationCode,providerName:credential.givenName??"");
       notifyListeners();
     } catch (e) {
       print('Error signing in with Apple: $e');
     }
   }
 
-  Future socialLoginUser(BuildContext context, String type, {required String socialToken, providerName}) async {
+  Future socialLoginUser(BuildContext context, String type, {required String socialToken, String providerName=""}) async {
+    LoaderOverlay.show(context);
     final url = ApiList.socialLogin;
     print(url);
     var uri = Uri.parse(url);
@@ -269,23 +231,27 @@ class createAccountController extends ChangeNotifier {
     if (response.statusCode == 201) {
       LocaleHandler.socialLogin="yes";
       print(LocaleHandler.accessToken);
-      LoaderOverlay.hide();
-      if (data["data"]["emailVerifiedAt"] == true && data["data"]["nextAction"]=="none") {
+      if (data["data"]["emailVerifiedAt"] == true || data["data"]["nextAction"]=="none") {
         saveDetailsToLocal(data);
         Provider.of<ReelController>(context,listen: false).getVideoCount(context);
         Provider.of<profileController>(context,listen: false).getTotalSparks();
         Get.offAll(() => BottomNavigationScreen());}
-      else {
+      else if(data["data"]["nextAction"]=="fill_firstname"){
+        LocaleHandler.name=providerName;
+        if(LocaleHandler.name!=""){context.read<detailedController>().registerUserDetail(context, "fill_firstname");}
+        Provider.of<detailedController>(context,listen: false).setCurrentIndex();
+        LocaleHandler.EditProfile = false;
+        Get.offAll(()=>const DetailScreen());
+      } else {
         saveDetailsToLocal(data);
+        context.read<detailedController>().registerUserDetail(context, "fill_firstname");
         Provider.of<detailedController>(context, listen: false).setCurrentIndex();
         LocaleHandler.EditProfile = false;
         Get.to(() => const DetailScreen());
       }
     } else if (response.statusCode == 401) {
-      LoaderOverlay.hide();
       Fluttertoast.showToast(msg: data["message"]);
     } else {
-      LoaderOverlay.hide();
       Fluttertoast.showToast(msg: data["message"]);
     }
     notifyListeners();
@@ -344,8 +310,8 @@ class createAccountController extends ChangeNotifier {
             // showNoMailAppsDialog(context);
           } else if (!result.didOpen && result.canOpen) {
             showDialog(context: context, builder: (_) {
-                return MailAppPickerDialog(mailApps: result.options);
-              },
+              return MailAppPickerDialog(mailApps: result.options);
+            },
             );
           }
         });
@@ -359,5 +325,46 @@ class createAccountController extends ChangeNotifier {
       emailText = "*" + emailText;
     }
     return emailText;
+  }
+
+  //- not used
+  Future<void> loginWithFacebookk() async {
+    // final result = await FacebookLogin().logIn(customPermissions: ['email']);
+    // switch (result.status) {
+    //   case FacebookLoginStatus.success:
+    //     result.accessToken;
+    //     result.status;
+    //     // final AuthCredential credential = FacebookAuthProvider.credential(
+    //     //   enableField,
+    //     //
+    //     //   // idToken: result.accessToken?.userId,
+    //     // );
+    //     // final UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+    //     // final User? user = userCredential.user;
+    //     // print('User  ----------- ${user.toString()}');
+    //     // print('Credential ----------- ${credential.toString()}');
+    //     final OAuthCredential facebookAuthCredential =
+    //         FacebookAuthProvider.credential(result.accessToken!.token);
+    //     // Once signed in, return the UserCredential
+    //     FirebaseAuth.instance.signInWithCredential(facebookAuthCredential);
+    //     socialLoginUser(
+    //       "FACEBOOK",
+    //       socialToken: result.accessToken.toString(),
+    //     );
+    //     print('Status ----------- ${result.accessToken}');
+    //     print('Status ----------- ${result.status}');
+    //     // You're logged in with Facebook, use result.accessToken to make API calls.
+    //     print('Facebook Logged in Successfully-----');
+    //     break;
+    //   case FacebookLoginStatus.cancel:
+    //     print('Status Cancel By User  ----------- ${result.status}');
+    //     // User cancelled the login.
+    //     break;
+    //   case FacebookLoginStatus.error:
+    //     // There was an error during login.
+    //     print('Error ----------- ${result.error.toString()}');
+    //     break;
+    // }
+    // notifyListeners();
   }
 }

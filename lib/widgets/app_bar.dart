@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
@@ -120,7 +121,7 @@ PreferredSizeWidget commonBarWithTextleft(BuildContext context,Color bg,String t
       ));
 }
 
-PreferredSizeWidget commonBarWithTextleftforChat(BuildContext context,Color bg,String txt,{VoidCallback? press=onPress,VoidCallback? onnametap=onPress,VoidCallback? press2=onPress,bool tran=false,}) {
+PreferredSizeWidget commonBarWithTextleftforChat(BuildContext context,Color bg,String txt,String img,{VoidCallback? press=onPress,VoidCallback? onnametap=onPress,VoidCallback? press2=onPress,bool tran=false,}) {
   return AppBar(
       forceMaterialTransparency: tran,
       systemOverlayStyle: const SystemUiOverlayStyle(
@@ -132,7 +133,7 @@ PreferredSizeWidget commonBarWithTextleftforChat(BuildContext context,Color bg,S
       surfaceTintColor: Colors.transparent,
       backgroundColor: bg,
       centerTitle: true,
-      leadingWidth: 50,
+      leadingWidth: 42,
       leading: GestureDetector(
         onTap: press,
         child: Padding(
@@ -142,7 +143,7 @@ PreferredSizeWidget commonBarWithTextleftforChat(BuildContext context,Color bg,S
                 color: Colors.transparent,
                   borderRadius: BorderRadius.circular(20)
               ),
-              padding: const EdgeInsets.only(left: 8,right: 8),
+              padding: const EdgeInsets.only(left: 8,right: 1),
               child: SvgPicture.asset(AssetsPics.arrowLeft)),
         ),
       ),actions: [
@@ -157,8 +158,23 @@ PreferredSizeWidget commonBarWithTextleftforChat(BuildContext context,Color bg,S
       title: GestureDetector(
         onTap: onnametap,
         child: Container(padding: const EdgeInsets.only(top: 10),
-          child: Align(
-              alignment: Alignment.centerLeft,child: buildText(txt, 24, FontWeight.w600, color.txtBlack)),
+          child: Row(
+            children: [
+              CircleAvatar(
+                  radius: 22.0,
+                  child:
+              CachedNetworkImage(
+                  imageUrl: img,
+                  fit: BoxFit.cover,
+                  imageBuilder: (context, imageProvider) => Container(width: 80.0, height: 80.0, decoration: BoxDecoration(shape: BoxShape.circle, image: DecorationImage(image: imageProvider, fit: BoxFit.cover))),
+                  placeholder: (ctx, url) => const Center(child: SizedBox()),
+                  errorWidget: (context, url, error) => ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.asset(AssetsPics.demouser)))
+              ),
+              const SizedBox(width: 8),
+              Align(
+                  alignment: Alignment.centerLeft,child: buildText(txt, 24, FontWeight.w600, color.txtBlack)),
+            ],
+          ),
         ),
       ));
 }

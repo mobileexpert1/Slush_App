@@ -180,7 +180,7 @@ class eventController extends ChangeNotifier {
   String latitude = "";
   String longitude = "";
 
-  Future<void> _getCurrentPosition(BuildContext context) async {
+  Future<void> getCurrentPosition(BuildContext context) async {
     final hasPermission = await _handlePermission();
     if (!hasPermission) {
       Fluttertoast.showToast(msg: "Location permission is neccessary");
@@ -188,8 +188,7 @@ class eventController extends ChangeNotifier {
     final position = await _geolocatorPlatform.getCurrentPosition();
     latitude = position.latitude.toString();
     longitude = position.longitude.toString();
-    Provider.of<nameControllerr>(context, listen: false)
-        .setLocation(latitude, longitude);
+    Provider.of<nameControllerr>(context, listen: false).setLocation(latitude, longitude);
     // getEvents();
     updaetLocation();
     notifyListeners();
@@ -369,7 +368,7 @@ class eventController extends ChangeNotifier {
       int min = timee!.difference(timeFormat).inMinutes;
       print("This Code Is Working Fine------------------------------------------!!!");
       if (min <= 0 ) {}
-      else {Get.snackbar('', '',
+      else { Get.snackbar('', '',
           duration: const Duration(seconds: 5),
           snackPosition: SnackPosition.TOP,
           margin: EdgeInsets.zero,
@@ -440,7 +439,8 @@ class eventController extends ChangeNotifier {
     _hours = strDigits(_myDuration!.inHours.remainder(24));
     _minutes = strDigits(_myDuration!.inMinutes.remainder(60));
     _seconds = strDigits(_myDuration!.inSeconds.remainder(60));
-    if (_myDuration!.inSeconds % 60 == 0 && seconds < 900 && seconds > 2 && !LocaleHandler.insideevent) {
+    // if (_myDuration!.inSeconds % 60 == 0 && seconds < 900 && seconds > 2 && !LocaleHandler.insideevent ) {
+    if ((seconds==900 || seconds==600|| seconds==300||seconds==59) && (seconds > 2 && !LocaleHandler.insideevent) ) {
       Get.snackbar('', '',
           duration: const Duration(seconds: 5),
           snackPosition: SnackPosition.TOP,
@@ -466,7 +466,7 @@ class eventController extends ChangeNotifier {
               Container(
                   padding: const EdgeInsets.only(
                       top: 0, left: 10, right: 10, bottom: 15),
-                  child: buildText2(
+                  child: buildText2(seconds==59?'Event starting in ${strDigits(_myDuration!.inSeconds.remainder(60))} seconds, Click Here\nto join the waiting room!':
                       'Event starting in ${strDigits(_myDuration!.inMinutes.remainder(60))} minutes, Click Here\nto join the waiting room!',
                       18, FontWeight.w600, color.txtWhite)),
             ],

@@ -398,6 +398,7 @@ class _CreateNewAccountState extends State<CreateNewAccount> {
                     button.value = false;
                   }
                 },
+                style: const TextStyle(fontFamily: FontFamily.hellix, fontSize: 17),
                 decoration: InputDecoration(
                   errorStyle: const TextStyle(height: 0, fontSize: 12),
                   border: InputBorder.none,
@@ -482,6 +483,7 @@ class _CreateNewAccountState extends State<CreateNewAccount> {
                 autovalidateMode: auto,
                 // validator: validation,
                 onChanged: validation,
+                style: const TextStyle(fontFamily: FontFamily.hellix, fontSize: 17),
                 decoration: InputDecoration(
                   errorStyle: const TextStyle(height: 0, fontSize: 12),
                   border: InputBorder.none,

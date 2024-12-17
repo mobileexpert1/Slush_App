@@ -18,12 +18,14 @@ import 'package:slush/controller/chat_controller.dart';
 import 'package:slush/controller/controller.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/controller/event_controller.dart';
+import 'package:slush/controller/profile_controller.dart';
 import 'package:slush/controller/waitingroom_controller.dart';
 import 'package:slush/screens/events/event_list.dart';
 import 'package:slush/screens/events/eventhistory.dart';
 import 'package:slush/screens/events/free_event.dart';
 import 'package:slush/screens/events/you_ticket.dart';
 import 'package:slush/screens/notification/notification_screen.dart';
+import 'package:slush/screens/waiting_room/waiting_completed_screen.dart';
 import 'package:slush/screens/waiting_room/waiting_room_screen.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
 import 'package:slush/widgets/customtoptoaster.dart';
@@ -40,6 +42,13 @@ class EventScreen extends StatefulWidget {
 }
 
 class _EventScreenState extends State<EventScreen> {
+  late profileController profilecntrl;
+  late profileController profileWatcher;
+  late eventController eventcntrl;
+  late eventController eventWatcher;
+
+
+
   TextEditingController searchController = TextEditingController();
   int selectedIndex = 0;
   String selectedIndexItem = "seeall";
@@ -66,7 +75,12 @@ class _EventScreenState extends State<EventScreen> {
 
   @override
   void initState() {
-    locationController.addListener(() {context.read<eventController>().getLocationResults(locationController.text);});
+    profilecntrl = Provider.of<profileController>(context,listen: false);
+    eventcntrl = Provider.of<eventController>(context,listen: false);
+
+    // profilecntrl.profileData(context);
+    locationController.addListener(() {eventcntrl.getLocationResults(locationController.text);});
+
     _getCurrentPosition();
     profileData();
     Provider.of<eventController>(context, listen: false).savedEvents(context);
@@ -140,21 +154,6 @@ class _EventScreenState extends State<EventScreen> {
         post = data["items"];
         _isLoadMoreRunning=false;
       });
-      // List<Map<String, dynamic>> j = [];
-      // for (var i = 0; i < data["items"].length; i++) {
-      //   for (var ii = 0; ii < data["items"][i]["participants"].length; ii++) {
-      //     if (data["items"][i]["participants"][ii]["user"]["userId"].toString() == LocaleHandler.userId) {
-      //       j.add(data["items"][i]);
-      //     }
-      //   }
-      // }
-      // myEvent = j;
-      // for(var i = 0; i < data["items"].length; i++){
-      //   if (!catId.contains(data["items"][i]["categoryId"])) {
-      //     catId.add(data["items"][i]["categoryId"]);
-      //   }
-      // }
-      // Provider.of<eventController>(context,listen: false).setdateFormate(myEvent[0]["startsAt"]);
       if(cateId!="0" && data["meta"]["totalItems"]==0) {
         customDialogBox(
             context: context,
@@ -178,12 +177,9 @@ class _EventScreenState extends State<EventScreen> {
   Future loadmore() async {
     _searchQuery = "";
     FocusManager.instance.primaryFocus?.unfocus();
-    // setState(() {LoaderOverlay.show(context);});
     if (_page < totalpages && _hasNextPage == true && _isLoadMoreRunning == false &&
         currentpage < totalpages && _controller.position.extentAfter < 300) {
-      setState(() {
-        _isLoadMoreRunning = true;
-      });
+      setState(() {_isLoadMoreRunning = true;});
       _page = _page + 1;
       // final url = "${ApiList.getEvent}${LocaleHandler.miliseconds}&distance=${LocaleHandler.distancee}&events=popular&latitude=${LocaleHandler.latitude}&longitude=${LocaleHandler.longitude}&category_id=$cateId&page=$_page&limit=10";
       final url = "${ApiList.getEvent}${LocaleHandler.miliseconds}&distance=${LocaleHandler.distancee}&latitude=${LocaleHandler.latitude}&longitude=${LocaleHandler.longitude}&category_id=$cateId&page=$_page&limit=10";
@@ -193,9 +189,7 @@ class _EventScreenState extends State<EventScreen> {
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ${LocaleHandler.accessToken}'
       });
-      setState(() {
-        _isLoadMoreRunning = false;
-      });
+      setState(() {_isLoadMoreRunning = false;});
       if (response.statusCode == 200) {
         setState(() {
           var data = jsonDecode(response.body)['data'];
@@ -205,9 +199,7 @@ class _EventScreenState extends State<EventScreen> {
         });
       }
     }
-    setState(() {
-      LoaderOverlay.hide();
-    });
+    setState(() {LoaderOverlay.hide();});
   }
 
   // location
@@ -240,7 +232,6 @@ class _EventScreenState extends State<EventScreen> {
       if (permission == LocationPermission.denied) {return false;}
     }
     if (permission == LocationPermission.deniedForever) {return false;}
-
     return true;
   }
 
@@ -256,15 +247,13 @@ class _EventScreenState extends State<EventScreen> {
           getEvents();
         });
       } else {
-        setState(() {print('No coordinates found for this address');});
+        print('No coordinates found for this address');
       }
       Provider.of<eventController>(context, listen: false).timerCancel();
       await Future.delayed(const Duration(seconds: 2));
       Provider.of<eventController>(context, listen: false).getmeEvent(context,"me");
     } catch (e) {
-      setState(() {
-        print('Error: $e');
-      });
+      print('Error: $e');
     }
   }
 
@@ -290,7 +279,7 @@ class _EventScreenState extends State<EventScreen> {
           LocaleHandler.avatar = userData["avatar"]??userData["profilePictures"][0]["key"]??"";
           age = calculateAge(data["data"]["dateOfBirth"].toString());
           usergender = userData["gender"]??"male";
-          location = userData["state"] + ", " + userData["country"];
+          location = "${userData["state"]},${userData["country"]}"??" ";
           LocaleHandler.gender = usergender;
           userSexuality = userData["sexuality"];
           LocaleHandler.subscriptionPurchase=data["data"]["isSubscriptionPurchased"]??"no";
@@ -391,7 +380,7 @@ class _EventScreenState extends State<EventScreen> {
                                             // animatedBanner(context)
                                           ],
                                         ),
-                                        searchContainer(),
+                                        // searchContainer(),
                                         isThereEvent(),
                                         // LocaleHandler.isThereAnyEvent? myEventlist():const SizedBox(),
                                         myEventlist(),
@@ -487,51 +476,6 @@ class _EventScreenState extends State<EventScreen> {
           Consumer<eventController>(builder: (context,val,child){
             return val.bookiingCancelled?  CustomredTopToaster(textt: "Booking cancelled"):const SizedBox.shrink();
           })
-        ],
-      ),
-    );
-  }
-
-  Widget searchContainer() {
-    return Padding(
-      padding: const EdgeInsets.only(left: 15, right: 15, top: 0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          buildContainer("Search Location", locationController,
-            AutovalidateMode.onUserInteraction, locationNode,
-            onChanged: (text) {
-              LocaleHandler.location = locationController.text.trim();
-              // _searchLocations(text);
-            },
-            gesture: GestureDetector(
-                onTap: () {
-                  FocusManager.instance.primaryFocus?.unfocus();
-                  customDialogBoxFilter(context, whiteTap: () {
-                    Get.back();
-                    date1 = "Select Date ";
-                    date2 = "Select Date ";
-                    LocaleHandler.miliseconds=0;
-                    getEvents();
-                  }, blueTap: () {
-                    Get.back();
-                    setState(() {LoaderOverlay.show(context);});
-                    getEvents();
-                  });
-                },
-                child: Container(
-                    padding: const EdgeInsets.only(top: 5),
-                    height: 20,
-                    width: 30,
-                    alignment: Alignment.center,
-                    child: SvgPicture.asset(AssetsPics.filterIcon))),
-            preImg: GestureDetector(
-                child: Container(
-                    padding: const EdgeInsets.only(top: 5),
-                    height: 20, width: 30,
-                    alignment: Alignment.center,
-                    child: SvgPicture.asset(AssetsPics.magniferIcon))),
-          ),
         ],
       ),
     );
@@ -913,11 +857,11 @@ class _EventScreenState extends State<EventScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
+                    width: MediaQuery.of(context).size.width *0.35,
                     child: buildTextOverFlow(
                         LocaleHandler.name, 20, FontWeight.w600, color.txtBlack)),
                 SizedBox(
-                    width: MediaQuery.of(context).size.width / 2,
+                    width: MediaQuery.of(context).size.width *0.35,
                     child: buildTextOverFlow(
                         location, 13, FontWeight.w500, color.txtgrey2,
                         fontFamily: FontFamily.hellix)),
@@ -936,6 +880,23 @@ class _EventScreenState extends State<EventScreen> {
                 Get.to(() => const NotificationScreen());
               },
               child: SvgPicture.asset(AssetsPics.notificationIcon)),
+          const SizedBox(width: 10),
+          GestureDetector(
+              onTap: () {
+                FocusManager.instance.primaryFocus?.unfocus();
+                customDialogBoxFilter(context, whiteTap: () {
+                  Get.back();
+                  date1 = "Select Date ";
+                  date2 = "Select Date ";
+                  LocaleHandler.miliseconds=0;
+                  getEvents();
+                }, blueTap: () {
+                  Get.back();
+                  setState(() {LoaderOverlay.show(context);});
+                  getEvents();
+                });
+              },
+              child: SvgPicture.asset(AssetsPics.FilterCircle)),
         ],
       ),
     );
@@ -1374,9 +1335,14 @@ class _EventScreenState extends State<EventScreen> {
   void callNavigation(dynamic item, int i) {
     // age = 18;
     if (age >= item[i]["minAge"] && age <= item[i]["maxAge"] && userData["sexuality"]==item[i]["gender"] ) {
-      Get.to(() => EvenetFreeScreen(eventId: item[i]["eventId"]))!.then((value) {setState(() {});});
-    } else {
-      // Fluttertoast.showToast(msg: "You do not meet the requirements for this event");
+       Get.to(() => EvenetFreeScreen(eventId: item[i]["eventId"]))!.then((value) {setState(() {});});}
+       else if((userData["sexuality"]=="bisexual" || userData["sexuality"]=="straight")
+        && (item[i]["gender"]=="bisexual" || item[i]["gender"]=="straight")
+        && (age >= item[i]["minAge"] && age <= item[i]["maxAge"]))
+
+      {Get.to(() => EvenetFreeScreen(eventId: item[i]["eventId"]))!.then((value) {setState(() {});});}
+
+       else {// Fluttertoast.showToast(msg: "You do not meet the requirements for this event");
       showToastMsg("You do not meet the requirements for this event");
     }
   }
@@ -1441,6 +1407,7 @@ class _EventScreenState extends State<EventScreen> {
           cursorColor: color.txtBlue,
           autovalidateMode: auto,
           validator: validation,
+          style: const TextStyle(fontFamily: FontFamily.hellix, fontSize: 17),
           decoration: InputDecoration(
               errorStyle: const TextStyle(height: 0, fontSize: 12),
               border: InputBorder.none,
@@ -1458,6 +1425,51 @@ class _EventScreenState extends State<EventScreen> {
       ),
     );
   }
+// todo search textfild
+/*  Widget searchContainer() {
+    return Padding(
+      padding: const EdgeInsets.only(left: 15, right: 15, top: 0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          buildContainer("Search Location", locationController,
+            AutovalidateMode.onUserInteraction, locationNode,
+            onChanged: (text) {
+              LocaleHandler.location = locationController.text.trim();
+              // _searchLocations(text);
+            },
+            gesture: GestureDetector(
+                onTap: () {
+                  FocusManager.instance.primaryFocus?.unfocus();
+                  customDialogBoxFilter(context, whiteTap: () {
+                    Get.back();
+                    date1 = "Select Date ";
+                    date2 = "Select Date ";
+                    LocaleHandler.miliseconds=0;
+                    getEvents();
+                  }, blueTap: () {
+                    Get.back();
+                    setState(() {LoaderOverlay.show(context);});
+                    getEvents();
+                  });
+                },
+                child: Container(
+                    padding: const EdgeInsets.only(top: 5),
+                    height: 20,
+                    width: 30,
+                    alignment: Alignment.center,
+                    child: SvgPicture.asset(AssetsPics.filterIcon))),
+            preImg: GestureDetector(
+                child: Container(
+                    padding: const EdgeInsets.only(top: 5),
+                    height: 20, width: 30,
+                    alignment: Alignment.center,
+                    child: SvgPicture.asset(AssetsPics.magniferIcon))),
+          ),
+        ],
+      ),
+    );
+  }*/
 }
 
 class CircleAvatarItems {

@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:flutter/gestures.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:camera/camera.dart';
 import 'package:http/http.dart'as http;
@@ -15,7 +16,6 @@ import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/localkeys.dart';
-import 'package:slush/constants/prefs.dart';
 import 'package:slush/controller/edit_profile_controller.dart';
 import 'package:slush/controller/login_controller.dart';
 import 'package:slush/controller/profile_controller.dart';
@@ -24,12 +24,14 @@ import 'package:slush/screens/profile/spark_purchase.dart';
 import 'package:slush/screens/profile/view_profile.dart';
 import 'package:slush/screens/setting/settings_screen.dart';
 import 'package:slush/screens/subscritption/subscription_screen1%203.dart';
+import 'package:slush/services/IAPurchase.dart';
 import 'package:slush/widgets/blue_button.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
 import 'package:slush/widgets/customtoptoaster.dart';
 import 'package:slush/widgets/text_widget.dart';
 import 'package:slush/widgets/toaster.dart';
 import 'package:video_player/video_player.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class UserProfileScreen extends StatefulWidget {
   const UserProfileScreen({Key? key}) : super(key: key);
@@ -38,6 +40,10 @@ class UserProfileScreen extends StatefulWidget {
 }
 
 class _UserProfileScreenState extends State<UserProfileScreen> {
+  late profileController profileCntrl;
+  late profileController profileWatcher;
+
+  List<ProductDetails> _products = [];
   List<ListItem> item = [
     ListItem(1, AssetsPics.verifyWhite, "Get verified", LocaleText.des, color.txtGetVeirfy),
     ListItem(2, AssetsPics.star, "Spark", LocaleText.des2, color.darkPink)];
@@ -47,35 +53,14 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
 
   @override
   void initState() {
-    Provider.of<profileController>(context,listen: false).profileData(context);
-    _initialize();
+    profileCntrl=Provider.of<profileController>(context,listen: false);
+
+    profileCntrl.profileData(context);
+    getInAppPurchaseDetails();
     super.initState();
   }
 
-  final InAppPurchase _iap = InAppPurchase.instance;
-  bool _available = true;
-  List<ProductDetails> _products = [];
-  Future<void> _initialize() async {
-    final bool isAvailable = await _iap.isAvailable();
-    _available = isAvailable;
-    if (_available) {
-      // const Set<String> _kIds = {'silversubscription','goldsubscription','platinumsubscription'};
-      const Set<String> _kIds = {'silversubscription'};
-      final ProductDetailsResponse response = await _iap.queryProductDetails(_kIds);
-      setState(() {_products = response.productDetails;});
-      if (response.notFoundIDs.isNotEmpty && response.error == null) {
-        print('Products not found: ${response.notFoundIDs}');
-      }
-    }
-  }
-
-  int calculateAge(String dobString) {
-    DateTime dob = DateTime.parse(dobString);
-    DateTime now = DateTime.now();
-    int age = now.year - dob.year;
-    if (now.month < dob.month || (now.month == dob.month && now.day < dob.day)) {age--;}
-    return age;
-  }
+  void getInAppPurchaseDetails()async{_products=await IAPurchases().initialize();}
 
   Future<void>? _initializeVideoPlayerFuture;
 
@@ -86,13 +71,13 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
     await _controller.initialize();
     customDialogBoxVideo(context,"I’m ready",getControl);
     if (!mounted) {return;}
-    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
     final getControl=Provider.of<loginControllerr>(context,listen: false);
     final size=MediaQuery.of(context).size;
+    print(size.height);
     return Scaffold(
       body:Consumer<profileController>(builder: (ctx,val,child){
         return val.dataa.isEmpty ?const Center(child: CircularProgressIndicator(color: color.txtBlue)): Stack(children: [
@@ -112,11 +97,6 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             const Spacer(),
                             GestureDetector(
                                 onTap: ()async{
-                                  LocaleHandler.switchitem=await Preferences.getList();
-                                  print(";-;-;-${LocaleHandler.switchitem}");
-                                  if(LocaleHandler.switchitem.isEmpty){
-                                    LocaleHandler.switchitem=["1","2","3","4"];
-                                  }
                                   Get.to(()=>const SettingsScreen());
                                 }
                                 ,child: SvgPicture.asset(AssetsPics.setting))
@@ -128,7 +108,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Flexible(child: buildTextOverFlow(val.dataa['firstName']==null?"":"${val.dataa["firstName"]??""}", 28, FontWeight.w600, color.txtBlack)),
-                            Flexible(child: buildTextOverFlow(", ${val.dataa['dateOfBirth']==null?"":calculateAge(val.dataa['dateOfBirth']??"")}", 28, FontWeight.w600, color.txtBlack)),
+                            Flexible(child: buildTextOverFlow(", ${val.dataa['dateOfBirth']==null?"":ProfileScreenFunction().calculateAge(val.dataa['dateOfBirth']??"")}", 28, FontWeight.w600, color.txtBlack)),
                              const SizedBox(width: 5),
                             SvgPicture.asset(LocaleHandler.isVerified?AssetsPics.verifywithborder:AssetsPics.verifygrey)
                           ],),
@@ -188,7 +168,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                         )
                       ],),),
                     SizedBox(height: 3.h),
-                    LocaleHandler.sparkAndVerification || LocaleHandler.isVerified ? const SizedBox() : SizedBox(
+                     LocaleHandler.isVerified ? const SizedBox() : SizedBox(
                       // height: 12.h,
                       height:MediaQuery.of(context).size.height/8,
                       child: ListView.builder(
@@ -210,9 +190,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                       onTap: (){
                                         Get.back();
                                         _initializeCamera(getControl);
-                                        /*  Future.delayed(Duration(seconds: 1),(){
-                                customDialogBoxVideo(context,"I’m ready",getControl);
-                              });*/
+                                          // Future.delayed(Duration(seconds: 1),(){customDialogBoxVideo(context,"I’m ready",getControl);});
                                       });
                                 }else if(item[index].Id==2){
                                   Get.to(()=> const SparkPurchaseScreen())?.then((value) {
@@ -233,8 +211,8 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                             buildText("Slush Subscription", 20, FontWeight.w600, color.txtBlack),
                             // SizedBox(height: 2.h),
                             subScriptionOption(context,val),
-                            // SizedBox(height: 2.h+2),
-                            white_button_woBorder(context, "View more",press: (){Get.to(()=>const Subscription1());}),
+                            SizedBox(height: size.height>750.0?size.width*0.05: 0),
+                            clrchangeBUtton(context, "Upgrade",press: (){Get.to(()=>const Subscription1());}),
                           ],
                         )),
                   ],),
@@ -273,7 +251,7 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                                     Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        buildText( item[index].title, 17, FontWeight.w600, color.txtWhite),
+                                        buildText(item[index].title, 17, FontWeight.w600, color.txtWhite),
                                         SizedBox(width: size.width/1.2-2.h-3,
                                             child: buildText( item[index].description, 15, FontWeight.w500, color.txtWhite,fontFamily: FontFamily.hellix))
                                       ],)],),
@@ -292,119 +270,136 @@ class _UserProfileScreenState extends State<UserProfileScreen> {
                       child: Stack(
                         alignment: Alignment.center,
                         children: [
-                         /* Row(children: [
-                            GestureDetector(
-                              onTap: (){prfileControl.setSelectedIndex(1);},
-                              child: buildContainer(context,"Gold", "£19.99"),
+                          // Row(children: [
+                          //   GestureDetector(
+                          //     onTap: (){prfileControl.setSelectedIndex(1);},
+                          //     child: buildContainer(context,"Gold", "£19.99"),
+                          //   ),
+                          //   GestureDetector(
+                          //     onTap: (){prfileControl.setSelectedIndex(2);},
+                          //     child: buildContainer(context, "Silver", "£9.99"),
+                          //   ),
+                          //   GestureDetector(
+                          //     onTap: (){prfileControl.setSelectedIndex(3);},
+                          //     child: buildContainer(context, "Platinum", "£29.99"),
+                          //   ),
+                          // ],),
+                          Container(
+                            // height: 185 ,
+                            height: MediaQuery.of(context).size.width*0.4-28 ,
+                            // width: MediaQuery.of(context).size.width/2.9,
+                            width: MediaQuery.of(context).size.width,
+                            decoration: BoxDecoration(color: Colors.transparent ,
+                                border: Border.all(color: color.example3),
+                                borderRadius: BorderRadius.circular(12)
                             ),
-                            GestureDetector(
-                              onTap: (){prfileControl.setSelectedIndex(2);},
-                              child: buildContainer(context, "Silver", "£9.99"),
-                            ),
-                            GestureDetector(
-                              onTap: (){prfileControl.setSelectedIndex(3);},
-                              child: buildContainer(context, "Platinum", "£29.99"),
-                            ),
-                          ],),*/
-                          val.selectedIndex==2? GestureDetector(
-                            onTap: () {
-                              prfileControl.setSelectedIndex(2);
-                            },
-                            child: Container(
-                              // height: 185 ,
-                              height: MediaQuery.of(context).size.width*0.4-28 ,
-                              // width: MediaQuery.of(context).size.width/2.9,
-                              width: MediaQuery.of(context).size.width,
-                              decoration: BoxDecoration(color: color.txtBlue ,
-                                  border: Border.all(color: color.example3),
-                                  borderRadius: BorderRadius.circular(12)
-                              ),
-                              child: Row(
+                            child: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                               children: [
-                                SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",height: 40),
+                                // SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",height: 40),
                                 // Spacer(),
                                 Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
                                     // SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
-                                    buildText("Slush", 25, FontWeight.w600, color.txtWhite ),
-                                    buildText("Silver", 25, FontWeight.w600,color.txtWhite ),
-                                    const SizedBox(height: 6),
+                                    // buildText("Slush Silver", 25, FontWeight.w600, color.txtWhite ),
+                                    buildText(_products.isEmpty?"...":_products[0].title, 15, FontWeight.w600, color.txtBlack ),
+                                    // buildText("1 month subscription plan", 25, FontWeight.w600,color.txtWhite ),
+                                    buildText(_products.isEmpty?"...":_products[0].description, 15, FontWeight.w600,color.txtBlack ),
+                                    const SizedBox(height: 2),
                                     // buildText("£9.99", 25, FontWeight.w600, color.txtWhite ),
-                                    buildText(_products.isEmpty?"...": _products[0].price.toString(), 25, FontWeight.w600, color.txtWhite ),
+                                    buildText(_products.isEmpty?"...":"${_products[0].price}", 15, FontWeight.w600, color.txtBlack ),
+                                    // buildText("privacy policy", 25, FontWeight.w600,color.txtWhite ),
+                                    Text.rich(textAlign: TextAlign.center,
+                                      TextSpan(
+                                        children: <TextSpan>[
+                                          TextSpan(text: 'Privacy Policy', style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w500, color: color.txtBlack,fontFamily:FontFamily.hellix,
+                                              decoration: TextDecoration.underline,decorationColor: color.txtBlack,decorationThickness: 1),
+                                              recognizer: TapGestureRecognizer()..onTap=() async {
+                                                var url = Uri.parse('https://www.slushdating.com/privacy-policy');
+                                                if (await canLaunchUrl(url)) {await launchUrl(url, mode: LaunchMode.inAppWebView);}
+                                                else {throw 'Could not launch $url';}}),
+                                          TextSpan(text: ' and ', style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w500, color: color.txtBlack,fontFamily:FontFamily.hellix ),),
+                                          TextSpan(text: 'Terms & Conditions', style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w500, color:color.txtBlack,fontFamily:FontFamily.hellix,
+                                              decoration: TextDecoration.underline,decorationColor: color.txtBlack,decorationThickness: 1),
+                                              recognizer: TapGestureRecognizer()..onTap=() async {
+                                                var url = Uri.parse('https://www.slushdating.com/terms-of-use');
+                                                if (await canLaunchUrl(url)) {await launchUrl(url, mode: LaunchMode.inAppWebView);}
+                                                else {throw 'Could not launch $url';}}),
+                                        ],
+                                      ),
+                                    ),
                                   ],
                                 ),
-                                SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",height: 40),
+                                // SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",height: 40),
                               ],
                             ),
 
-                              /*Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
-                                  buildText("Slush", 20, FontWeight.w600, color.txtWhite ),
-                                  // buildText("Gold", 20, FontWeight.w600,color.txtWhite ),
-                                  buildText("Silver", 20, FontWeight.w600,color.txtWhite ),
-                                  const SizedBox(height: 10,),
-                                  // buildText("£19.99", 20, FontWeight.w600, color.txtWhite ),
-                                  buildText("£9.99", 20, FontWeight.w600, color.txtWhite ),
-                                ],
-                              )*/
-                            ),
-                          ):const SizedBox(),
-                       /*   Positioned(
-                            bottom:Platform.isAndroid ? val.selectedIndex == 2 ? 0 : 8.0 :val.selectedIndex == 2 ? 11 : 22,
-                            child: Container(
-                              alignment: Alignment.center,
-                              height: 22,
-                              width: 82,
-                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(6),
-                                  color: val.selectedIndex == 2 ? color.txtWhite : color.txtBlue),
-                              child: buildText("Popular", 13, FontWeight.w600,val.selectedIndex == 2 ? color.txtBlue : color.txtWhite,fontFamily: FontFamily.hellix),
-                            ),
-                          ),*/
-                         /* val.selectedIndex==1? Positioned(
-                            left: 0.0,
-                            child: Container(
-                              height: 185 ,
-                              width: MediaQuery.of(context).size.width/3.1,
-                              decoration: BoxDecoration(color: color.txtBlue , border: Border.all(color: color.example3), borderRadius: BorderRadius.circular(12)),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
-                                  buildText("Slush", 20, FontWeight.w600, color.txtWhite ),
-                                  // buildText("Silver", 20, FontWeight.w600,color.txtWhite ),
-                                  buildText("Gold", 20, FontWeight.w600,color.txtWhite ),
-                                  const SizedBox(height: 10,),
-                                  // buildText("£9.99", 20, FontWeight.w600, color.txtWhite ),
-                                  buildText("£19.99", 20, FontWeight.w600, color.txtWhite ),
-                                ],
-                              ),
-                            ),
-                          ):const SizedBox(),
-                          val.selectedIndex==3? Positioned(
-                            right: 0.0,
-                            child: Container(
-                              height: 185 ,
-                              width: MediaQuery.of(context).size.width/3.1,
-                              decoration: BoxDecoration(color: color.txtBlue ,
-                                  border: Border.all(color: color.example3),
-                                  borderRadius: BorderRadius.circular(12)
-                              ),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
-                                  buildText("Slush", 20, FontWeight.w600, color.txtWhite ),
-                                  buildText("Platinum", 20, FontWeight.w600,color.txtWhite ),
-                                  const SizedBox(height: 10,),
-                                  buildText("£29.99", 20, FontWeight.w600, color.txtWhite ),
-                                ],
-                              ),
-                            ),
-                          ):const SizedBox(),*/
+                            // Column(
+                            //     mainAxisAlignment: MainAxisAlignment.center,
+                            //     children: [
+                            //       SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
+                            //       buildText("Slush", 20, FontWeight.w600, color.txtWhite ),
+                            //       // buildText("Gold", 20, FontWeight.w600,color.txtWhite ),
+                            //       buildText("Silver", 20, FontWeight.w600,color.txtWhite ),
+                            //       const SizedBox(height: 10,),
+                            //       // buildText("£19.99", 20, FontWeight.w600, color.txtWhite ),
+                            //       buildText("£9.99", 20, FontWeight.w600, color.txtWhite ),
+                            //     ],
+                            //   )
+                          ),
+                          // Positioned(
+                          //   bottom:Platform.isAndroid ? val.selectedIndex == 2 ? 0 : 8.0 :val.selectedIndex == 2 ? 11 : 22,
+                          //   child: Container(
+                          //     alignment: Alignment.center,
+                          //     height: 22,
+                          //     width: 82,
+                          //     decoration: BoxDecoration(borderRadius: BorderRadius.circular(6),
+                          //         color: val.selectedIndex == 2 ? color.txtWhite : color.txtBlue),
+                          //     child: buildText("Popular", 13, FontWeight.w600,val.selectedIndex == 2 ? color.txtBlue : color.txtWhite,fontFamily: FontFamily.hellix),
+                          //   ),
+                          // ),
+                          // val.selectedIndex==1? Positioned(
+                          //   left: 0.0,
+                          //   child: Container(
+                          //     height: 185 ,
+                          //     width: MediaQuery.of(context).size.width/3.1,
+                          //     decoration: BoxDecoration(color: color.txtBlue , border: Border.all(color: color.example3), borderRadius: BorderRadius.circular(12)),
+                          //     child: Column(
+                          //       mainAxisAlignment: MainAxisAlignment.center,
+                          //       children: [
+                          //         SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
+                          //         buildText("Slush", 20, FontWeight.w600, color.txtWhite ),
+                          //         // buildText("Silver", 20, FontWeight.w600,color.txtWhite ),
+                          //         buildText("Gold", 20, FontWeight.w600,color.txtWhite ),
+                          //         const SizedBox(height: 10,),
+                          //         // buildText("£9.99", 20, FontWeight.w600, color.txtWhite ),
+                          //         buildText("£19.99", 20, FontWeight.w600, color.txtWhite ),
+                          //       ],
+                          //     ),
+                          //   ),
+                          // ):const SizedBox(),
+                          // val.selectedIndex==3? Positioned(
+                          //   right: 0.0,
+                          //   child: Container(
+                          //     height: 185 ,
+                          //     width: MediaQuery.of(context).size.width/3.1,
+                          //     decoration: BoxDecoration(color: color.txtBlue ,
+                          //         border: Border.all(color: color.example3),
+                          //         borderRadius: BorderRadius.circular(12)
+                          //     ),
+                          //     child: Column(
+                          //       mainAxisAlignment: MainAxisAlignment.center,
+                          //       children: [
+                          //         SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
+                          //         buildText("Slush", 20, FontWeight.w600, color.txtWhite ),
+                          //         buildText("Platinum", 20, FontWeight.w600,color.txtWhite ),
+                          //         const SizedBox(height: 10,),
+                          //         buildText("£29.99", 20, FontWeight.w600, color.txtWhite ),
+                          //       ],
+                          //     ),
+                          //   ),
+                          // ):const SizedBox(),
                         ],
                       ),
                     );

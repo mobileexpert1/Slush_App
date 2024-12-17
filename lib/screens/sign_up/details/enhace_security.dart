@@ -116,7 +116,6 @@ class _DetailEhanceSecurityState extends State<DetailEhanceSecurity> {
             if(confPasswordController.text==""){
               setState(() {
                 cpasswordErrorText="";
-                LocaleHandler.password=passwordController.text.trim();
               });
               LocaleHandler.cpassMatched=false;
             }
@@ -192,6 +191,7 @@ class _DetailEhanceSecurityState extends State<DetailEhanceSecurity> {
           autovalidateMode: auto,
           // validator: validation,
           onChanged: validation,
+          style: const TextStyle(fontFamily: FontFamily.hellix, fontSize: 17),
           decoration: InputDecoration(
             errorStyle: const TextStyle(height: 0, fontSize: 12),
             border: InputBorder.none,

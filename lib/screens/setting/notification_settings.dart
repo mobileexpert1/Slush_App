@@ -79,11 +79,9 @@ class _NotificationSettingsState extends State<NotificationSettings> {
                                   if(LocaleHandler.switchitem.contains(notificationSetting[index].Id.toString())){
                                     notificationSetting[index].val = false;
                                     LocaleHandler.switchitem.remove(notificationSetting[index].Id.toString());
-                                    Preferences.setList(LocaleHandler.switchitem);
                                   }else{
                                     notificationSetting[index].val = true;
                                     LocaleHandler.switchitem.add(notificationSetting[index].Id.toString());
-                                    Preferences.setList(LocaleHandler.switchitem);
                                   }
                                 });
 

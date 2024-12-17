@@ -21,6 +21,7 @@ import 'package:slush/constants/api.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/loader.dart';
+import 'package:slush/controller/chat_controller.dart';
 import 'package:slush/controller/spark_Liked_controler.dart';
 import 'package:slush/screens/chat/socket_service.dart';
 import 'package:slush/screens/matches/matched_person_profile.dart';
@@ -105,6 +106,12 @@ class _TextChatScreenState extends State<TextChatScreen> {
         totalpages=i["meta"]["totalPages"];
         totalItems=i["meta"]["totalItems"];
         currentpage=i["meta"]["currentPage"];
+
+        if(dataa[0]["sender"]["userId"] == widget.id){
+          Provider.of<ChatController>(context, listen: false).getChatPersonImage(dataa[0]["sender"]["profilePictures"][0]["key"]);
+        }else{
+          Provider.of<ChatController>(context, listen: false).getChatPersonImage(dataa[0]["receiver"]["profilePictures"][0]["key"]);
+        }
         // }
       }
       else if(response.statusCode==401){showToastMsgTokenExpired();}
@@ -377,7 +384,7 @@ class _TextChatScreenState extends State<TextChatScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       // appBar: commonBarWithTextleftforChat(context, Colors.white,data==null ?_data: data["items"][0]["sender"]["firstName"], press2: (){
-      appBar: commonBarWithTextleftforChat(context, Colors.white,widget.name,press:(){ Get.back(result: false);}, press2: (){
+      appBar: commonBarWithTextleftforChat(context, Colors.white,widget.name,context.read<ChatController>().image,press:(){ Get.back(result: false);}, press2: (){
         customBuilderSheet(context, 'Report User',"Submit",reportingMatter,onTap: (){
           Get.back(result: true);
           reportUser(reportingMatter[selectedIndex]);},);
@@ -540,6 +547,7 @@ class _TextChatScreenState extends State<TextChatScreen> {
                                       });
                                     },
                                     focusNode: chatTextField,
+                                    style: const TextStyle(fontFamily: FontFamily.hellix, fontSize: 17),
                                     decoration: const InputDecoration(
                                         contentPadding: EdgeInsets.only(left: 15,top: 3),
                                         hintText: "Write a message",

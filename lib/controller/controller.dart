@@ -1,8 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'package:cached_network_image/cached_network_image.dart';
-
-// import 'package:chewie/chewie.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
@@ -13,7 +10,6 @@ import 'package:slush/constants/api.dart';
 import 'package:slush/constants/image.dart';
 import 'package:slush/constants/loader.dart';
 import 'package:slush/controller/chat_controller.dart';
-import 'package:slush/screens/feed/tutorials/controller_class.dart';
 import 'package:slush/widgets/bottom_sheet.dart';
 import 'package:video_player/video_player.dart';
 import '../ad_manager.dart';
@@ -303,8 +299,7 @@ class ReelController with ChangeNotifier {
     notifyListeners();
   }
 
-  Future loadmore(BuildContext context, int i, int minage, int maxage,
-      int distance, String lat, String lon, String gender) async {
+  Future loadmore(BuildContext context, int i, int minage, int maxage, int distance, String lat, String lon, String gender) async {
     pages = pages + 1;
     final reelcntrol = Provider.of<ReelController>(context, listen: false);
     final url =
@@ -499,4 +494,6 @@ class ReelController with ChangeNotifier {
     // if(videoPlayerController[_indexid].value.isInitialized){_intilized=false;} else{_intilized=true;}
     notifyListeners();
   }
+
+  //- not use
 }

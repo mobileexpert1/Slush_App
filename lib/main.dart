@@ -1,12 +1,15 @@
-import 'package:aws_rekognition_api/rekognition-2016-06-27.dart';
+import 'dart:io';
+import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'package:in_app_purchase/in_app_purchase.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter/services.dart';
 import 'package:get/get.dart';
 import 'package:responsive_sizer/responsive_sizer.dart';
+import 'package:slush/constants/api.dart';
 import 'package:slush/firebase_option.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:slush/screens/splash/splash.dart';
@@ -22,19 +25,21 @@ Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {p
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(name: 'virtual-speed-date-325915', options: DefaultFirebaseOptions.currentPlatform);
-  await SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
-  await UniServices.init();
-  // OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
-  // if(Platform.isAndroid){OneSignal.initialize("482a292e-4c3a-48f0-ad0b-8b0f4b653fd8");}
-  // else{OneSignal.initialize("4cee1d81-6350-4319-970d-3421754c0fa7");}
-  // OneSignal.Notifications.requestPermission(true);
-  // OneSignal.User.pushSubscription.optIn();
-  await InAppPurchase.instance.restorePurchases();
+  FirebaseAnalytics.instance.setAnalyticsCollectionEnabled(true);
+  FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance);
+  SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
+  UniServices.init();
+  OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
+  if(Platform.isAndroid){OneSignal.initialize(ApiList.android);}
+  else{OneSignal.initialize(ApiList.ios);}
+  OneSignal.Notifications.requestPermission(true);
+  OneSignal.User.pushSubscription.optIn();
+  InAppPurchase.instance.restorePurchases();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
-  await MobileAds.instance.initialize();
-  await WakelockPlus.enable();
+  MobileAds.instance.initialize();
+  WakelockPlus.enable();
   // FirebaseLocalNotification.initMessaging();
-  final service = Rekognition(region: 'eu-west-2');
+  // final service = Rekognition(region: 'eu-west-2');
   runApp(const MyApp());
 }
 

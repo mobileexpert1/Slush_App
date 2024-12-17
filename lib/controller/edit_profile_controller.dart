@@ -210,6 +210,7 @@ import 'package:http_parser/http_parser.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
 import 'package:slush/controller/camera_screen.dart';
@@ -244,7 +245,7 @@ class editProfileController extends ChangeNotifier{
   bool _trimmerstrt=false;
   bool _progressVisibility = false;
   double _startValue = 0.0;
-  double _endValue = 0.0;
+  double _endValue = 15.0;
   bool isPlaying = false;
 
   List<BasicInfoclass> _basicInfo=[];
@@ -653,6 +654,7 @@ class editProfileController extends ChangeNotifier{
     galleryFile = File(file!.path);
     UploadVideo( context,galleryFile!);
     Get.back();
+    galleryFile=null;
   }
 
   void cancelrecording()async{
@@ -672,13 +674,17 @@ class editProfileController extends ChangeNotifier{
     return '${minutes.toString().padLeft(2, '0')}:${remainingSeconds.toString().padLeft(2, '0')}';
   }
 
-  void callVideoRecordFunction(BuildContext context, ImageSource img){
+  void callVideoRecordFunction(BuildContext context, ImageSource, String picId,int i){
+    _imgindex=i;
+    PictureId=picId;
     if(Platform.isAndroid){_initializeCamera(context);
     // getVideo(context,ImageSource.camera);
-    } else{ getVideo(context,ImageSource.camera); }
+    } else{ getVideo(context,ImageSource.camera,PictureId,_imgindex); }
   }
 
-  Future getVideo(BuildContext context, ImageSource img) async {
+  Future getVideo(BuildContext context, ImageSource img,String picId,int i) async {
+    _imgindex=i;
+    PictureId=picId;
     print(trimmer);
     if(galleryFile!=null){controller!.pause();   notifyListeners();}
     const allowedTimeLimit = Duration(seconds: 16);
@@ -725,8 +731,9 @@ class editProfileController extends ChangeNotifier{
         debugPrint('OUTPUT PATH: $trimmer.currentVideoFile!.path');
         trimmer.currentVideoFile;
         _trimmerstrt=false;
-        _controller4 = VideoPlayerController.file(File(trimmer.currentVideoFile!.path))..initialize().then((_) {
-          galleryFile=File(trimmer.currentVideoFile!.path);
+        // _controller4 = VideoPlayerController.file(File(trimmer.currentVideoFile!.path))..initialize().then((_) {
+        _controller4 = VideoPlayerController.file(File(outputPath!))..initialize().then((_) {
+          galleryFile=File(outputPath);
           UploadVideo(context,galleryFile!);
           notifyListeners();
         });
@@ -738,7 +745,12 @@ class editProfileController extends ChangeNotifier{
     notifyListeners();
   }
 
+  bool _imgLoad=false;
+  bool get imgLoad => _imgLoad;
+
   Future UploadVideo(BuildContext context,File video) async {
+    _imgLoad=true;
+    notifyListeners();
     const url = ApiList.uploadVideo;
     var uri = Uri.parse(url);
     var request = http.MultipartRequest('POST', uri);
@@ -757,10 +769,13 @@ class editProfileController extends ChangeNotifier{
     final respStr = await response.stream.bytesToString();
     print("respStr");
     print(respStr);
+    _imgLoad=false;
+    notifyListeners();
     if (response.statusCode == 201) {
       _trimmerstrt=false;
-      Get.back();
+      if(PictureId!="-1"){DestroyVideo(context,int.parse(PictureId));}
       profileData(context);
+      _controller4!.dispose();
     } else if (response.statusCode == 401) {
       showToastMsgTokenExpired();
     } else {}
@@ -840,6 +855,7 @@ class editProfileController extends ChangeNotifier{
 
 
   int _imgindex=0;
+  int get imgindex=>_imgindex;
   bool _showNetImg1=false;
   bool  get  showNetImg1=>_showNetImg1;
   bool _showNetImg2=false;

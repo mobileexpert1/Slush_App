@@ -91,8 +91,6 @@ class _EvenetFreeScreenState extends State<EvenetFreeScreen> {
             LocaleHandler.userId) {
           setState(() {
             isParticipant = true;
-            LocaleHandler.participant =
-                data["participants"][i]["participantId"];
           });
           print(isParticipant);
           break;

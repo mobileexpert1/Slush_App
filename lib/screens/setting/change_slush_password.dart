@@ -297,6 +297,7 @@ class _ChangePasswordState extends State<ChangePassword> {
           autovalidateMode: auto,
           validator: validation,
           onChanged: (val) {},
+          style: const TextStyle(fontFamily: FontFamily.hellix, fontSize: 17),
           decoration: InputDecoration(
             errorStyle: const TextStyle(height: 0, fontSize: 12),
             border: InputBorder.none,

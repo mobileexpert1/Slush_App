@@ -7,7 +7,9 @@ import 'package:http/http.dart' as http;
 import 'package:local_auth/local_auth.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
+import 'package:slush/constants/prefs.dart';
 import 'package:slush/screens/login/login.dart';
+import 'package:slush/screens/waiting_room/waiting_completed_screen.dart';
 
 class SplashController extends ChangeNotifier {
   final LocalAuthentication auth = LocalAuthentication();
@@ -79,6 +81,7 @@ class SplashController extends ChangeNotifier {
         LocaleHandler.subscriptionPurchase = data["data"]["isSubscriptionPurchased"] ?? "no";
         _age = calculateAge(data["data"]["dateOfBirth"].toString());
         LocaleHandler.isVerified = data["data"]["isVerified"] ?? false;
+        checkRemainingEvent();
       } else if (response.statusCode == 401) {
         Get.offAll(() => const LoginScreen());
       } else {
@@ -99,4 +102,42 @@ class SplashController extends ChangeNotifier {
     }
     return age;
   }
+
+
+  bool _eventJoined=false;
+  bool get eventJoined=>_eventJoined;
+  String _eventName="";
+  String _eventId="";
+
+  void checkRemainingEvent()async{
+    _eventName= await Preferences.getValue("eventjoined") ?? "";
+    // _eventJoined=_eventName=="yes";
+    _eventId= await Preferences.getValue("eventID") ?? "";
+    notifyListeners();
+  }
+
+  void removeData()async{
+    await Preferences.setValue("eventjoined","no");
+    await Preferences.setValue("eventID","");
+    _eventName="";
+    _eventJoined=false;
+    _eventId="";
+    notifyListeners();
+  }
+
+  Future rejoinedeventrequest() async {
+    print(LocaleHandler.accessToken);
+    final url = ApiList.eventDetail + _eventId;
+    print(url);
+    var uri = Uri.parse(url);
+    var response = await http.get(uri, headers: {
+      'Content-Type': 'application/json',
+      "Authorization": "Bearer ${LocaleHandler.accessToken}"
+    });
+    var i = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      print(i["data"]);
+      Get.to(()=>WaitingCompletedTerminate(data: i["data"]));
+    }}
+
 }

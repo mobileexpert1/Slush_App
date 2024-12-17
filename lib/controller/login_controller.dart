@@ -146,14 +146,14 @@ class loginControllerr with ChangeNotifier{
     print(url);
     var uri=Uri.parse(url);
     var response=await http.post(uri,headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${LocaleHandler.accessToken}'},
-    body: jsonEncode({
-    // "token": LocaleHandler.fcmToken,
-    "token": OneSignal.User.pushSubscription.token,
-    "deviceId": id,
-    "deviceName": name,
-    "playerId":playerId,
-    "deviceType":devicetype
-    }));
+        body: jsonEncode({
+          // "token": LocaleHandler.fcmToken,
+          "token": OneSignal.User.pushSubscription.token,
+          "deviceId": id,
+          "deviceName": name,
+          "playerId":playerId,
+          "deviceType":devicetype
+        }));
     print("response.statusCode--${response.statusCode}");
     print(jsonDecode(response.body));
     if(response.statusCode==201){
@@ -221,7 +221,8 @@ class loginControllerr with ChangeNotifier{
     notifyListeners();
   }
 
-  Future socialLoginUser( BuildContext context,String type,{required String socialToken,providerName})async{
+  Future socialLoginUser( BuildContext context,String type,{required String socialToken,String providerName=""})async{
+    LoaderOverlay.show(context);
     const url=ApiList.socialLogin;
     print(url);
     var uri=Uri.parse(url);
@@ -245,11 +246,18 @@ class loginControllerr with ChangeNotifier{
       Provider.of<profileController>(context,listen: false).getTotalSparks();
       saveDAta(context,data);
       print(LocaleHandler.accessToken);
-      if (data["data"]["emailVerifiedAt"] == true && data["data"]["nextAction"]=="none") {Get.offAll(() => BottomNavigationScreen());}
+      if (data["data"]["emailVerifiedAt"] == true || data["data"]["nextAction"]=="none") {Get.offAll(() => BottomNavigationScreen());}
       else if(data["data"]["nextAction"]!="none"){
         Provider.of<detailedController>(context,listen: false).setCurrentIndex();
-      LocaleHandler.EditProfile = false;
-      Get.offAll(()=>const DetailScreen());}
+        LocaleHandler.EditProfile = false;
+        Get.offAll(()=>const DetailScreen());}
+      else if(data["data"]["nextAction"]=="fill_firstname"){
+        LocaleHandler.name=providerName;
+        if(LocaleHandler.name!=""){context.read<detailedController>().registerUserDetail(context, "fill_firstname");}
+        Provider.of<detailedController>(context,listen: false).setCurrentIndex();
+        LocaleHandler.EditProfile = false;
+        Get.offAll(()=>const DetailScreen());
+      }
       else{Fluttertoast.showToast(msg: "Please verify the link send to your entered email");}
       initPlatformState();
     }else if(response.statusCode==401){
@@ -260,6 +268,7 @@ class loginControllerr with ChangeNotifier{
       LoaderOverlay.hide();
       Fluttertoast.showToast(msg: data["message"]);
     }
+    LoaderOverlay.hide();
     notifyListeners();
   }
 
@@ -326,6 +335,7 @@ class loginControllerr with ChangeNotifier{
   }
 
   Future<UserCredential?> signInWithGoogle(BuildContext context,GoogleSignIn googleSignIn) async {
+    LoaderOverlay.show(context);
     try {
       final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
       final GoogleSignInAuthentication googleSignInAuthentication = await googleSignInAccount!.authentication;
@@ -337,10 +347,12 @@ class loginControllerr with ChangeNotifier{
       print("\nUser Credentials -- -> ${userCredential}");
       print("\nUser Id -- -> ${googleSignInAuthentication.idToken}");
       print("\nUser Id2 -- -> ${googleSignInAuthentication.accessToken}");
-      socialLoginUser(context,"GOOGLE", socialToken: googleSignInAuthentication.idToken.toString());
+      LoaderOverlay.hide();
+      socialLoginUser(context,"GOOGLE", socialToken: googleSignInAuthentication.idToken.toString(),providerName: user!.displayName.toString()??"");
       final String? idToken = googleSignInAuthentication.idToken;
       // Use the user object for further operations or navigate to a new screen.
     } catch (e) {
+      LoaderOverlay.hide();
       print(e.toString());
     }
     notifyListeners();
@@ -361,7 +373,7 @@ class loginControllerr with ChangeNotifier{
       print(credential.givenName);
       print(credential.familyName);
       LoaderOverlay.show(context);
-      socialLoginUser(context, "APPLE", socialToken: credential.authorizationCode);
+      socialLoginUser(context, "APPLE", socialToken: credential.authorizationCode,providerName:credential.givenName??"");
       if(credential.givenName!=null){
         LocaleHandler.name=credential.givenName!.toString();
       }
@@ -381,13 +393,13 @@ class loginControllerr with ChangeNotifier{
       if (kIsWeb) {deviceData = _readWebBrowserInfo(await deviceInfoPlugin.webBrowserInfo);
       } else {
         deviceData = switch (defaultTargetPlatform) {
-        TargetPlatform.android =>_readAndroidBuildData(await deviceInfoPlugin.androidInfo),
-    TargetPlatform.iOS =>_readIosDeviceInfo(await deviceInfoPlugin.iosInfo),
-    TargetPlatform.linux =>_readLinuxDeviceInfo(await deviceInfoPlugin.linuxInfo),
-    TargetPlatform.windows =>_readWindowsDeviceInfo(await deviceInfoPlugin.windowsInfo),
-    TargetPlatform.macOS =>_readMacOsDeviceInfo(await deviceInfoPlugin.macOsInfo),
-    TargetPlatform.fuchsia => <String, dynamic>{'Error:': 'Fuchsia platform isn\'t supported'},
-    };}} on PlatformException {
+          TargetPlatform.android =>_readAndroidBuildData(await deviceInfoPlugin.androidInfo),
+          TargetPlatform.iOS =>_readIosDeviceInfo(await deviceInfoPlugin.iosInfo),
+          TargetPlatform.linux =>_readLinuxDeviceInfo(await deviceInfoPlugin.linuxInfo),
+          TargetPlatform.windows =>_readWindowsDeviceInfo(await deviceInfoPlugin.windowsInfo),
+          TargetPlatform.macOS =>_readMacOsDeviceInfo(await deviceInfoPlugin.macOsInfo),
+          TargetPlatform.fuchsia => <String, dynamic>{'Error:': 'Fuchsia platform isn\'t supported'},
+        };}} on PlatformException {
       deviceData = <String, dynamic>{'Error:': 'Failed to get platform version.'};
     }
 

@@ -29,13 +29,8 @@ class color{
   static const lightPurpleColor= Color.fromRGBO(223, 225, 245, 1.0);
   static const example4= Color.fromRGBO(239, 230, 243, 1);
   static const darkPink= Color.fromRGBO(171, 89, 185, 1);
-  // static const circleAvatrLightPurple= Color.fromRGBO(40, 80, 255, 0.1);
-  // static const backGroundClr= Color.fromRGBO(249, 251, 255, 1.0);
-  // static const textFormField= Color.fromRGBO(246, 246, 246, 1);
-  // static const txtgrey = Color.fromRGBO(26, 26, 26, 1.0);
 
   // Event People type
-  // static const straight= Color.fromRGBO(0, 0, 0, 1);
   static const straight= Color.fromRGBO(40, 80, 255, 1);
   static const lesbian= Color.fromRGBO(255, 53, 53, 1);
   static const queer= Color.fromRGBO(1, 112, 219, 1);
@@ -54,12 +49,10 @@ class color{
   static const curderGreen= Color.fromRGBO(52,211,153, 1);
   static const darkcrossgrey= Color.fromRGBO(211, 211, 211, 1);
   static const peachColor= Color.fromRGBO(234, 141, 126, 1);
-  // static const logOutRed= Color.fromRGBO(234, 141, 126, 1);
   static const logOutRed= Color(0xffE15C47);
   static const sparkPurple= Color(0xff8A2387);
   static const textFieldColor= Color.fromRGBO(246, 246, 246, 1);
   static const txtgrey3 = Color.fromRGBO(112, 112, 112, 1);
-  // static const txtgrey4 = Color.fromRGBO(171, 171, 171, 1);
   static const txtgrey4 = Color.fromRGBO(239, 240, 246, 1);
   static const example10= Color.fromRGBO(255, 255, 255, 0.15);
 

@@ -35,6 +35,7 @@ class profileController extends ChangeNotifier {
         dataa.clear();
         var data = jsonDecode(response.body);
         dataa = data["data"];
+        LocaleHandler.userId = dataa["userId"].toString();
         LocaleHandler.dataa = dataa;
         LocaleHandler.isVerified=LocaleHandler.dataa["isVerified"]??false;
         // percantage();
@@ -42,6 +43,7 @@ class profileController extends ChangeNotifier {
         getTotalSparks();
         LocaleHandler.isLikedTabUpdate=data["data"]["isLikedTabUpdate"];
         Provider.of<ChatController>(context,listen: false).getUnreadChat(data["data"]["unreadMsgCount"]!="0");
+        notificationManagement();
       } else if (response.statusCode == 401) {
         showToastMsgTokenExpired();
         print('Token Expire:::::::::::::');
@@ -55,44 +57,12 @@ class profileController extends ChangeNotifier {
     notifyListeners();
   }
 
-  void percantage() {
-    if (dataa["nextAction"] == "fill_firstname") {
-      value = 0.0;
-    }
-    else if (dataa["nextAction"] == "fill_dateofbirth") {
-      value = 0.1;
-    }
-    else if (dataa["nextAction"] == "fill_height") {
-      value = 0.2;
-    }
-    else if (dataa["nextAction"] == "choose_gender") {
-      value = 0.3;
-    }
-    else if (dataa["nextAction"] == "fill_lookingfor") {
-      value = 0.4;
-    }
-    else if (dataa["nextAction"] == "fill_sexual_orientation") {
-      value = 0.5;
-    }
-    else if (dataa["nextAction"] == "fill_ethnicity") {
-      value = 0.6;
-    }
-    else if (dataa["nextAction"] == "upload_avatar") {
-      value = 0.7;
-    }
-    else if (dataa["nextAction"] == "upload_video") {
-      value = 0.9;
-    }
-    // else if(dataa["nextAction"]=="fill_password"){value=0.0909*11;}
-    else if (dataa["nextAction"] == "none") {
-      value = 1.0;
-    }
-    percent = value * 100;
-    notifyListeners();
-  }
-
-  setSelectedIndex(int value) {
-    selectedIndex = value;
+  void notificationManagement(){
+    LocaleHandler.switchitem.clear();
+    if(dataa["isNewMatchNotification"]){LocaleHandler.switchitem.add("1");}
+    if(dataa["isEventNotification"]){LocaleHandler.switchitem.add("2");}
+    if(dataa["isNewMessageNotification"]){LocaleHandler.switchitem.add("3");}
+    if(dataa["isLikeNotification"]){LocaleHandler.switchitem.add("4");}
     notifyListeners();
   }
 
@@ -198,5 +168,58 @@ class profileController extends ChangeNotifier {
     _accVerfy = true;
     Timer(const Duration(seconds: 7), () {_accVerfy = false;});
     notifyListeners();
+  }
+
+  //- NOt in use
+  void percantage() {
+    if (dataa["nextAction"] == "fill_firstname") {
+      value = 0.0;
+    }
+    else if (dataa["nextAction"] == "fill_dateofbirth") {
+      value = 0.1;
+    }
+    else if (dataa["nextAction"] == "fill_height") {
+      value = 0.2;
+    }
+    else if (dataa["nextAction"] == "choose_gender") {
+      value = 0.3;
+    }
+    else if (dataa["nextAction"] == "fill_lookingfor") {
+      value = 0.4;
+    }
+    else if (dataa["nextAction"] == "fill_sexual_orientation") {
+      value = 0.5;
+    }
+    else if (dataa["nextAction"] == "fill_ethnicity") {
+      value = 0.6;
+    }
+    else if (dataa["nextAction"] == "upload_avatar") {
+      value = 0.7;
+    }
+    else if (dataa["nextAction"] == "upload_video") {
+      value = 0.9;
+    }
+    // else if(dataa["nextAction"]=="fill_password"){value=0.0909*11;}
+    else if (dataa["nextAction"] == "none") {
+      value = 1.0;
+    }
+    percent = value * 100;
+    notifyListeners();
+  }
+
+  setSelectedIndex(int value) {
+    selectedIndex = value;
+    notifyListeners();
+  }
+}
+
+
+class ProfileScreenFunction{
+  int calculateAge(String dobString) {
+    DateTime dob = DateTime.parse(dobString);
+    DateTime now = DateTime.now();
+    int age = now.year - dob.year;
+    if (now.month < dob.month || (now.month == dob.month && now.day < dob.day)) {age--;}
+    return age;
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'package:agora_rtc_engine/agora_rtc_engine.dart';
 import 'package:agora_uikit/agora_uikit.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -73,46 +74,48 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   );
 
   bool _isLoading = true;
+  bool remoteUserJoined = false;
 
   Future<void> initializeAgora() async {
     await OneSignal.User.pushSubscription.optOut();
     setState(() {_isLoading = true;});
     try {
-    await [Permission.camera, Permission.microphone].request();
-    // Initialize the client
-    await client.initialize();
-    await client.engine.muteLocalVideoStream(LocaleHandler.camOn);
-    await client.engine.muteLocalAudioStream(LocaleHandler.micOn);
-    await client.engine.startPreview();
-    client.engine.registerEventHandler(
-      RtcEngineEventHandler(
-        onUserJoined: (connection, remoteUid, elapsed) {
-          print('Remote user $remoteUid joined');
-          // Handle the remote user joining
-          _handleRemoteUserJoined(remoteUid);
-        },
+      await [Permission.camera, Permission.microphone].request();
+      // Initialize the client
+      await client.initialize();
+      await client.engine.muteLocalVideoStream(LocaleHandler.camOn);
+      await client.engine.muteLocalAudioStream(LocaleHandler.micOn);
+      await client.engine.startPreview();
+      client.engine.registerEventHandler(
+        RtcEngineEventHandler(
+          onUserJoined: (connection, remoteUid, elapsed) {
+            remoteUserJoined=true;
+            print('Remote user $remoteUid joined');
+            // Handle the remote user joining
+            _handleRemoteUserJoined(remoteUid);
+          },
 
-        onUserOffline: (connection, remoteUid, reason) {
-          print('Remote user $remoteUid left channel');
-          // Handle the remote user cutting the call
-          _handleRemoteUserLeft();
-        },
-        onFirstRemoteVideoFrame: (connection, remoteUid, width, height, elapsed) {
-          print('First remote video frame received from user $remoteUid');
-          setState(() {});
-          // You can trigger UI updates or handle the remote video frame here
-        },
-      ),
-    );
-    final ChannelMediaOptions options = const ChannelMediaOptions(
-      autoSubscribeVideo: true,
-      autoSubscribeAudio: true,
-    );
-    await client.engine.joinChannel(
-      token: LocaleHandler.rtctoken,  // Pass the token here
-      channelId: LocaleHandler.channelId,  // Pass the channel ID here
-      uid: 0, options: options,  // Auto-assign UID if not required
-    );}catch (e) {
+          onUserOffline: (connection, remoteUid, reason) {
+            print('Remote user $remoteUid left channel');
+            // Handle the remote user cutting the call
+            _handleRemoteUserLeft();
+          },
+          onFirstRemoteVideoFrame: (connection, remoteUid, width, height, elapsed) {
+            print('First remote video frame received from user $remoteUid');
+            setState(() {});
+            // You can trigger UI updates or handle the remote video frame here
+          },
+        ),
+      );
+      const ChannelMediaOptions options = ChannelMediaOptions(
+        autoSubscribeVideo: true,
+        autoSubscribeAudio: true,
+      );
+      await client.engine.joinChannel(
+        token: LocaleHandler.rtctoken,  // Pass the token here
+        channelId: LocaleHandler.channelId,  // Pass the channel ID here
+        uid: 0, options: options,  // Auto-assign UID if not required
+      );}catch (e) {
       print('Error initializing Agora: $e');
     }finally {
       setState(() {_isLoading = false;});
@@ -164,22 +167,22 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
     final timerProvider = Provider.of<TimerProvider>(context);
     final duration = timerProvider.duration;
     final formattedTime = "${duration.inMinutes.toString().padLeft(2, '0')}:${(duration.inSeconds % 60).toString().padLeft(2, '0')}";
-
+    final size =MediaQuery.of(context).size;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-    if (formattedTime == "00:00") {
-      print("disconnect");
-      timerProvider.stopTimer();
-      timerProvider.resetTimer();
-      _onExit();
-      Get.offAll(() => const FeedbackVideoChatScreen());
-    }});
+      if (formattedTime == "00:00") {
+        print("disconnect");
+        timerProvider.stopTimer();
+        timerProvider.resetTimer();
+        _onExit();
+        Get.offAll(() => const FeedbackVideoChatScreen());
+      }});
 
     return PopScope(
       canPop: false,
       child: Scaffold(
         backgroundColor: color.txtWhite,
         body:  SafeArea(
-          child:_isLoading?const Center(child: CircularProgressIndicator(color: color.txtBlue)): Stack(
+          child:_isLoading?const Center(child: CircularProgressIndicator(color: color.txtBlue)) : Stack(
             children: [
               AgoraVideoViewer(
                 client: client,
@@ -189,55 +192,98 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                 enableHostControls: true,
                 renderModeType: RenderModeType.renderModeHidden,
                 showAVState: true,
+                disabledVideoWidget:  Container(
+                  padding: EdgeInsets.all(20),
+                  color: Colors.black,
+                  child: CachedNetworkImage(imageUrl: LocaleHandler.eventParticipantData["avatar"],
+                      fit: BoxFit.cover,
+                      imageBuilder: (context, imageProvider) => Container(decoration: BoxDecoration(shape: BoxShape.circle, image: DecorationImage(image: imageProvider, fit: BoxFit.cover))),
+                      placeholder: (ctx, url) => const Center(child: SizedBox()),
+                      errorWidget: (context, url, error) => ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.asset(AssetsPics.demouser))),),//LocaleHandler.eventParticipantData["avatar"]
               ),
               AgoraVideoButtons(
-                  client: client,
-                  autoHideButtons: false,
-                  autoHideButtonTime: 5,
-                  enabledButtons: const [
-                    // BuiltInButtons.callEnd,
-                    // BuiltInButtons.toggleMic,
-                    // BuiltInButtons.toggleCamera,
-                  ],
-                  extraButtons: [
-                    GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            LocaleHandler.micOn = !LocaleHandler.micOn;});
-                          // _engine.muteLocalAudioStream(micOnn);
-                          client.engine.muteLocalAudioStream(LocaleHandler.micOn);
-                        },
-                        child: SizedBox(height: 60, width: 60, child: SvgPicture.asset(LocaleHandler.micOn ? AssetsPics.micOff : AssetsPics.micOn))),
-                    //AssetsPics.microphoneOn:AssetsPics.microphone
-                    const SizedBox(width: 20),
-                    GestureDetector(
-                        onTap: () {
-                          if (formattedTime != "00:00") {
-                            customBuilderSheet(
-                                context, 'Is everything OK?', "Submit",
-                                heading: LocaleText.feedbackguide1, onTap: () {
-                              timerProvider.stopTimer();
-                              // timerProvider.resetTimer();
-                              // _engine.leaveChannel();
-                              print("LocaleHandler.eventParticipantData====${LocaleHandler.eventParticipantData["participantId"]}");
-                              timerProvider.videoCallReport(LocaleHandler.eventParticipantData["participantId"], reportReason);
-                              client.engine.leaveChannel();
-                              _onExit();
-                              print("disconnect");
-                              Get.offAll(() => const FeedbackVideoChatScreen());
-                            });
-                            // Get.back();
-                          }
-                        },
-                        child: SizedBox(height: 60, width: 60, child: SvgPicture.asset(AssetsPics.callCut))),
-                    const SizedBox(width: 20),
-                    GestureDetector(
-                        onTap: ()async {
-                          setState(() {LocaleHandler.camOn = !LocaleHandler.camOn;});
-                          await client.engine.muteLocalVideoStream(LocaleHandler.camOn);
-                        },
-                        child: SizedBox(height: 60, width: 60, child: SvgPicture.asset(LocaleHandler.camOn ? AssetsPics.camOff : AssetsPics.camOn))),
-                  ]),
+                client: client,
+                autoHideButtons: false,
+                autoHideButtonTime: 5,
+                enabledButtons: const [
+                  // BuiltInButtons.callEnd,
+                  // BuiltInButtons.toggleMic,
+                  // BuiltInButtons.toggleCamera,
+                ],
+                extraButtons: [
+                  GestureDetector(
+                      onTap: () {
+                        setState(() {LocaleHandler.micOn = !LocaleHandler.micOn;});
+                        // _engine.muteLocalAudioStream(micOnn);
+                        client.engine.muteLocalAudioStream(LocaleHandler.micOn);
+                        // (client.enableLocalVideo(!mute));
+                        // client.agoraEventHandlers.enableLocalVideo(!mute);
+                      },
+                      child: SizedBox(height: 60, width: 60, child: SvgPicture.asset(LocaleHandler.micOn ? AssetsPics.micOff : AssetsPics.micOn))),
+                  //AssetsPics.microphoneOn:AssetsPics.microphone
+                  const SizedBox(width: 20),
+                  GestureDetector(
+                      onTap: () {
+                        if (formattedTime != "00:00") {
+                          customBuilderSheet(
+                              context, 'Is everything OK?', "Submit",
+                              heading: LocaleText.feedbackguide1, onTap: () {
+                            timerProvider.stopTimer();
+                            // timerProvider.resetTimer();
+                            // _engine.leaveChannel();
+                            print("LocaleHandler.eventParticipantData====${LocaleHandler.eventParticipantData["participantId"]}");
+                            timerProvider.videoCallReport(LocaleHandler.eventParticipantData["participantId"], reportReason);
+                            client.engine.leaveChannel();
+                            _onExit();
+                            print("disconnect");
+                            Get.offAll(() => const FeedbackVideoChatScreen());
+                          });
+                          // Get.back();
+                        }
+                      },
+                      child: SizedBox(height: 60, width: 60, child: SvgPicture.asset(AssetsPics.callCut))),
+                  const SizedBox(width: 20),
+                  GestureDetector(
+                      onTap: () async {
+                        setState(() {LocaleHandler.camOn = !LocaleHandler.camOn;});
+                        await client.engine.muteLocalVideoStream(LocaleHandler.camOn);
+
+                        // await client.engine.enableLocalVideo(LocaleHandler.camOn);
+                        // await client.engine.muteAllRemoteVideoStreams(LocaleHandler.camOn);
+                        // await client.engine.disableVideo();
+                        // await client.engine.enableVideo();
+                        // await client.engine.enableVideo();
+                        final options = WatermarkOptions(
+                          position: 1,  // Position (e.g., top-left)
+                          scale: 0.1,   // Scale the watermark to 10% of its original size
+                          alpha: 0.5,   // Set transparency to 50%
+                        );
+
+                        // await client.engine.addVideoWatermark(watermarkUrl: AssetsPics.eyeOff, options: options);
+                        // await client.engine.enableVideoImageSource(enable: true, options: options);
+                        // await client.agoraEventHandlers.onLocalVideoStateChanged(e){};
+                        // await client.engine.
+
+
+
+
+                      },
+                      child: SizedBox(height: 60, width: 60, child: SvgPicture.asset(LocaleHandler.camOn ? AssetsPics.camOff : AssetsPics.camOn))),
+                ],
+
+                addScreenSharing: false,
+                cloudRecordingEnabled: true,
+                verticalButtonPadding: 20.0,
+                // buttonAlignment: Alignment.bottomCenter,
+                cloudRecordingButtonWidget: Text("cloudRecordingButtonWidget"),
+                disableVideoButtonChild: Text("disableVideoButtonChild"),
+                disconnectButtonChild: Text("disconnectButtonChild"),
+                muteButtonChild: Text("muteButtonChild"),
+                screenSharingButtonWidget:Text("screenSharingButtonWidget") ,
+                switchCameraButtonChild: Text("switchCameraButtonChild"),
+                onDisconnect: (){print("onDisconnect");},
+              ),
+              // AgoraUIKit(),
               Align(
                 alignment: Alignment.topCenter,
                 child: Container(
@@ -257,45 +303,62 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
                     child: SizedBox(height: 26, width: 26, child: SvgPicture.asset(AssetsPics.camrotate))),
               ),
 
-              StreamBuilder<DocumentSnapshot>(
-                  stream: FireStoreService().getCallStatusStream(),
-                  builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
-                    if (snapshot.hasError) {return buildSizedBox();}
-                    if (!snapshot.hasData || !snapshot.data!.exists) {return buildSizedBox();}
-                    else if (snapshot.hasData) {
-                      var data = snapshot.data!.data() as Map<String, dynamic>;
-                      if (data['callstatus'] == "wait" && data['createdUserId'] == LocaleHandler.userId) {
-                        print(";-;-;-;-${data['callstatus']}");
-                        return  Center(child: blue_buttonwidehi(context, "Waiting for you date to join..."));
-                      }
-                      else if (data['callstatus'] == "accept") {
-                        print(";-;-;-;-${data['callstatus']}");
-                        if(onlyacepctonce){
-                          onlyacepctonce=false;
-                        Provider.of<TimerProvider>(context, listen: false).vstopTimerr();}
-                        return const SizedBox();}
-                      else if (data['callstatus'] == "reject" ) {
-                        print(";-;-;-;-${data['callstatus']}");
-                        if(onlyrejectonce) {
-                          onlyrejectonce=false;
-                          Provider.of<TimerProvider>(context, listen: false).vstopTimerr();
-                          WidgetsBinding.instance.addPostFrameCallback((_) {
-                              onlyrejectonce = false;
-                              showToastMsg("${LocaleHandler.eventParticipantData["firstName"]} is didn't Pick you call");
-                              if (LocaleHandler.dateno == LocaleHandler.totalDate) {LocaleHandler.dateno = 0;
-                              LocaleHandler.totalDate = 1;
-                              showToastMsg("Event is over");
-                                Get.offAll(() => BottomNavigationScreen());
-                                Provider.of<TimerProvider>(context, listen: false).stopTimerr();}
-                              else {Get.offAll(() => WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));}
-                          });
-                        }
-
-                      }}
-                    return buildSizedBox();
-                  },
+              LocaleHandler.camOn && remoteUserJoined?
+              Positioned(
+                top: 4,
+                right: 4,
+                child: Container(
+                  height: size.height*0.22,
+                  width: size.width*0.34,
+                  padding: EdgeInsets.all(15),
+                  decoration: BoxDecoration( color: Colors.grey,borderRadius: BorderRadius.circular(20)),
+                  child: CachedNetworkImage(imageUrl: LocaleHandler.avatar,
+                      // fit: BoxFit.cover,
+                      imageBuilder: (context, imageProvider) => Container(decoration: BoxDecoration(shape: BoxShape.circle, image: DecorationImage(image: imageProvider, fit: BoxFit.cover))),
+                      placeholder: (ctx, url) => const Center(child: SizedBox()),
+                      errorWidget: (context, url, error) => ClipRRect(borderRadius: BorderRadius.circular(20), child: Image.asset(AssetsPics.demouser))),
                 ),
+              ) :const SizedBox(),
 
+
+              StreamBuilder<DocumentSnapshot>(
+                stream: FireStoreService().getCallStatusStream(),
+                builder: (BuildContext context, AsyncSnapshot<DocumentSnapshot> snapshot) {
+                  if (snapshot.hasError) {return buildSizedBox();}
+                  if (!snapshot.hasData || !snapshot.data!.exists) {return buildSizedBox();}
+                  else if (snapshot.hasData) {
+                    var data = snapshot.data!.data() as Map<String, dynamic>;
+                    if (data['callstatus'] == "wait" && data['createdUserId'] == LocaleHandler.userId) {
+                      print(";-;-;-;-${data['callstatus']}");
+                      return  Center(child: blue_buttonwidehi(context, "Waiting for you date to join..."));
+                    }
+                    else if (data['callstatus'] == "accept") {
+                      print(";-;-;-;-${data['callstatus']}");
+                      if(onlyacepctonce){
+                        onlyacepctonce=false;
+                        Provider.of<TimerProvider>(context, listen: false).vstopTimerr();}
+                      return const SizedBox();}
+                    else if (data['callstatus'] == "reject" ) {
+                      print(";-;-;-;-${data['callstatus']}");
+                      if(onlyrejectonce) {
+                        onlyrejectonce=false;
+                        Provider.of<TimerProvider>(context, listen: false).vstopTimerr();
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          onlyrejectonce = false;
+                          showToastMsg("${LocaleHandler.eventParticipantData["firstName"]} is didn't Pick you call");
+                          if (LocaleHandler.dateno == LocaleHandler.totalDate) {LocaleHandler.dateno = 0;
+                          LocaleHandler.totalDate = 1;
+                          showToastMsg("Event is over");
+                          Get.offAll(() => BottomNavigationScreen());
+                          Provider.of<TimerProvider>(context, listen: false).stopTimerr();}
+                          else {Get.offAll(() => WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));}
+                        });
+                      }
+
+                    }}
+                  return buildSizedBox();
+                },
+              ),
             ],
           ),
         ),
@@ -306,9 +369,9 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
   String reportReason="";
   customBuilderSheet(BuildContext context, String title, String btnTxt,
       {required String heading, VoidCallback? onTapp = pressed,
-      VoidCallback? onTap = pressed, bool? forAdvanceTap}) {
+        VoidCallback? onTap = pressed, bool? forAdvanceTap}) {
     return showGeneralDialog(
-      barrierDismissible: true,
+        barrierDismissible: true,
         barrierLabel: "Label",
         transitionDuration: const Duration(milliseconds: 500),
         context: context,
@@ -395,3 +458,14 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
 }
 
 
+class WatermarkOptions {
+  final int position;
+  final double scale;
+  final double alpha;
+
+  WatermarkOptions({
+    required this.position,
+    required this.scale,
+    required this.alpha,
+  });
+}

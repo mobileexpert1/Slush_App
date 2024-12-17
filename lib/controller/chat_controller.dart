@@ -1,15 +1,13 @@
 import 'dart:async';
 import 'dart:convert';
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:slush/constants/LocalHandler.dart';
 import 'package:slush/constants/api.dart';
-import 'package:http/http.dart'as http;
-import 'package:slush/constants/image.dart';
+import 'package:http/http.dart' as http;
 import 'package:slush/widgets/toaster.dart';
 
-class ChatController extends ChangeNotifier{
+class ChatController extends ChangeNotifier {
   bool isListEmpty = true;
   bool itemDelted = false;
   List data = [];
@@ -21,10 +19,32 @@ class ChatController extends ChangeNotifier{
   ScrollController? _controller;
   Timer? _timer;
   SlidableController _slidableController = SlidableController();
-  bool _unreadMsg=false;
-  bool get unreadMsg=>_unreadMsg;
+  bool _unreadMsg = false;
+  bool get unreadMsg => _unreadMsg;
+  String _image = "";
+  String get image => _image;
 
 
+  void getUnreadChat(bool val) {
+    _unreadMsg = val;
+    notifyListeners();
+  }
+
+  void getChatPersonImage(String img) {
+    _image = img;
+    notifyListeners();
+  }
+
+
+  //-- not use
+  void _startTimer() {
+    _timer?.cancel();
+    getChat();
+    _timer = Timer.periodic(const Duration(seconds: 15), (timer) {
+      getChat();
+    });
+    notifyListeners();
+  }
   Future getChat() async {
     final url = "${ApiList.getSingleChat}?page=$_page&limit=50";
     print(url);
@@ -35,15 +55,18 @@ class ChatController extends ChangeNotifier{
     });
     var i = jsonDecode(response.body)["data"];
     if (response.statusCode == 200) {
-        data = i["items"];
-        if (i["meta"]["totalItems"] == 0) {isListEmpty = true;
-        } else {isListEmpty = false;}
-        totalpages = i["meta"]["totalPages"];
-        totalItems = i["meta"]["totalItems"];
-        currentpage = i["meta"]["currentPage"];
-        if (totalItems == 0) {
-          data.length = 1;
-        }
+      data = i["items"];
+      if (i["meta"]["totalItems"] == 0) {
+        isListEmpty = true;
+      } else {
+        isListEmpty = false;
+      }
+      totalpages = i["meta"]["totalPages"];
+      totalItems = i["meta"]["totalItems"];
+      currentpage = i["meta"]["currentPage"];
+      if (totalItems == 0) {
+        data.length = 1;
+      }
     } else if (response.statusCode == 401) {
       showToastMsgTokenExpired();
     } else {}
@@ -55,7 +78,7 @@ class ChatController extends ChangeNotifier{
         _isLoadMoreRunning == false &&
         currentpage < totalpages &&
         _controller!.position.extentAfter < 300) {
-        _isLoadMoreRunning = true;
+      _isLoadMoreRunning = true;
       _page = _page + 1;
       final url = "${ApiList.getSingleChat}?page=$_page&limit=50";
       print(url);
@@ -64,29 +87,20 @@ class ChatController extends ChangeNotifier{
         'Content-Type': 'application/json',
         'Authorization': 'Bearer ${LocaleHandler.accessToken}'
       });
-        _isLoadMoreRunning = false;
+      _isLoadMoreRunning = false;
       if (response.statusCode == 200) {
-          var i = jsonDecode(response.body)['data'];
-          currentpage = i["meta"]["currentPage"];
-          final List fetchedPosts = i["items"];
-          if (fetchedPosts.isNotEmpty) {
-              data.addAll(fetchedPosts);
-          }
+        var i = jsonDecode(response.body)['data'];
+        currentpage = i["meta"]["currentPage"];
+        final List fetchedPosts = i["items"];
+        if (fetchedPosts.isNotEmpty) {
+          data.addAll(fetchedPosts);
+        }
       }
     }
     notifyListeners();
   }
 
-  void _startTimer() {
-    _timer?.cancel();
-    getChat();
-    _timer = Timer.periodic(const Duration(seconds: 15), (timer) {
-      getChat();
-    });
-    notifyListeners();
-  }
-
-  void chatDelete(BuildContext context ,int id, int i) async {
+  void chatDelete(BuildContext context, int id, int i) async {
     final url = "${ApiList.getSingleChat}$id/deleteconversation";
     print(url);
     var uri = Uri.parse(url);
@@ -100,10 +114,4 @@ class ChatController extends ChangeNotifier{
     } else {}
     notifyListeners();
   }
-
-  void getUnreadChat(bool val){
-    _unreadMsg=val;
-    notifyListeners();
-  }
-
 }

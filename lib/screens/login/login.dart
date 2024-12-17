@@ -274,9 +274,7 @@ class _LoginScreenState extends State<LoginScreen> {
           decoration: BoxDecoration(
               color: color.txtWhite,
               borderRadius: BorderRadius.circular(8),
-              border: Border.all(
-                  color: enableField.value == txt ? color.txtBlue : color.txtWhite,
-                  width: 1)),
+              border: Border.all(color: enableField.value == txt ? color.txtBlue : color.txtWhite, width: 1)),
           child: TextFormField(
             textInputAction: TextInputAction.done,
             onTap: press,

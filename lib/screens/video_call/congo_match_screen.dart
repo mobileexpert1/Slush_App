@@ -28,6 +28,34 @@ class CongratMatchScreen extends StatefulWidget {
 }
 
 class _CongratMatchScreenState extends State<CongratMatchScreen> {
+
+  void callContinueEvent(){
+
+    setState(() {
+      LocaleHandler.isThereAnyEvent = false;
+      LocaleHandler.isThereCancelEvent = false;
+      LocaleHandler.unMatchedEvent = false;
+      LocaleHandler.subScribtioonOffer = false;
+    });
+    // Provider.of<TimerProvider>(context,listen: false).gotoWaitingRoom();
+    if (widget.likedscreen) {Get.back();}
+    else {
+      if (LocaleHandler.dateno == LocaleHandler.totalDate) {
+        LocaleHandler.dateno = 0;
+        LocaleHandler.totalDate = 1;
+        showToastMsg("Event is over");
+        customRatingSheet(context: context, title: "How’s your\nexperience so far?", heading: "We’d love to know!");
+        Get.offAll(() => BottomNavigationScreen());
+        Provider.of<TimerProvider>(context, listen: false).stopTimerr();
+      } else {
+        Get.offAll(() => WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));
+      }
+    }
+    // Get.offAll(()=> BottomNavigationScreen());
+    // Get.back();
+    // Get.back();
+    // Get.back();
+  }
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
@@ -60,33 +88,7 @@ class _CongratMatchScreenState extends State<CongratMatchScreen> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       GestureDetector(
-                        onTap: () {
-                          setState(() {
-                            LocaleHandler.isThereAnyEvent = false;
-                            LocaleHandler.isThereCancelEvent = false;
-                            LocaleHandler.unMatchedEvent = false;
-                            LocaleHandler.subScribtioonOffer = false;
-                          });
-                          // Provider.of<TimerProvider>(context,listen: false).gotoWaitingRoom();
-
-                          if (widget.likedscreen) {
-                            Get.back();
-                          } else {
-                            if (LocaleHandler.dateno == LocaleHandler.totalDate) {
-                              LocaleHandler.dateno = 0;
-                              LocaleHandler.totalDate = 1;
-                              showToastMsg("Event is over");
-                              customRatingSheet(context: context, title: "How’s your\nexperience so far?", heading: "We’d love to know!");
-                              Get.offAll(() => BottomNavigationScreen());
-                              Provider.of<TimerProvider>(context, listen: false).stopTimerr();
-                            } else {
-                              Get.offAll(() => WaitingCompletedFeedBack(data: LocaleHandler.eventdataa));
-                            }
-                          }
-                          // Get.offAll(()=> BottomNavigationScreen());
-                          // Get.back();
-                          // Get.back();
-                          // Get.back();
+                        onTap: () {callContinueEvent();
                         },
                         child: Container(
                           height: 26,
@@ -96,12 +98,10 @@ class _CongratMatchScreenState extends State<CongratMatchScreen> {
                               shape: BoxShape.circle,
                               color: Colors.white,
                               boxShadow: [
-                                BoxShadow(
-                                    color: Colors.black12,
-                                    blurRadius: 20.0,
-                                    offset: Offset(0.0, 10.0))
+                                BoxShadow(color: Colors.black12, blurRadius: 20.0, offset: Offset(0.0, 10.0))
                               ]),
-                          child: const Icon(Icons.clear, color: color.txtBlue, size: 20),
+                          child: const Icon(Icons.clear,
+                              color: color.txtBlue, size: 20),
                         ),
                       )
                     ],
@@ -111,7 +111,8 @@ class _CongratMatchScreenState extends State<CongratMatchScreen> {
                   buildText2("Congratulations!", 28, FontWeight.w600, color.txtWhite),
                   const SizedBox(height: 22),
                   // buildText2("“Steve liked you back”", 16, FontWeight.w500, color.txtWhite,fontFamily: FontFamily.hellix),
-                  buildText2("“${LocaleHandler.eventParticipantData["firstName"]} liked you back”",
+                  buildText2(
+                      "“${LocaleHandler.eventParticipantData["firstName"]} liked you back”",
                       16, FontWeight.w500, color.txtWhite, fontFamily: FontFamily.hellix),
                   const SizedBox(height: 20),
                   // SvgPicture.asset("assets/sample/matchingSample.svg"),
@@ -125,7 +126,8 @@ class _CongratMatchScreenState extends State<CongratMatchScreen> {
                         child: RotationTransition(
                             turns: const AlwaysStoppedAnimation(10 / 360),
                             child: Container(
-                                decoration: BoxDecoration(color: Colors.white54,
+                                decoration: BoxDecoration(
+                                    color: Colors.white54,
                                     borderRadius: BorderRadius.circular(40)),
                                 padding: const EdgeInsets.all(4),
                                 height: 19.h,
@@ -136,7 +138,7 @@ class _CongratMatchScreenState extends State<CongratMatchScreen> {
                                     child: CachedNetworkImage(
                                         imageUrl: LocaleHandler.eventParticipantData["avatar"],
                                         fit: BoxFit.cover,
-                                        errorWidget: (context, url, error) => Image.asset(AssetsPics.demouser,height: 19.h,width: 17.h))))),
+                                        errorWidget: (context, url, error) => Image.asset(AssetsPics.demouser, height: 19.h, width: 17.h))))),
                       ),
                       Positioned(
                         bottom: 40.0,
@@ -157,7 +159,7 @@ class _CongratMatchScreenState extends State<CongratMatchScreen> {
                                         CachedNetworkImage(
                                             imageUrl: LocaleHandler.avatar,
                                             fit: BoxFit.cover,
-                                            errorWidget: (context, url, error) => Image.asset(AssetsPics.demouser,height: 19.h,width: 17.h))))),
+                                            errorWidget: (context, url, error) => Image.asset(AssetsPics.demouser, height: 19.h, width: 17.h))))),
                       ),
                       Positioned(
                           top: 30.0,
@@ -170,8 +172,7 @@ class _CongratMatchScreenState extends State<CongratMatchScreen> {
                       Positioned(
                           top: 27.0,
                           right: 150.0,
-                          child: CircleAvatar(
-                              backgroundColor: Colors.white,
+                          child: CircleAvatar(backgroundColor: Colors.white,
                               // color: Colors.red,
                               child: SvgPicture.asset(AssetsPics.redHeart))),
                       Positioned(
@@ -186,47 +187,54 @@ class _CongratMatchScreenState extends State<CongratMatchScreen> {
                   /*Image.asset(AssetsPics.matchingSample),*/
 
                   const Spacer(),
-                  blue_button(context, "Chat", press: () {
-                    if (widget.likedscreen) {
-                      Get.to(() => TextChatScreen(id:
-                      LocaleHandler.eventParticipantData["userId"], name: LocaleHandler.eventParticipantData["firstName"],));
-                    } else {
-                      customSparkBottomSheeet(
-                          context,
-                          AssetsPics.guide2,
-                          "Are you sure you want to leave the event",
-                          "Cancel",
-                          "Leave", onTap2: () {
-                        Get.back();
-                        Get.to(() => TextChatScreen(id: LocaleHandler.eventParticipantData["userId"], name: LocaleHandler.eventParticipantData["firstName"],
-                            ));
-                      });
-                    }
-                  }),
-                  const SizedBox(height: 15),
-                  white_button(context, "View your match list", press: () {
-                    if (widget.likedscreen) {
-                      setState(() {LocaleHandler.bottomSheetIndex = 3;});
-                      // Get.to(()=>const DidnotFindAnyoneScreen());
-                      Get.offAll(() => BottomNavigationScreen());
-                    } else {
-                      customSparkBottomSheeet(
-                          context,
-                          AssetsPics.guide2,
-                          "Are you sure you want to leave the event",
-                          "Cancel",
-                          "Leave", onTap2: () {
-                        Get.back();
-                        setState(() {LocaleHandler.bottomSheetIndex = 3;});
-                        // Get.to(()=>const DidnotFindAnyoneScreen());
-                        Get.offAll(() => BottomNavigationScreen());
-                      });
-                    }
-                  }),
-                  SizedBox(
-                      height: defaultTargetPlatform == TargetPlatform.iOS
-                          ? 10
-                          : 25),
+                  widget.likedscreen
+                      ? Column(
+                          children: [
+                            blue_button(context, "Chat", press: () {
+                              if (widget.likedscreen) {
+                                Get.to(() => TextChatScreen(id: LocaleHandler.eventParticipantData["userId"],
+                                      name: LocaleHandler.eventParticipantData["firstName"],
+                                    ));
+                              } else {
+                                customSparkBottomSheeet(
+                                    context,
+                                    AssetsPics.guide2,
+                                    "Are you sure you want to leave the event",
+                                    "Cancel",
+                                    "Leave", onTap2: () {
+                                  Get.back();
+                                  Get.to(() => TextChatScreen(
+                                        id: LocaleHandler.eventParticipantData["userId"],
+                                        name: LocaleHandler.eventParticipantData["firstName"],
+                                      ));
+                                });
+                              }
+                            }),
+                            const SizedBox(height: 15),
+                            white_button(context, "View your match list",
+                                press: () {
+                              if (widget.likedscreen) {
+                                setState(() {LocaleHandler.bottomSheetIndex = 3;});
+                                // Get.to(()=>const DidnotFindAnyoneScreen());
+                                Get.offAll(() => BottomNavigationScreen());
+                              } else {
+                                customSparkBottomSheeet(
+                                    context,
+                                    AssetsPics.guide2,
+                                    "Are you sure you want to leave the event",
+                                    "Cancel",
+                                    "Leave", onTap2: () {
+                                  Get.back();
+                                  setState(() {LocaleHandler.bottomSheetIndex = 3;});
+                                  // Get.to(()=>const DidnotFindAnyoneScreen());
+                                  Get.offAll(() => BottomNavigationScreen());
+                                });
+                              }
+                            }),
+                          ],
+                        )
+                      : blue_button(context, "Continue", press: () {callContinueEvent();}),
+                  SizedBox(height: defaultTargetPlatform == TargetPlatform.iOS ? 10 : 25),
                 ],
               ),
             ),

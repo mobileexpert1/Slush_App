@@ -164,7 +164,6 @@ class _DetailSexualOreintScreenState extends State<DetailSexualOreintScreen> {
                       onChanged: (bool? value) {
                         if (value != null) {
                           textValue.value = value;
-                          LocaleHandler.showsexualOreintation=value;
                           LocaleHandler.showsexualOreintations=value.toString();
                         }
                       },

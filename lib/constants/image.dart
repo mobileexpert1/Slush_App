@@ -133,6 +133,7 @@ class AssetsPics{
  static const facebook = "assets/icons/facebook.png";
  static const FAQ = "assets/icons/FAQ.svg";
   static const filterIcon = "assets/icons/Filter.svg";
+  static const FilterCircle = "assets/icons/FilterCircle.svg";
   static const reelFilterIcon = "assets/icons/filterIcon.svg";
   static const floatiAction = "assets/icons/floatiAction.svg";
   static const floatiActionp = "assets/icons/floatiAction.png";

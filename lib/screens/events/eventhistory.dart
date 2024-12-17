@@ -45,7 +45,7 @@ class _EventHistoryScreenState extends State<EventHistoryScreen> {
 
   Future getEventHistory()async{
     // final url =ApiList.geteventhistory?page=1&limit=15&filter=popular;
-    const url ="${ApiList.geteventhistory}1&limit=10";
+    const url ="${ApiList.geteventhistory}1&limit=7";
     print(url);
     var uri=Uri.parse(url);
     var response=await http.post(uri,
@@ -66,14 +66,14 @@ class _EventHistoryScreenState extends State<EventHistoryScreen> {
     if (_page<totalpages&& _isLoadMoreRunning == false && currentpage<totalpages&& _controller!.position.extentAfter < 300) {
       setState(() {_isLoadMoreRunning=true;});
       _page=_page+1;
-      final url="${ApiList.geteventhistory}$_page&limit=10";
+      final url="${ApiList.geteventhistory}$_page&limit=7";
       print(url);
       var uri=Uri.parse(url);
-      var response=await http.get(uri, headers: {'Content-Type':'application/json', 'Authorization':'Bearer ${LocaleHandler.accessToken}'});
+      var response=await http.post(uri, headers: {'Content-Type':'application/json', 'Authorization':'Bearer ${LocaleHandler.accessToken}'});
       setState(() {_isLoadMoreRunning=false;});
-      if(response.statusCode==200){
+      if(response.statusCode==201){
         setState(() {
-          var i = jsonDecode(response.body)['data'];
+          var i = jsonDecode(response.body);
           currentpage=i["meta"]["currentPage"];
           final List fetchedPosts = i["items"];
           if (fetchedPosts.isNotEmpty) {setState(() {data.addAll(fetchedPosts);});}
@@ -86,8 +86,6 @@ class _EventHistoryScreenState extends State<EventHistoryScreen> {
   Widget build(BuildContext context) {
     final size=MediaQuery.of(context).size;
     return Scaffold(
-      // extendBodyBehindAppBar: true,
-      // backgroundColor: color.backGroundClr,
       appBar: commonBarWithTextleft(context,Colors.transparent, "Event History"),
       body: Stack(
         children: [
@@ -122,6 +120,8 @@ class _EventHistoryScreenState extends State<EventHistoryScreen> {
                     ):const SizedBox(),
                   ],);})
               ),
+
+
               data==null?const Padding(
                 padding: EdgeInsets.only(top: 200),
                 child: CircularProgressIndicator(color: color.txtBlue),

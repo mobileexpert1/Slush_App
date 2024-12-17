@@ -17,7 +17,9 @@ import 'package:slush/controller/profile_controller.dart';
 import 'package:slush/screens/events/bottomNavigation.dart';
 import 'package:slush/screens/getstarted/slider_scree.dart';
 import 'package:slush/screens/onboarding/introscreen.dart';
+import 'package:slush/screens/profile/rough.dart';
 import 'package:slush/screens/sign_up/create_account.dart';
+import 'package:slush/screens/sign_up/details_completed.dart';
 import 'package:slush/screens/splash/splash_controller.dart';
 
 import '../../notification.dart';
@@ -90,6 +92,8 @@ class _SplashScreenState extends State<SplashScreen> {
               Provider.of<eventController>(context, listen: false).getmeEvent(context, "me");
               Provider.of<profileController>(context, listen: false).getTotalSparks();
               Get.offAll(() => BottomNavigationScreen());
+              // Get.offAll(() => VideoCallScreen());
+              // Get.offAll(() => SignUpDetailsCompletedScreen());
               jsonString = await Preferences.getValue('filterList')??"";
               getFeedFilter();
               // initPlatformState();

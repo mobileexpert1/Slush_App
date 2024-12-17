@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 import 'package:onesignal_flutter/onesignal_flutter.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:slush/constants/LocalHandler.dart';
+import 'package:slush/constants/api.dart';
 import 'package:slush/screens/chat/chat_screen.dart';
 import 'package:slush/screens/events/bottomNavigation.dart';
 import 'package:slush/screens/matches/match_screen.dart';
@@ -145,8 +146,8 @@ class OnesignalNotificationNavigation{
   Future<void> initPlatformState() async {
     OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
     OneSignal.Debug.setAlertLevel(OSLogLevel.none);
-    if(Platform.isAndroid){OneSignal.initialize("482a292e-4c3a-48f0-ad0b-8b0f4b653fd8");}
-    else{OneSignal.initialize("4cee1d81-6350-4319-970d-3421754c0fa7");}
+    if(Platform.isAndroid){OneSignal.initialize(ApiList.android);}
+    else{OneSignal.initialize(ApiList.ios);}
     bool status=false;
     status = await  checkPermsion();
     if(status){

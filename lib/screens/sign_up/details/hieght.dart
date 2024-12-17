@@ -296,7 +296,6 @@ class _DetailHieghtScreenState extends State<DetailHieghtScreen> {
                       onChanged: (bool? value) {
                         if (value != null) {
                           textValue.value = value;
-                          LocaleHandler.showheight = value;
                           LocaleHandler.showheights = value.toString();
                         }
                       },

@@ -55,15 +55,6 @@ class Preferences {
     return prefs.getString(key);
   }
 
-  static setList(List<String> list) async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList('notificationlist', list);
-  }
-
-  static Future<List<String>> getList() async {
-    final SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getStringList('notificationlist') ?? [];
-  }
 
 /*  static setListValue(String key,String value) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();

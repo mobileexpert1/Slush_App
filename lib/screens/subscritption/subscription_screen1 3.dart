@@ -79,7 +79,7 @@ class _Subscription1State extends State<Subscription1> {
       // const Set<String> _kiOsIds = {'silver_subscription'};
       final ProductDetailsResponse response = await _iap.queryProductDetails(Platform.isAndroid?_kAndroidIds:_kiOsIds);
       setState(() {_products = response.productDetails;});
-      if (response.notFoundIDs.isEmpty && response.error == null) {print('Products not found: ${response.notFoundIDs}');}
+      if (response.notFoundIDs.isNotEmpty && response.error == null) {print('Products not found: ${response.notFoundIDs}');}
     }
   }
 
@@ -454,39 +454,57 @@ class _Subscription1State extends State<Subscription1> {
                             ),
                           ),
                         ],),*/
-                        selectedIndex==2? GestureDetector(
-                          onTap: () {
-                            selectedIndex = 2 ;
-                          },
-                          child: Container(
-                            // height: 185 ,
-                            height: MediaQuery.of(context).size.width*0.4-28 ,
-                            // width: MediaQuery.of(context).size.width/2.9,
-                            width: MediaQuery.of(context).size.width,
-                            decoration: BoxDecoration(color: color.txtBlue ,
-                                border: Border.all(color: color.example3),
-                                borderRadius: BorderRadius.circular(12)
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                              children: [
-                                SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",height: 40),
-                                // Spacer(),
-                                Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    // SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
-                                    buildText("Slush", 25, FontWeight.w600, color.txtWhite ),
-                                    buildText("Silver", 25, FontWeight.w600,color.txtWhite ),
-                                    const SizedBox(height: 6),
-                                    // buildText("£9.99", 25, FontWeight.w600, color.txtWhite ),
-                                    buildText(_products.isEmpty?"...":"${_products[0].price} /mo", 25, FontWeight.w600, color.txtWhite ),
-                                  ],
-                                ),
-                                SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",height: 40),
-                              ],
-                            ),
-                            /*Column(
+                        Container(
+                          // height: 185 ,
+                          height: MediaQuery.of(context).size.width*0.4-28 ,
+                          // width: MediaQuery.of(context).size.width/2.9,
+                          width: MediaQuery.of(context).size.width,
+                          decoration: BoxDecoration(color: color.txtBlue ,
+                              border: Border.all(color: color.example3),
+                              borderRadius: BorderRadius.circular(12)
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              // SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",height: 40),
+                              // Spacer(),
+                              Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  // SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
+                                  buildText(_products.isEmpty?"...":_products[0].title, 15, FontWeight.w600, color.txtWhite ),
+                                  // buildText("1 month subscription plan", 25, FontWeight.w600,color.txtWhite ),
+                                  buildText(_products.isEmpty?"...":_products[0].description, 15, FontWeight.w600,color.txtWhite ),
+                                  const SizedBox(height: 2),
+                                  // buildText("£9.99", 25, FontWeight.w600, color.txtWhite ),
+                                  buildText(_products.isEmpty?"...":"${_products[0].price}", 18, FontWeight.w600, color.txtWhite ),
+                                  // buildText("privacy policy", 25, FontWeight.w600,color.txtWhite ),
+                                  Text.rich(textAlign: TextAlign.center,
+                                    TextSpan(
+                                      children: <TextSpan>[
+                                        TextSpan(text: 'Privacy Policy', style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w500, color: color.txtWhite,fontFamily:FontFamily.hellix,
+                                            decoration: TextDecoration.underline,decorationColor: color.txtWhite,decorationThickness: 1),
+                                            recognizer: TapGestureRecognizer()..onTap=() async {
+                                              var url = Uri.parse('https://www.slushdating.com/privacy-policy');
+                                              if (await canLaunchUrl(url)) {await launchUrl(url, mode: LaunchMode.inAppWebView);}
+                                              else {throw 'Could not launch $url';}}),
+                                        TextSpan(text: ' and ', style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w500, color: color.txtWhite,fontFamily:FontFamily.hellix ),),
+                                        TextSpan(text: 'Terms & Conditions', style: TextStyle(fontSize: 17.sp, fontWeight: FontWeight.w500, color:color.txtWhite,fontFamily:FontFamily.hellix,
+                                            decoration: TextDecoration.underline,decorationColor: color.txtWhite,decorationThickness: 1),
+                                            recognizer: TapGestureRecognizer()..onTap=() async {
+                                              var url = Uri.parse('https://www.slushdating.com/terms-of-use');
+                                              if (await canLaunchUrl(url)) {await launchUrl(url, mode: LaunchMode.inAppWebView);}
+                                              else {throw 'Could not launch $url';}}),
+                                      ],
+                                    ),
+                                  ),
+
+                                ],
+                              ),
+                              // SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",height: 40),
+                            ],
+                          ),
+                          /*Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 SvgPicture.asset(AssetsPics.crownOn ,fit: BoxFit.fill,semanticsLabel: "Splash_svg",),
@@ -496,7 +514,7 @@ class _Subscription1State extends State<Subscription1> {
                                 buildText("£9.99", 20, FontWeight.w600, color.txtWhite ),
                               ],
                             ),*/
-                          ) ):const SizedBox(),
+                        )
                        /* Positioned(
                           // bottom: selectedIndex == 2 ? 0 : 8,
                           bottom:Platform.isAndroid ? selectedIndex == 2 ? 0 : 8 :selectedIndex == 2 ? 11 : 22,

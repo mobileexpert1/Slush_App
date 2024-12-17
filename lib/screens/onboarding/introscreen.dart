@@ -174,10 +174,11 @@ class EachPage extends StatelessWidget {
         width: size.width,
         height: size.height,
         child: Stack(
+         alignment: Alignment.center,
           children: [
             SizedBox(height: size.height,
                 width: size.width,
-                child: Image.asset(image, fit: BoxFit.fill)),
+                child: Image.asset(image, fit: BoxFit.cover)),
             SizedBox(height: size.height, width: size.width, child: SvgPicture.asset(AssetsPics.blackbackground,fit: BoxFit.cover),),
             Container(
               alignment: Alignment.topCenter,

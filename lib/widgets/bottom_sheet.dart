@@ -575,53 +575,6 @@ customDialogBoxFilter(BuildContext context, {VoidCallback?whiteTap = pressed, Vo
                                         child: Stack(
                                           alignment: Alignment.center,
                                           children: [
-                                          /*  SfSliderTheme(
-                                              data: SfSliderThemeData(
-                                                  tooltipBackgroundColor: Colors.blue, thumbRadius: 8,
-                                                  tooltipTextStyle: TextStyle(fontSize: 14)
-                                              ),
-                                              child: Consumer<loginControllerr>(builder: (context,valuee,index){
-                                                return SfSlider(
-                                                  // numberFormat: ,
-                                                    shouldAlwaysShowTooltip: false,
-                                                    // thumbIcon: CircleAvatar(radius: 50, child: Image.asset("assets/images/eventProfile.png")),
-                                                    thumbIcon: const Stack(
-                                                      alignment: Alignment.center,
-                                                      children: [
-                                                        CircleAvatar(backgroundColor: color.txtBlue),
-                                                        CircleAvatar(radius: 5, backgroundColor: color.txtWhite),
-                                                      ],
-                                                    ),
-                                                    min: 1000,
-                                                    max: 100000.0,
-                                                    value: _value.toDouble(),
-                                                    // value: valuee.value.toDouble(),
-                                                    interval: 100,
-                                                    showTicks: false,
-                                                    showLabels: false,
-                                                    enableTooltip: true,
-                                                    minorTicksPerInterval: 100,
-                                                    // onChanged: onChangee,
-                                                    onChanged: (dynamic value) {
-                                                      setState(() {_value = value.toInt();});
-                                                      Provider.of<loginControllerr>(context,listen: false).changeValue(_value);
-
-                                                    },
-                                                    activeColor: color.txtBlue,
-                                                    dividerShape: SfDividerShape(),
-                                                    tooltipShape: SfPaddleTooltipShape(),
-                                                    edgeLabelPlacement: EdgeLabelPlacement.inside,
-                                                    inactiveColor: color.lightestBlueIndicator,
-                                                    labelPlacement: LabelPlacement.betweenTicks,
-                                                    tooltipTextFormatterCallback: (
-                                                        dynamic actualValue,
-                                                        String formattedText) {
-                                                      return formatValue(
-                                                          actualValue.toDouble());
-                                                    }
-                                                );
-                                              }),
-                                            ),*/
                                      Consumer<loginControllerr>(builder: (context,valuee,index){ return SliderTheme(
                                               data: SliderTheme.of(context).copyWith(
                                                 trackHeight: 4.0,
@@ -809,6 +762,7 @@ Widget buildContainer(BuildContext context, TextEditingController controller,
         controller: controller,
         cursorColor: color.txtBlue,
         validator: validation,
+        style: const TextStyle(fontFamily: FontFamily.hellix, fontSize: 17),
         decoration: InputDecoration(
           errorStyle: const TextStyle(height: 0, fontSize: 12),
           border: InputBorder.none,
@@ -968,6 +922,7 @@ Widget buildPasswordTextField(BuildContext context, String txt, String chktxt,
         autovalidateMode: auto,
         validator: validation,
         onChanged: onchng,
+        style: const TextStyle(fontFamily: FontFamily.hellix, fontSize: 17),
         decoration: InputDecoration(
           errorStyle: const TextStyle(height: 0, fontSize: 12),
           border: InputBorder.none,
