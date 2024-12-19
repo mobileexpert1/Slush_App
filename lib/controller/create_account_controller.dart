@@ -166,9 +166,9 @@ class createAccountController extends ChangeNotifier {
     LoaderOverlay.show(context);
     try {
       final GoogleSignInAccount? googleSignInAccount =
-      await googleSignIn.signIn();
+          await googleSignIn.signIn();
       final GoogleSignInAuthentication googleSignInAuthentication =
-      await googleSignInAccount!.authentication;
+          await googleSignInAccount!.authentication;
       final AuthCredential credential = GoogleAuthProvider.credential(
         accessToken: googleSignInAuthentication.accessToken,
         idToken: googleSignInAuthentication.idToken,
@@ -215,11 +215,11 @@ class createAccountController extends ChangeNotifier {
 
   Future socialLoginUser(BuildContext context, String type, {required String socialToken, String providerName=""}) async {
     LoaderOverlay.show(context);
-    final url = ApiList.socialLogin;
+    const url = ApiList.socialLogin;
     print(url);
     var uri = Uri.parse(url);
     var response = await http.post(uri,
-        headers: <String, String>{'Content-Type': 'application/json'},
+        headers: <String, String>{ 'Content-Type' : 'application/json' },
         body: jsonEncode({
           "socialProvider": type,
           "token": socialToken,
@@ -229,9 +229,10 @@ class createAccountController extends ChangeNotifier {
     print(data);
     LoaderOverlay.hide();
     if (response.statusCode == 201) {
+      LocaleHandler.name=data["data"]["firstName"]??"";
       LocaleHandler.socialLogin="yes";
       print(LocaleHandler.accessToken);
-      if (data["data"]["emailVerifiedAt"] == true || data["data"]["nextAction"]=="none") {
+      if ((data["data"]["emailVerifiedAt"] == true && data["data"]["nextAction"]=="none")||data["data"]["nextAction"]=="none") {
         saveDetailsToLocal(data);
         Provider.of<ReelController>(context,listen: false).getVideoCount(context);
         Provider.of<profileController>(context,listen: false).getTotalSparks();
@@ -310,8 +311,8 @@ class createAccountController extends ChangeNotifier {
             // showNoMailAppsDialog(context);
           } else if (!result.didOpen && result.canOpen) {
             showDialog(context: context, builder: (_) {
-              return MailAppPickerDialog(mailApps: result.options);
-            },
+                return MailAppPickerDialog(mailApps: result.options);
+              },
             );
           }
         });

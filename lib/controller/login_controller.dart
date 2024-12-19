@@ -146,14 +146,14 @@ class loginControllerr with ChangeNotifier{
     print(url);
     var uri=Uri.parse(url);
     var response=await http.post(uri,headers: {'Content-Type': 'application/json', 'Authorization': 'Bearer ${LocaleHandler.accessToken}'},
-        body: jsonEncode({
-          // "token": LocaleHandler.fcmToken,
-          "token": OneSignal.User.pushSubscription.token,
-          "deviceId": id,
-          "deviceName": name,
-          "playerId":playerId,
-          "deviceType":devicetype
-        }));
+    body: jsonEncode({
+    // "token": LocaleHandler.fcmToken,
+    "token": OneSignal.User.pushSubscription.token,
+    "deviceId": id,
+    "deviceName": name,
+    "playerId":playerId,
+    "deviceType":devicetype
+    }));
     print("response.statusCode--${response.statusCode}");
     print(jsonDecode(response.body));
     if(response.statusCode==201){
@@ -246,11 +246,12 @@ class loginControllerr with ChangeNotifier{
       Provider.of<profileController>(context,listen: false).getTotalSparks();
       saveDAta(context,data);
       print(LocaleHandler.accessToken);
-      if (data["data"]["emailVerifiedAt"] == true || data["data"]["nextAction"]=="none") {Get.offAll(() => BottomNavigationScreen());}
+      if ((data["data"]["emailVerifiedAt"] == true && data["data"]["nextAction"]=="none")||data["data"]["nextAction"]=="none") {
+        Get.offAll(() => BottomNavigationScreen());}
       else if(data["data"]["nextAction"]!="none"){
         Provider.of<detailedController>(context,listen: false).setCurrentIndex();
-        LocaleHandler.EditProfile = false;
-        Get.offAll(()=>const DetailScreen());}
+      LocaleHandler.EditProfile = false;
+      Get.offAll(()=>const DetailScreen());}
       else if(data["data"]["nextAction"]=="fill_firstname"){
         LocaleHandler.name=providerName;
         if(LocaleHandler.name!=""){context.read<detailedController>().registerUserDetail(context, "fill_firstname");}
@@ -393,13 +394,13 @@ class loginControllerr with ChangeNotifier{
       if (kIsWeb) {deviceData = _readWebBrowserInfo(await deviceInfoPlugin.webBrowserInfo);
       } else {
         deviceData = switch (defaultTargetPlatform) {
-          TargetPlatform.android =>_readAndroidBuildData(await deviceInfoPlugin.androidInfo),
-          TargetPlatform.iOS =>_readIosDeviceInfo(await deviceInfoPlugin.iosInfo),
-          TargetPlatform.linux =>_readLinuxDeviceInfo(await deviceInfoPlugin.linuxInfo),
-          TargetPlatform.windows =>_readWindowsDeviceInfo(await deviceInfoPlugin.windowsInfo),
-          TargetPlatform.macOS =>_readMacOsDeviceInfo(await deviceInfoPlugin.macOsInfo),
-          TargetPlatform.fuchsia => <String, dynamic>{'Error:': 'Fuchsia platform isn\'t supported'},
-        };}} on PlatformException {
+        TargetPlatform.android =>_readAndroidBuildData(await deviceInfoPlugin.androidInfo),
+    TargetPlatform.iOS =>_readIosDeviceInfo(await deviceInfoPlugin.iosInfo),
+    TargetPlatform.linux =>_readLinuxDeviceInfo(await deviceInfoPlugin.linuxInfo),
+    TargetPlatform.windows =>_readWindowsDeviceInfo(await deviceInfoPlugin.windowsInfo),
+    TargetPlatform.macOS =>_readMacOsDeviceInfo(await deviceInfoPlugin.macOsInfo),
+    TargetPlatform.fuchsia => <String, dynamic>{'Error:': 'Fuchsia platform isn\'t supported'},
+    };}} on PlatformException {
       deviceData = <String, dynamic>{'Error:': 'Failed to get platform version.'};
     }
 

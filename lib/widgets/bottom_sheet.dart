@@ -378,10 +378,6 @@ void pressed() {
 // Search Filter Bottom Sheet
 var _value = 500;
 
-String formatValue(double value) {
-  return NumberFormat('#').format(value);
-}
-
 String date1 = "Select Date ";
 String datee1= DateFormat('MMM dd ,yyyy').format(DateTime.now());
 // DateTime? date3;
@@ -736,43 +732,43 @@ customDialogBoxFilter(BuildContext context, {VoidCallback?whiteTap = pressed, Vo
   );
 }
 
-Widget buildContainer(BuildContext context, TextEditingController controller,
-    {FormFieldValidator<String>? validation,
-      VoidCallback? press,
-      GestureDetector? gesture,}) {
-  return Align(
-    alignment: Alignment.center,
-    child: Container(
-      padding: const EdgeInsets.only(left: 10),
-      height: 56,
-      margin: const EdgeInsets.only(top: 20),
-      width: MediaQuery
-          .of(context)
-          .size
-          .width / 2 - 45,
-      decoration: BoxDecoration(
-          color: color.txtWhite,
-          borderRadius: BorderRadius.circular(8),
-          border: Border.all(
-              color: color.textFieldColor, width: 1)),
-      child: TextFormField(
-        readOnly: true,
-        textInputAction: TextInputAction.done,
-        onTap: press,
-        controller: controller,
-        cursorColor: color.txtBlue,
-        validator: validation,
-        style: const TextStyle(fontFamily: FontFamily.hellix, fontSize: 17),
-        decoration: InputDecoration(
-          errorStyle: const TextStyle(height: 0, fontSize: 12),
-          border: InputBorder.none,
-          contentPadding:
-          const EdgeInsets.only(left: 1, right: 1, top: 12),
-          suffixIcon: gesture,),
-      ),
-    ),
-  );
-}
+// Widget buildContainer(BuildContext context, TextEditingController controller,
+//     {FormFieldValidator<String>? validation,
+//       VoidCallback? press,
+//       GestureDetector? gesture,}) {
+//   return Align(
+//     alignment: Alignment.center,
+//     child: Container(
+//       padding: const EdgeInsets.only(left: 10),
+//       height: 56,
+//       margin: const EdgeInsets.only(top: 20),
+//       width: MediaQuery
+//           .of(context)
+//           .size
+//           .width / 2 - 45,
+//       decoration: BoxDecoration(
+//           color: color.txtWhite,
+//           borderRadius: BorderRadius.circular(8),
+//           border: Border.all(
+//               color: color.textFieldColor, width: 1)),
+//       child: TextFormField(
+//         readOnly: true,
+//         textInputAction: TextInputAction.done,
+//         onTap: press,
+//         controller: controller,
+//         cursorColor: color.txtBlue,
+//         validator: validation,
+//         style: const TextStyle(fontFamily: FontFamily.hellix, fontSize: 17),
+//         decoration: InputDecoration(
+//           errorStyle: const TextStyle(height: 0, fontSize: 12),
+//           border: InputBorder.none,
+//           contentPadding:
+//           const EdgeInsets.only(left: 1, right: 1, top: 12),
+//           suffixIcon: gesture,),
+//       ),
+//     ),
+//   );
+// }
 
 Widget selectedButton(String btntxt,Size size) {
   return Container(

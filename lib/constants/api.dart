@@ -1,22 +1,23 @@
 
 class ApiList {
   //-----Todo dev url
-  static const String baseUrl =  'https://dev-api.slushdating.com/api/v1/';
-  static const String baseUrl1 = 'https://dev-api.slushdating.com/';
-  static const String socket =  'http://dev-api.slushdating.com:3000';
-  static const String imgbaseUrl = 'https://virtual-speed-date.s3.eu-west-2.amazonaws.com/';
-  static const String android = 'c66eb930-a2bf-4181-b3d9-783c4330a359';
-  static const String ios = '5814e283-8616-4d02-aacb-dbfb8532c482';
+  // static const String baseUrl =  'https://dev-api.slushdating.com/api/v1/';
+  // static const String baseUrl1 = 'https://dev-api.slushdating.com/';
+  // static const String socket =  'http://dev-api.slushdating.com:3000';
+  // static const String imgbaseUrl = 'https://virtual-speed-date.s3.eu-west-2.amazonaws.com/';
+  // static const String android = 'c66eb930-a2bf-4181-b3d9-783c4330a359';
+  // static const String ios = '5814e283-8616-4d02-aacb-dbfb8532c482';
 
   //-----Todo prod url
-  // static const String baseUrl = 'https://api.slushdating.com/api/v1/';
-  // static const String baseUrl1 = 'https://api.slushdating.com/';
-  // static const String socket = 'http://api.slushdating.com:3002/';
-  // static const String imgbaseUrl = 'https://slush-prod.s3.eu-west-2.amazonaws.com/';
-  // static const String android = '482a292e-4c3a-48f0-ad0b-8b0f4b653fd8';
-  // static const String ios = '4cee1d81-6350-4319-970d-3421754c0fa7';
+  static const String baseUrl = 'https://api.slushdating.com/api/v1/';
+  static const String baseUrl1 = 'https://api.slushdating.com/';
+  static const String socket = 'http://api.slushdating.com:3002/';
+  static const String imgbaseUrl = 'https://slush-prod.s3.eu-west-2.amazonaws.com/';
+  static const String android = '482a292e-4c3a-48f0-ad0b-8b0f4b653fd8';
+  static const String ios = '4cee1d81-6350-4319-970d-3421754c0fa7';
 
-  //--- Events Todo
+
+  //--- Events Todode
   static const String getEvent= '${baseUrl}events?date=';
   static const String cancelEvent= '${baseUrl}events/book/';
   static const String eventDetail= '${baseUrl}events/';

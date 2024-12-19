@@ -105,6 +105,7 @@ class _VideoCallScreenState extends State<VideoCallScreen> {
             setState(() {});
             // You can trigger UI updates or handle the remote video frame here
           },
+
         ),
       );
       const ChannelMediaOptions options = ChannelMediaOptions(

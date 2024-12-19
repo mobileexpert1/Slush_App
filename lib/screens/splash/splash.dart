@@ -1,7 +1,4 @@
 import 'dart:convert';
-import 'dart:io';
-
-import 'package:agora_uikit/agora_uikit.dart';
 import 'package:firebase_dynamic_links/firebase_dynamic_links.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
@@ -17,12 +14,8 @@ import 'package:slush/controller/profile_controller.dart';
 import 'package:slush/screens/events/bottomNavigation.dart';
 import 'package:slush/screens/getstarted/slider_scree.dart';
 import 'package:slush/screens/onboarding/introscreen.dart';
-import 'package:slush/screens/profile/rough.dart';
 import 'package:slush/screens/sign_up/create_account.dart';
-import 'package:slush/screens/sign_up/details_completed.dart';
 import 'package:slush/screens/splash/splash_controller.dart';
-
-import '../../notification.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({Key? key}) : super(key: key);
@@ -34,11 +27,6 @@ class SplashScreen extends StatefulWidget {
 class _SplashScreenState extends State<SplashScreen> {
   final LocalAuthentication auth = LocalAuthentication();
   _SupportState _supportState = _SupportState.unknown;
-
-
-
-
-
 
   @override
   void initState() {
@@ -196,35 +184,35 @@ class _SplashScreenState extends State<SplashScreen> {
     } else {print('User declined or has not accepted permission');}
   }
 
-  void firebaseNotificationHandling() {
-    Permission.notification.request();
-    permission();
-    _register();
-
-    LocalNotificationService.initialize(context);
-    FirebaseMessaging.instance.getInitialMessage().then((message) {
-      if (message != null) {}
-    });
-    //forground
-
-    FirebaseMessaging.onMessage.listen((message) {
-      LocalNotificationService.display(message);
-    });
-
-    FirebaseMessaging.onBackgroundMessage(backGroundHandler);
-
-    FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
-      alert: true,
-      badge: true,
-      sound: true,
-    );
-    //Background
-    FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {});
-  }
-
-  Future<void> backGroundHandler(RemoteMessage message) async {
-    LocalNotificationService.display(message);
-  }
+  // void firebaseNotificationHandling() {
+  //   Permission.notification.request();
+  //   permission();
+  //   _register();
+  //
+  //   LocalNotificationService.initialize(context);
+  //   FirebaseMessaging.instance.getInitialMessage().then((message) {
+  //     if (message != null) {}
+  //   });
+  //   //forground
+  //
+  //   FirebaseMessaging.onMessage.listen((message) {
+  //     LocalNotificationService.display(message);
+  //   });
+  //
+  //   FirebaseMessaging.onBackgroundMessage(backGroundHandler);
+  //
+  //   FirebaseMessaging.instance.setForegroundNotificationPresentationOptions(
+  //     alert: true,
+  //     badge: true,
+  //     sound: true,
+  //   );
+  //   //Background
+  //   FirebaseMessaging.onMessageOpenedApp.listen((RemoteMessage message) {});
+  // }
+  //
+  // Future<void> backGroundHandler(RemoteMessage message) async {
+  //   LocalNotificationService.display(message);
+  // }
 }
 
 enum _SupportState {

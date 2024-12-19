@@ -175,44 +175,44 @@ Widget Faildialog(){
   );
 }
 
-Widget rejoinEvent(BuildContext context){
-  final size =MediaQuery.of(context).size;
-  return  Consumer<SplashController>(builder: (context,val,child){return
-    Visibility(
-        visible: context.watch<SplashController>().eventJoined,
-        child: Container(
-          height:  MediaQuery.of(context).size.height,
-          width:  MediaQuery.of(context).size.height,
-          color: Colors.black54,
-          child: AlertDialog(
-            surfaceTintColor: Colors.transparent,
-            backgroundColor: Colors.white,
-            title: buildText2('Rejoin the event', 20, FontWeight.w600, color.txtBlack),
-            content: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                // buildText2('Authentication is required to access the slush app', 18, FontWeight.w400, color.txtBlack),
-                const Divider(),
-                Row(
-                  children: [
-                    GestureDetector(onTap: () {
-                      context.read<SplashController>().rejoinedeventrequest();
-                    }, child: Container(
-                        padding: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: color.txtBlue),
-                        child: buildText('Join again', 17, FontWeight.w600, color.txtWhite))),
-                    const Spacer(),
-                    GestureDetector(onTap: () {
-                      context.read<SplashController>().removeData();
-                    }, child: Container(
-                        padding: const EdgeInsets.all(5),
-                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: Colors.black12),
-                        child: buildText('cancel', 17, FontWeight.w600, color.txtBlack)))
-                  ],
-                )
-              ],
-            ),
-          ),
-        ));
-  });
-}
+// Widget rejoinEvent(BuildContext context){
+//   final size =MediaQuery.of(context).size;
+//   return  Consumer<SplashController>(builder: (context,val,child){return
+//     Visibility(
+//         visible: context.watch<SplashController>().eventJoined,
+//         child: Container(
+//           height:  MediaQuery.of(context).size.height,
+//           width:  MediaQuery.of(context).size.height,
+//           color: Colors.black54,
+//           child: AlertDialog(
+//             surfaceTintColor: Colors.transparent,
+//             backgroundColor: Colors.white,
+//             title: buildText2('Rejoin the event', 20, FontWeight.w600, color.txtBlack),
+//             content: Column(
+//               mainAxisSize: MainAxisSize.min,
+//               children: [
+//                 // buildText2('Authentication is required to access the slush app', 18, FontWeight.w400, color.txtBlack),
+//                 const Divider(),
+//                 Row(
+//                   children: [
+//                     GestureDetector(onTap: () {
+//                       context.read<SplashController>().rejoinedeventrequest();
+//                     }, child: Container(
+//                         padding: const EdgeInsets.all(5),
+//                         decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: color.txtBlue),
+//                         child: buildText('Join again', 17, FontWeight.w600, color.txtWhite))),
+//                     const Spacer(),
+//                     GestureDetector(onTap: () {
+//                       context.read<SplashController>().removeData();
+//                     }, child: Container(
+//                         padding: const EdgeInsets.all(5),
+//                         decoration: BoxDecoration(borderRadius: BorderRadius.circular(10), color: Colors.black12),
+//                         child: buildText('cancel', 17, FontWeight.w600, color.txtBlack)))
+//                   ],
+//                 )
+//               ],
+//             ),
+//           ),
+//         ));
+//   });
+// }

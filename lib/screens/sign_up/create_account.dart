@@ -1,6 +1,4 @@
 import 'dart:io';
-
-import 'package:cached_video_player_plus/cached_video_player_plus.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';

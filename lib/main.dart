@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:firebase_analytics/firebase_analytics.dart';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:google_mobile_ads/google_mobile_ads.dart';
@@ -18,9 +18,13 @@ import 'package:slush/services/uniservice.dart';
 import 'package:slush/utils/provider.dart';
 import 'package:wakelock_plus/wakelock_plus.dart';
 
-import 'screens/sign_up/details/profile_video.dart';
+
+import 'package:firebase_analytics/firebase_analytics.dart';
+import 'package:firebase_analytics/observer.dart';
+
 
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async {print("Handling a background message: ${message.messageId}");}
+// FirebaseAnalytics analytics = FirebaseAnalytics.instance;
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,10 +33,12 @@ Future<void> main() async {
   FirebaseAnalyticsObserver(analytics: FirebaseAnalytics.instance);
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp, DeviceOrientation.portraitDown]);
   UniServices.init();
+
   OneSignal.Debug.setLogLevel(OSLogLevel.verbose);
   if(Platform.isAndroid){OneSignal.initialize(ApiList.android);}
   else{OneSignal.initialize(ApiList.ios);}
   OneSignal.Notifications.requestPermission(true);
+  
   OneSignal.User.pushSubscription.optIn();
   InAppPurchase.instance.restorePurchases();
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);

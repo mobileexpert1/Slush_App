@@ -59,15 +59,6 @@ Future showToastMsgTokenExpired({String msg="Token Expired"}) {
   });
 }
 
-Future showAlertMsg(context, String msg ){
-  return QuickAlert.show(
-      context: context,
-      type: QuickAlertType.success,
-      text: msg,
-      autoCloseDuration: const Duration(seconds: 5)
-  );
-}
-
 SnackbarController snackBaar(BuildContext context,String img,bool isPng){
   return Get.snackbar('', '',
     snackPosition: SnackPosition.TOP,
@@ -99,45 +90,4 @@ SnackbarController snackBaar(BuildContext context,String img,bool isPng){
     isDismissible: true,);
 }
 
-SnackbarController snackBaarblue(BuildContext context,String img,String txt){
-  return Get.snackbar('', '',
-      snackPosition: SnackPosition.TOP,
-      margin: EdgeInsets.zero,
-      padding: EdgeInsets.zero,
-      backgroundColor: Colors.transparent,
-      borderRadius: 0.0,
-      titleText: Stack(
-        alignment: Alignment.center,
-        children: [
-          SizedBox(
-              width: MediaQuery.of(context).size.width,
-              child: SvgPicture.asset(img,fit: BoxFit.cover)),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Container(
-                transform: Matrix4.translationValues(MediaQuery.of(context).size.width * -.11, 0, 0.0),
-                child: SvgPicture.asset(AssetsPics.bannerheart),
-              ),
-              Container(
-                transform: Matrix4.translationValues(MediaQuery.of(context).size.width * .01, 0, 10.0),
-                child: SvgPicture.asset(AssetsPics.bannerheart),
-              ),
-            ],),
-          Container(padding: const EdgeInsets.only(top: 0,left: 10,right: 10,bottom: 15),
-              child: buildText2(txt, 20, FontWeight.w600,color.txtWhite)),
-        ],
-      ),
-      shouldIconPulse: true,
-      maxWidth: MediaQuery.of(context).size.width,
-      snackStyle: SnackStyle.FLOATING,
-      borderWidth: 0.0,
-      overlayBlur: 0.0,
-
-      barBlur: 0.0
-    // progressIndicatorBackgroundColor: Colors.red,
-    // icon: Icon(Icons.add),
-
-  );
-}
 

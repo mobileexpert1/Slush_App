@@ -5,8 +5,6 @@ import 'package:flutter_svg/svg.dart';
 import 'package:get/get.dart';
 import 'package:slush/constants/color.dart';
 import 'package:slush/constants/image.dart';
-import 'package:slush/screens/feed/profile.dart';
-import 'package:slush/widgets/customtoptoaster.dart';
 import 'package:slush/widgets/text_widget.dart';
 
 PreferredSizeWidget commonBar(BuildContext context,Color bg,{VoidCallback? press=onPress}) {
@@ -178,6 +176,7 @@ PreferredSizeWidget commonBarWithTextleftforChat(BuildContext context,Color bg,S
         ),
       ));
 }
+
 void onPress(){
   Get.back();
 }

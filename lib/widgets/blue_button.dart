@@ -42,21 +42,21 @@ Widget white_button(BuildContext context,String name,{VoidCallback? press}) {
   );
 }
 
-Widget white_button_woBorder(BuildContext context,String name,{VoidCallback? press}) {
-  return GestureDetector(
-    onTap: press,
-    child: Container(
-      alignment: Alignment.center,
-      height: 56,
-      width: MediaQuery.of(context).size.width,
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(12),
-          color: color.txtWhite,
-          // border: Border.all(width: 1.5,color: color.txtBlue)
-      ),
-      child: buildText(name,18,FontWeight.w600,color.txtBlue),
-    ),
-  );
-}
+// Widget white_button_woBorder(BuildContext context,String name,{VoidCallback? press}) {
+//   return GestureDetector(
+//     onTap: press,
+//     child: Container(
+//       alignment: Alignment.center,
+//       height: 56,
+//       width: MediaQuery.of(context).size.width,
+//       decoration: BoxDecoration(borderRadius: BorderRadius.circular(12),
+//           color: color.txtWhite,
+//           // border: Border.all(width: 1.5,color: color.txtBlue)
+//       ),
+//       child: buildText(name,18,FontWeight.w600,color.txtBlue),
+//     ),
+//   );
+// }
 
 Widget blue_button_half(BuildContext context,
     String name,
@@ -97,7 +97,6 @@ Widget white_button_half(BuildContext context,String name,{VoidCallback? press})
     ),
   );
 }
-
 
 Widget blue_buttonwidehi(BuildContext context,String name,{bool validation=true,VoidCallback? press,Color clr=color.disableButton}) {
   return GestureDetector(
